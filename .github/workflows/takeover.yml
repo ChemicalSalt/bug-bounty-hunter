@@ -1,24 +1,6 @@
-name: Subdomain Takeover Scanner
-
-on:
-  workflow_dispatch:
-  schedule:
-    - cron: '0 0 * * *'
-
-jobs:
-  scan:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Install Go tools
+- name: Run scan
         run: |
-          go install github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest
-          go install github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest
-
-      - name: Run scan
-        run: |
+          export PATH=$PATH:$(go env GOPATH)/bin
           subfinder -dL domains.txt -silent -o subs.txt
           nuclei -l subs.txt -t takeovers -o results.txt || true
 
