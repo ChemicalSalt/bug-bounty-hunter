@@ -1,10 +1,9 @@
-
 name: Subdomain Takeover Scanner
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # runs daily at midnight
-  workflow_dispatch:  # allows manual run
+    - cron: '0 0 * * *'
+  workflow_dispatch:
 
 jobs:
   scan:
@@ -18,14 +17,11 @@ jobs:
           go install -v github.com/projectdiscovery/httpx/cmd/httpx@latest
           go install -v github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest
 
-      - name: Run subfinder
-        run: subfinder -dL domains.txt -silent -o subs.txt
-
-      - name: Run nuclei takeover scan
-        run: nuclei -l subs.txt -t takeovers -o results.txt
+      - name: Run scan
+        run: bash subdomain-takeover/scan.sh
 
       - name: Send email if results found
-        if: ${{ hashFiles('results.txt') != '' }}
+        if: ${{ hashFiles('subdomain-takeover/results.txt') != '' }}
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
@@ -33,6 +29,6 @@ jobs:
           username: ${{ secrets.EMAIL_USER }}
           password: ${{ secrets.EMAIL_PASS }}
           subject: Takeover Hit Found!
-          body: file://results.txt
+          body: file://subdomain-takeover/results.txt
           to: ${{ secrets.EMAIL_TO }}
           from: BugBountyBot
