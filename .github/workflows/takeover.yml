@@ -15,15 +15,28 @@ jobs:
       - name: Install tools
         run: |
           go install github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest
+          go install github.com/projectdiscovery/httpx/cmd/httpx@latest
           go install github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest
 
       - name: Run scan
         run: |
           export PATH=$PATH:$(go env GOPATH)/bin
           subfinder -dL domains.txt -silent -o subs.txt
-          nuclei -l subs.txt -t takeovers -o results.txt || true
+          httpx -l subs.txt -cname -status-code -mc 404 -o cname_404.txt
+          nuclei -l cname_404.txt -t takeovers -silent -retries 2 -timeout 10 -bulk-size 25 -concurrency 25 -o results.txt || true
 
       - name: Show results
-        run: |
-          export PATH=$PATH:$(go env GOPATH)/bin
-          cat results.txt || echo "No results found"
+        run: cat results.txt || echo "No results found"
+
+      - name: Send email if results found
+        if: ${{ hashFiles('results.txt') != '' }}
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USER }}
+          password: ${{ secrets.EMAIL_PASS }}
+          subject: "Subdomain Takeover Hit Found!"
+          body: file://results.txt
+          to: ${{ secrets.EMAIL_TO }}
+          from: BugBountyBot
