@@ -1,1 +1,33 @@
+name: Exposed Files Scanner
 
+on:
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install tools
+        run: |
+          go install -v github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest
+          go install -v github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest
+
+      - name: Run scan
+        run: bash exposed-files/scan.sh
+
+      - name: Send email if results found
+        if: ${{ hashFiles('exposed-files/results.txt') != '' }}
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USER }}
+          password: ${{ secrets.EMAIL_PASS }}
+          subject: Exposed Files Found!
+          body: file://exposed-files/results.txt
+          to: ${{ secrets.EMAIL_TO }}
+          from: BugBountyBot
