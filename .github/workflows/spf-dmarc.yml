@@ -1,0 +1,171 @@
+name: SPF/DMARC Misconfiguration Scanner
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 14 * * *'
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      batches: ${{ steps.split.outputs.batches }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Split domains into batches of 25
+        id: split
+        run: |
+          total=$(wc -l < domains.txt)
+          num_batches=$(( (total + 24) / 25 ))
+          batches=$(seq 1 $num_batches | jq -R . | jq -sc .)
+          echo "batches=$batches" >> $GITHUB_OUTPUT
+
+  scan:
+    needs: prepare
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        batch: ${{ fromJson(needs.prepare.outputs.batches) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install tools
+        run: |
+          go install github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest
+          go install github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest
+
+      - name: Split domains
+        run: |
+          start=$(( (${{ matrix.batch }} - 1) * 25 + 1 ))
+          sed -n "${start},$((start + 24))p" domains.txt > batch_domains.txt
+          echo "Scanning batch ${{ matrix.batch }}:"
+          cat batch_domains.txt
+
+      - name: Run subfinder
+        run: |
+          export PATH=$PATH:$(go env GOPATH)/bin
+          subfinder -dL batch_domains.txt -silent -o subs_raw.txt
+          echo "Total subdomains found: $(wc -l < subs_raw.txt)"
+
+      - name: Filter IP-based subdomains
+        run: |
+          grep -vP '^\d+[-\.]\d+[-\.]\d+[-\.]\d+\.' subs_raw.txt > subs.txt || true
+          echo "After filtering: $(wc -l < subs.txt)"
+
+      - name: Run nuclei
+        run: |
+          export PATH=$PATH:$(go env GOPATH)/bin
+          nuclei -l subs.txt -t misconfiguration/spf-record-softfail.yaml -t misconfiguration/spf-record-missing.yaml -t misconfiguration/dmarc-missing.yaml -silent -retries 2 -timeout 10 -bulk-size 25 -concurrency 25 -o results.txt || true
+          echo "Findings: $(wc -l < results.txt 2>/dev/null || echo 0)"
+
+      - name: Show results
+        run: |
+          if [ -s results.txt ]; then
+            echo "SPF/DMARC ISSUES FOUND:"
+            cat results.txt
+          else
+            echo "No SPF/DMARC issues found in batch ${{ matrix.batch }}"
+          fi
+
+      - name: Send email if results found
+        if: success()
+        run: |
+          if [ ! -s results.txt ]; then
+            echo "No hits, skipping email"
+            exit 0
+          fi
+
+      - name: Send email
+        if: success() && hashFiles('results.txt') != ''
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USER }}
+          password: ${{ secrets.EMAIL_PASS }}
+          subject: "📧 SPF/DMARC Misconfiguration Found - Batch ${{ matrix.batch }}"
+          body: |
+            ═══════════════════════════════════
+            📧 SPF/DMARC MISCONFIGURATION FOUND
+            ═══════════════════════════════════
+            
+            What this means:
+            The target domain is missing or has weak SPF/DMARC records.
+            This allows attackers to send emails that appear to come
+            from the target domain — enabling phishing attacks against
+            the company's customers and employees.
+            
+            Missing SPF = anyone can spoof emails from this domain
+            Missing DMARC = no policy to reject spoofed emails
+            SPF Softfail (~all) = weak protection, spoofing still possible
+            
+            Severity: MEDIUM to HIGH
+            Impact: Email spoofing, phishing, brand abuse
+            
+            ───────────────────────────────────
+            FINDINGS:
+            ───────────────────────────────────
+            ${{ env.RESULTS }}
+            
+            ───────────────────────────────────
+            NEXT STEPS:
+            ───────────────────────────────────
+            1. Verify the finding manually:
+               dig TXT <domain> | grep spf
+               dig TXT _dmarc.<domain>
+            2. Confirm SPF is missing or softfail (~all instead of -all)
+            3. Confirm DMARC is missing or has p=none policy
+            4. Check if domain is in bug bounty scope
+            5. Report to bug bounty program
+            6. Include: domain, dig output screenshots, explanation
+               of spoofing impact
+            
+            ───────────────────────────────────
+            SCAN INFO:
+            ───────────────────────────────────
+            Batch: ${{ matrix.batch }}
+            Run ID: ${{ github.run_id }}
+            Time: ${{ github.run_started_at }}
+            Repository: ${{ github.repository }}
+
+          to: ${{ secrets.EMAIL_TO }}
+          from: BugBountyBot
+
+  notify-complete:
+    needs: scan
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Send completion email
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USER }}
+          password: ${{ secrets.EMAIL_PASS }}
+          subject: "✅ SPF/DMARC Scan Complete - ${{ github.run_id }}"
+          body: |
+            ═══════════════════════════════════
+            ✅ SPF/DMARC SCAN COMPLETE
+            ═══════════════════════════════════
+            
+            All batches have finished scanning.
+            If any SPF/DMARC issues were found you already received a separate email.
+            If you received no hit emails — no issues found this run.
+            
+            ───────────────────────────────────
+            SCAN INFO:
+            ───────────────────────────────────
+            Status: ${{ needs.scan.result }}
+            Run ID: ${{ github.run_id }}
+            Time: ${{ github.run_started_at }}
+            Repository: ${{ github.repository }}
+            
+            View full logs:
+            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+          to: ${{ secrets.EMAIL_TO }}
+          from: BugBountyBot
