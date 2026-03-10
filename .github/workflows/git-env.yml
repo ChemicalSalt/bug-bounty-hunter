@@ -1,0 +1,176 @@
+name: Exposed Git and Env Scanner
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 22 * * *'
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      batches: ${{ steps.split.outputs.batches }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Split domains into batches of 25
+        id: split
+        run: |
+          total=$(wc -l < domains.txt)
+          num_batches=$(( (total + 24) / 25 ))
+          batches=$(seq 1 $num_batches | jq -R . | jq -sc .)
+          echo "batches=$batches" >> $GITHUB_OUTPUT
+
+  scan:
+    needs: prepare
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        batch: ${{ fromJson(needs.prepare.outputs.batches) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install tools
+        run: |
+          go install github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest
+          go install github.com/projectdiscovery/httpx/cmd/httpx@latest
+          go install github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest
+
+      - name: Split domains
+        run: |
+          start=$(( (${{ matrix.batch }} - 1) * 25 + 1 ))
+          sed -n "${start},$((start + 24))p" domains.txt > batch_domains.txt
+          echo "Scanning batch ${{ matrix.batch }}:"
+          cat batch_domains.txt
+
+      - name: Run subfinder
+        run: |
+          export PATH=$PATH:$(go env GOPATH)/bin
+          subfinder -dL batch_domains.txt -silent -o subs_raw.txt
+          echo "Total subdomains found: $(wc -l < subs_raw.txt)"
+
+      - name: Filter IP-based subdomains
+        run: |
+          grep -vP '^\d+[-\.]\d+[-\.]\d+[-\.]\d+\.' subs_raw.txt > subs.txt || true
+          echo "After filtering: $(wc -l < subs.txt)"
+
+      - name: Run httpx
+        run: |
+          export PATH=$PATH:$(go env GOPATH)/bin
+          httpx -l subs.txt -silent -o live_hosts.txt || true
+          echo "Live hosts: $(wc -l < live_hosts.txt)"
+
+      - name: Run nuclei
+        run: |
+          export PATH=$PATH:$(go env GOPATH)/bin
+          nuclei -l live_hosts.txt -t exposures/files/git-config.yaml -t exposures/files/env-file.yaml -t exposures/files/DS-store-file.yaml -t exposures/files/htaccess-config.yaml -silent -retries 2 -timeout 10 -bulk-size 25 -concurrency 25 -o results.txt || true
+          echo "Findings: $(wc -l < results.txt 2>/dev/null || echo 0)"
+
+      - name: Show results
+        run: |
+          if [ -s results.txt ]; then
+            echo "EXPOSED GIT/ENV FILES FOUND:"
+            cat results.txt
+          else
+            echo "No exposed git/env files found in batch ${{ matrix.batch }}"
+          fi
+
+      - name: Send email if results found
+        if: success()
+        run: |
+          if [ ! -s results.txt ]; then
+            echo "No hits, skipping email"
+            exit 0
+          fi
+
+      - name: Send email
+        if: success() && hashFiles('results.txt') != ''
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USER }}
+          password: ${{ secrets.EMAIL_PASS }}
+          subject: "🔐 Exposed .git/.env File Found - Batch ${{ matrix.batch }}"
+          body: |
+            ═══════════════════════════════════
+            🔐 EXPOSED .GIT / .ENV FILE FOUND
+            ═══════════════════════════════════
+            
+            What this means:
+            A highly sensitive file is publicly accessible on the target.
+            
+            .git exposed = entire source code downloadable using git-dumper
+            .env exposed = database passwords, API keys, app secrets visible
+            .DS_Store = reveals directory structure and file names
+            .htaccess = reveals server configuration and hidden paths
+            
+            Severity: CRITICAL (.env, .git), LOW-MEDIUM (.DS_Store, .htaccess)
+            Impact: Full source code, credentials, complete compromise
+            
+            ───────────────────────────────────
+            FINDINGS:
+            ───────────────────────────────────
+            ${{ env.RESULTS }}
+            
+            ───────────────────────────────────
+            NEXT STEPS:
+            ───────────────────────────────────
+            1. For .env — open URL directly and note all variables
+            2. For .git — check /.git/config is accessible
+               then use git-dumper to download repo safely
+               pip install git-dumper
+               git-dumper <url>/.git ./output
+            3. For .DS_Store — use ds-store parser to see file list
+            4. DO NOT use any credentials found
+            5. Report immediately — this is usually Critical/High
+            6. Include: URL, file contents summary, screenshot
+            
+            ───────────────────────────────────
+            SCAN INFO:
+            ───────────────────────────────────
+            Batch: ${{ matrix.batch }}
+            Run ID: ${{ github.run_id }}
+            Time: ${{ github.run_started_at }}
+            Repository: ${{ github.repository }}
+
+          to: ${{ secrets.EMAIL_TO }}
+          from: BugBountyBot
+
+  notify-complete:
+    needs: scan
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Send completion email
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USER }}
+          password: ${{ secrets.EMAIL_PASS }}
+          subject: "✅ Git/Env Scan Complete - ${{ github.run_id }}"
+          body: |
+            ═══════════════════════════════════
+            ✅ GIT/ENV SCAN COMPLETE
+            ═══════════════════════════════════
+            
+            All batches have finished scanning.
+            If any exposed files were found you already received a separate email.
+            If you received no hit emails — no exposed files found this run.
+            
+            ───────────────────────────────────
+            SCAN INFO:
+            ───────────────────────────────────
+            Status: ${{ needs.scan.result }}
+            Run ID: ${{ github.run_id }}
+            Time: ${{ needs.scan.result }}
+            Repository: ${{ github.repository }}
+            
+            View full logs:
+            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+          to: ${{ secrets.EMAIL_TO }}
+          from: BugBountyBot
