@@ -6,11 +6,28 @@ on:
     - cron: '0 0 * * *'
 
 jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      batches: ${{ steps.split.outputs.batches }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Split domains into batches of 25
+        id: split
+        run: |
+          total=$(wc -l < domains.txt)
+          num_batches=$(( (total + 24) / 25 ))
+          batches=$(seq 1 $num_batches | jq -R . | jq -sc .)
+          echo "batches=$batches" >> $GITHUB_OUTPUT
+
   scan:
+    needs: prepare
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        batch: [1, 2]
+        batch: ${{ fromJson(needs.prepare.outputs.batches) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -23,13 +40,10 @@ jobs:
 
       - name: Split domains
         run: |
-          total=$(wc -l < domains.txt)
-          half=$(( (total + 1) / 2 ))
-          if [ "${{ matrix.batch }}" = "1" ]; then
-            head -n $half domains.txt > batch_domains.txt
-          else
-            tail -n +$(( half + 1 )) domains.txt > batch_domains.txt
-          fi
+          start=$(( (${{ matrix.batch }} - 1) * 25 + 1 ))
+          sed -n "${start},$((start + 24))p" domains.txt > batch_domains.txt
+          echo "Scanning batch ${{ matrix.batch }}:"
+          cat batch_domains.txt
 
       - name: Run scan
         run: |
