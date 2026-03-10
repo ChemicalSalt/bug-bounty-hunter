@@ -1,0 +1,182 @@
+name: CORS Misconfiguration Scanner
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 8 * * *'
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      batches: ${{ steps.split.outputs.batches }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Split domains into batches of 25
+        id: split
+        run: |
+          total=$(wc -l < domains.txt)
+          num_batches=$(( (total + 24) / 25 ))
+          batches=$(seq 1 $num_batches | jq -R . | jq -sc .)
+          echo "batches=$batches" >> $GITHUB_OUTPUT
+
+  scan:
+    needs: prepare
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        batch: ${{ fromJson(needs.prepare.outputs.batches) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install tools
+        run: |
+          go install github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest
+          go install github.com/projectdiscovery/httpx/cmd/httpx@latest
+          go install github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest
+
+      - name: Split domains
+        run: |
+          start=$(( (${{ matrix.batch }} - 1) * 25 + 1 ))
+          sed -n "${start},$((start + 24))p" domains.txt > batch_domains.txt
+          echo "Scanning batch ${{ matrix.batch }}:"
+          cat batch_domains.txt
+
+      - name: Run subfinder
+        run: |
+          export PATH=$PATH:$(go env GOPATH)/bin
+          subfinder -dL batch_domains.txt -silent -o subs_raw.txt
+          echo "Total subdomains found: $(wc -l < subs_raw.txt)"
+
+      - name: Filter IP-based subdomains
+        run: |
+          grep -vP '^\d+[-\.]\d+[-\.]\d+[-\.]\d+\.' subs_raw.txt > subs.txt || true
+          echo "After filtering: $(wc -l < subs.txt)"
+
+      - name: Run httpx
+        run: |
+          export PATH=$PATH:$(go env GOPATH)/bin
+          httpx -l subs.txt -silent -o live_hosts.txt || true
+          echo "Live hosts: $(wc -l < live_hosts.txt)"
+
+      - name: Run nuclei
+        run: |
+          export PATH=$PATH:$(go env GOPATH)/bin
+          nuclei -l live_hosts.txt -t misconfiguration/cors -silent -retries 2 -timeout 10 -bulk-size 25 -concurrency 25 -o results.txt || true
+          echo "Findings: $(wc -l < results.txt 2>/dev/null || echo 0)"
+
+      - name: Show results
+        run: |
+          if [ -s results.txt ]; then
+            echo "CORS MISCONFIGURATIONS FOUND:"
+            cat results.txt
+          else
+            echo "No CORS issues found in batch ${{ matrix.batch }}"
+          fi
+
+      - name: Send email if results found
+        if: success()
+        run: |
+          if [ ! -s results.txt ]; then
+            echo "No hits, skipping email"
+            exit 0
+          fi
+
+      - name: Send email
+        if: success() && hashFiles('results.txt') != ''
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USER }}
+          password: ${{ secrets.EMAIL_PASS }}
+          subject: "🌐 CORS Misconfiguration Found - Batch ${{ matrix.batch }}"
+          body: |
+            ═══════════════════════════════════
+            🌐 CORS MISCONFIGURATION FOUND
+            ═══════════════════════════════════
+            
+            What this means:
+            The target domain has a Cross-Origin Resource Sharing (CORS)
+            misconfiguration. This means a malicious website can make
+            requests to the target on behalf of a logged-in user and
+            read the response — stealing sensitive data, tokens or
+            personal information.
+            
+            Most critical when:
+            - Access-Control-Allow-Origin reflects attacker domain
+            - Access-Control-Allow-Credentials is true
+            - Authenticated endpoints are affected
+            
+            Severity: HIGH to CRITICAL if credentials are allowed
+            Severity: LOW to MEDIUM if credentials not allowed
+            Impact: Data theft, account takeover, sensitive info disclosure
+            
+            ───────────────────────────────────
+            FINDINGS:
+            ───────────────────────────────────
+            ${{ env.RESULTS }}
+            
+            ───────────────────────────────────
+            NEXT STEPS:
+            ───────────────────────────────────
+            1. Open the URL and send request with header:
+               Origin: https://evil.com
+            2. Check response for:
+               Access-Control-Allow-Origin: https://evil.com
+               Access-Control-Allow-Credentials: true
+            3. If both present = HIGH/CRITICAL severity
+            4. If only Allow-Origin reflects = MEDIUM severity
+            5. Test on authenticated endpoints for higher impact
+            6. Report to bug bounty program with curl proof:
+               curl -H "Origin: https://evil.com" -I <URL>
+            
+            ───────────────────────────────────
+            SCAN INFO:
+            ───────────────────────────────────
+            Batch: ${{ matrix.batch }}
+            Run ID: ${{ github.run_id }}
+            Time: ${{ github.run_started_at }}
+            Repository: ${{ github.repository }}
+
+          to: ${{ secrets.EMAIL_TO }}
+          from: BugBountyBot
+
+  notify-complete:
+    needs: scan
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Send completion email
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USER }}
+          password: ${{ secrets.EMAIL_PASS }}
+          subject: "✅ CORS Scan Complete - ${{ github.run_id }}"
+          body: |
+            ═══════════════════════════════════
+            ✅ CORS MISCONFIGURATION SCAN COMPLETE
+            ═══════════════════════════════════
+            
+            All batches have finished scanning.
+            If any CORS issues were found you already received a separate email.
+            If you received no hit emails — no CORS issues found this run.
+            
+            ───────────────────────────────────
+            SCAN INFO:
+            ───────────────────────────────────
+            Status: ${{ needs.scan.result }}
+            Run ID: ${{ github.run_id }}
+            Time: ${{ github.run_started_at }}
+            Repository: ${{ github.repository }}
+            
+            View full logs:
+            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+          to: ${{ secrets.EMAIL_TO }}
+          from: BugBountyBot
