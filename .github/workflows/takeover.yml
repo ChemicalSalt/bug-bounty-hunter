@@ -8,6 +8,9 @@ on:
 jobs:
   scan:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        batch: [1, 2]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -18,10 +21,20 @@ jobs:
           go install github.com/projectdiscovery/httpx/cmd/httpx@latest
           go install github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest
 
+      - name: Split domains
+        run: |
+          total=$(wc -l < domains.txt)
+          half=$(( (total + 1) / 2 ))
+          if [ "${{ matrix.batch }}" = "1" ]; then
+            head -n $half domains.txt > batch_domains.txt
+          else
+            tail -n +$(( half + 1 )) domains.txt > batch_domains.txt
+          fi
+
       - name: Run scan
         run: |
           export PATH=$PATH:$(go env GOPATH)/bin
-          subfinder -dL domains.txt -silent -o subs.txt
+          subfinder -dL batch_domains.txt -silent -o subs.txt
           httpx -l subs.txt -cname -status-code -mc 404 -o cname_404.txt
           nuclei -l cname_404.txt -t takeovers -silent -retries 2 -timeout 10 -bulk-size 25 -concurrency 25 -o results.txt || true
 
@@ -36,7 +49,7 @@ jobs:
           server_port: 465
           username: ${{ secrets.EMAIL_USER }}
           password: ${{ secrets.EMAIL_PASS }}
-          subject: "Subdomain Takeover Hit Found!"
+          subject: "Takeover Hit Found - Batch ${{ matrix.batch }}"
           body: file://results.txt
           to: ${{ secrets.EMAIL_TO }}
           from: BugBountyBot
