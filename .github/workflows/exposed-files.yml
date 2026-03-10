@@ -1,9 +1,9 @@
 name: Exposed Files Scanner
 
 on:
-  schedule:
-    - cron: '0 3 * * *'
   workflow_dispatch:
+  schedule:
+    - cron: '0 6 * * *'
 
 jobs:
   prepare:
@@ -95,13 +95,43 @@ jobs:
           password: ${{ secrets.EMAIL_PASS }}
           subject: "📁 Exposed Files Found - Batch ${{ matrix.batch }}"
           body: |
-            Exposed files found!
+            ═══════════════════════════════════
+            📁 EXPOSED FILES / CONFIGS FOUND
+            ═══════════════════════════════════
             
+            What this means:
+            Sensitive files are publicly accessible on the target domain.
+            This includes .env files with credentials, .git repositories
+            with source code, backup files, config files with passwords,
+            or other files that should never be public.
+            
+            Severity: CRITICAL to HIGH depending on file contents
+            Impact: Credential exposure, source code leak, full compromise
+            
+            ───────────────────────────────────
+            FINDINGS:
+            ───────────────────────────────────
+            ${{ env.RESULTS }}
+            
+            ───────────────────────────────────
+            NEXT STEPS:
+            ───────────────────────────────────
+            1. Open the URL in browser to confirm file is accessible
+            2. Identify what the file contains (credentials, keys, config)
+            3. For .env files — note all variables exposed
+            4. For .git — check if source code is downloadable
+            5. DO NOT use any credentials found
+            6. Report to the bug bounty program immediately
+            7. Include: URL, file type, contents summary, screenshot
+            
+            ───────────────────────────────────
+            SCAN INFO:
+            ───────────────────────────────────
             Batch: ${{ matrix.batch }}
+            Run ID: ${{ github.run_id }}
             Time: ${{ github.run_started_at }}
-            
-            Results:
-            $(cat results.txt)
+            Repository: ${{ github.repository }}
+
           to: ${{ secrets.EMAIL_TO }}
           from: BugBountyBot
 
@@ -119,11 +149,24 @@ jobs:
           password: ${{ secrets.EMAIL_PASS }}
           subject: "✅ Exposed Files Scan Complete - ${{ github.run_id }}"
           body: |
-            All batches finished scanning for exposed files.
+            ═══════════════════════════════════
+            ✅ EXPOSED FILES SCAN COMPLETE
+            ═══════════════════════════════════
             
+            All batches have finished scanning.
+            If any exposed files were found you already received a separate email.
+            If you received no hit emails — no exposed files found this run.
+            
+            ───────────────────────────────────
+            SCAN INFO:
+            ───────────────────────────────────
             Status: ${{ needs.scan.result }}
+            Run ID: ${{ github.run_id }}
             Time: ${{ github.run_started_at }}
+            Repository: ${{ github.repository }}
             
-            Check GitHub Actions for full results.
+            View full logs:
+            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
           to: ${{ secrets.EMAIL_TO }}
           from: BugBountyBot
