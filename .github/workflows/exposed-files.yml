@@ -6,28 +6,124 @@ on:
   workflow_dispatch:
 
 jobs:
-  scan:
+  prepare:
     runs-on: ubuntu-latest
+    outputs:
+      batches: ${{ steps.split.outputs.batches }}
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Split domains into batches of 25
+        id: split
+        run: |
+          total=$(wc -l < domains.txt)
+          num_batches=$(( (total + 24) / 25 ))
+          batches=$(seq 1 $num_batches | jq -R . | jq -sc .)
+          echo "batches=$batches" >> $GITHUB_OUTPUT
+
+  scan:
+    needs: prepare
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        batch: ${{ fromJson(needs.prepare.outputs.batches) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
 
       - name: Install tools
         run: |
-          go install -v github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest
-          go install -v github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest
+          go install github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest
+          go install github.com/projectdiscovery/httpx/cmd/httpx@latest
+          go install github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest
 
-      - name: Run scan
-        run: bash exposed-files/scan.sh
+      - name: Split domains
+        run: |
+          start=$(( (${{ matrix.batch }} - 1) * 25 + 1 ))
+          sed -n "${start},$((start + 24))p" domains.txt > batch_domains.txt
+          echo "Scanning batch ${{ matrix.batch }}:"
+          cat batch_domains.txt
+
+      - name: Run subfinder
+        run: |
+          export PATH=$PATH:$(go env GOPATH)/bin
+          subfinder -dL batch_domains.txt -silent -o subs_raw.txt
+          echo "Total subdomains found: $(wc -l < subs_raw.txt)"
+
+      - name: Filter IP-based subdomains
+        run: |
+          grep -vP '^\d+[-\.]\d+[-\.]\d+[-\.]\d+\.' subs_raw.txt > subs.txt || true
+          echo "After filtering: $(wc -l < subs.txt)"
+
+      - name: Run httpx
+        run: |
+          export PATH=$PATH:$(go env GOPATH)/bin
+          httpx -l subs.txt -silent -o live_hosts.txt || true
+          echo "Live hosts: $(wc -l < live_hosts.txt)"
+
+      - name: Run nuclei
+        run: |
+          export PATH=$PATH:$(go env GOPATH)/bin
+          nuclei -l live_hosts.txt -t exposures/files -t exposures/configs -silent -retries 2 -timeout 10 -bulk-size 25 -concurrency 25 -o results.txt || true
+          echo "Findings: $(wc -l < results.txt 2>/dev/null || echo 0)"
+
+      - name: Show results
+        run: |
+          if [ -s results.txt ]; then
+            echo "EXPOSED FILES FOUND:"
+            cat results.txt
+          else
+            echo "No exposed files found in batch ${{ matrix.batch }}"
+          fi
 
       - name: Send email if results found
-        if: ${{ hashFiles('exposed-files/results.txt') != '' }}
+        if: success()
+        run: |
+          if [ ! -s results.txt ]; then
+            echo "No hits, skipping email"
+            exit 0
+          fi
+
+      - name: Send email
+        if: success() && hashFiles('results.txt') != ''
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
           server_port: 465
           username: ${{ secrets.EMAIL_USER }}
           password: ${{ secrets.EMAIL_PASS }}
-          subject: Exposed Files Found!
-          body: file://exposed-files/results.txt
+          subject: "📁 Exposed Files Found - Batch ${{ matrix.batch }}"
+          body: |
+            Exposed files found!
+            
+            Batch: ${{ matrix.batch }}
+            Time: ${{ github.run_started_at }}
+            
+            Results:
+            $(cat results.txt)
+          to: ${{ secrets.EMAIL_TO }}
+          from: BugBountyBot
+
+  notify-complete:
+    needs: scan
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Send completion email
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USER }}
+          password: ${{ secrets.EMAIL_PASS }}
+          subject: "✅ Exposed Files Scan Complete - ${{ github.run_id }}"
+          body: |
+            All batches finished scanning for exposed files.
+            
+            Status: ${{ needs.scan.result }}
+            Time: ${{ github.run_started_at }}
+            
+            Check GitHub Actions for full results.
           to: ${{ secrets.EMAIL_TO }}
           from: BugBountyBot
