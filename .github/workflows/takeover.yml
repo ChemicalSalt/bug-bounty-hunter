@@ -45,25 +45,86 @@ jobs:
           echo "Scanning batch ${{ matrix.batch }}:"
           cat batch_domains.txt
 
-      - name: Run scan
+      - name: Run subfinder
         run: |
           export PATH=$PATH:$(go env GOPATH)/bin
-          subfinder -dL batch_domains.txt -silent -o subs.txt
-          httpx -l subs.txt -cname -status-code -mc 404 -o cname_404.txt
+          subfinder -dL batch_domains.txt -silent -o subs_raw.txt
+          echo "Total subdomains found: $(wc -l < subs_raw.txt)"
+
+      - name: Filter IP-based subdomains
+        run: |
+          grep -vP '^\d+[-\.]\d+[-\.]\d+[-\.]\d+\.' subs_raw.txt > subs.txt || true
+          echo "After filtering IP-based subdomains: $(wc -l < subs.txt)"
+
+      - name: Run httpx
+        run: |
+          export PATH=$PATH:$(go env GOPATH)/bin
+          httpx -l subs.txt -cname -status-code -mc 404 -silent -o cname_404.txt || true
+          echo "Dead subdomains with CNAME: $(wc -l < cname_404.txt)"
+
+      - name: Run nuclei
+        run: |
+          export PATH=$PATH:$(go env GOPATH)/bin
           nuclei -l cname_404.txt -t takeovers -silent -retries 2 -timeout 10 -bulk-size 25 -concurrency 25 -o results.txt || true
+          echo "Nuclei findings: $(wc -l < results.txt 2>/dev/null || echo 0)"
 
       - name: Show results
-        run: cat results.txt || echo "No results found"
+        run: |
+          if [ -s results.txt ]; then
+            echo "HITS FOUND:"
+            cat results.txt
+          else
+            echo "No results found in batch ${{ matrix.batch }}"
+          fi
 
       - name: Send email if results found
-        if: ${{ hashFiles('results.txt') != '' }}
+        if: success()
+        run: |
+          if [ ! -s results.txt ]; then
+            echo "No hits, skipping email"
+            exit 0
+          fi
+        
+      - name: Send email
+        if: success() && hashFiles('results.txt') != ''
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
           server_port: 465
           username: ${{ secrets.EMAIL_USER }}
           password: ${{ secrets.EMAIL_PASS }}
-          subject: "Takeover Hit Found - Batch ${{ matrix.batch }}"
-          body: file://results.txt
+          subject: "🎯 Takeover Hit Found - Batch ${{ matrix.batch }}"
+          body: |
+            Subdomain Takeover vulnerability found!
+            
+            Batch: ${{ matrix.batch }}
+            Time: ${{ github.run_started_at }}
+            
+            Results:
+            $(cat results.txt)
+          to: ${{ secrets.EMAIL_TO }}
+          from: BugBountyBot
+
+  notify-complete:
+    needs: scan
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Send completion email
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USER }}
+          password: ${{ secrets.EMAIL_PASS }}
+          subject: "✅ Takeover Scan Complete - ${{ github.run_id }}"
+          body: |
+            All batches finished scanning.
+            
+            Status: ${{ needs.scan.result }}
+            Time: ${{ github.run_started_at }}
+            Domains scanned: all domains in domains.txt
+            
+            Check GitHub Actions for full results.
           to: ${{ secrets.EMAIL_TO }}
           from: BugBountyBot
