@@ -12,7 +12,7 @@ jobs:
       batches: ${{ steps.split.outputs.batches }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Split domains into batches of 25
         id: split
@@ -30,7 +30,7 @@ jobs:
         batch: ${{ fromJson(needs.prepare.outputs.batches) }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install tools
         run: |
@@ -61,6 +61,15 @@ jobs:
           nuclei -l subs.txt -t misconfiguration/spf-record-softfail.yaml -t misconfiguration/spf-record-missing.yaml -t misconfiguration/dmarc-missing.yaml -silent -retries 2 -timeout 10 -bulk-size 25 -concurrency 25 -o results.txt || true
           echo "Findings: $(wc -l < results.txt 2>/dev/null || echo 0)"
 
+      - name: Check results
+        id: check_results
+        run: |
+          if [ -s results.txt ]; then
+            echo "has_results=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_results=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Show results
         run: |
           if [ -s results.txt ]; then
@@ -70,16 +79,8 @@ jobs:
             echo "No SPF/DMARC issues found in batch ${{ matrix.batch }}"
           fi
 
-      - name: Send email if results found
-        if: success()
-        run: |
-          if [ ! -s results.txt ]; then
-            echo "No hits, skipping email"
-            exit 0
-          fi
-
       - name: Send email
-        if: success() && hashFiles('results.txt') != ''
+        if: steps.check_results.outputs.has_results == 'true'
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
@@ -87,50 +88,7 @@ jobs:
           username: ${{ secrets.EMAIL_USER }}
           password: ${{ secrets.EMAIL_PASS }}
           subject: "📧 SPF/DMARC Misconfiguration Found - Batch ${{ matrix.batch }}"
-          body: |
-            ═══════════════════════════════════
-            📧 SPF/DMARC MISCONFIGURATION FOUND
-            ═══════════════════════════════════
-            
-            What this means:
-            The target domain is missing or has weak SPF/DMARC records.
-            This allows attackers to send emails that appear to come
-            from the target domain — enabling phishing attacks against
-            the company's customers and employees.
-            
-            Missing SPF = anyone can spoof emails from this domain
-            Missing DMARC = no policy to reject spoofed emails
-            SPF Softfail (~all) = weak protection, spoofing still possible
-            
-            Severity: MEDIUM to HIGH
-            Impact: Email spoofing, phishing, brand abuse
-            
-            ───────────────────────────────────
-            FINDINGS:
-            ───────────────────────────────────
-            ${{ env.RESULTS }}
-            
-            ───────────────────────────────────
-            NEXT STEPS:
-            ───────────────────────────────────
-            1. Verify the finding manually:
-               dig TXT <domain> | grep spf
-               dig TXT _dmarc.<domain>
-            2. Confirm SPF is missing or softfail (~all instead of -all)
-            3. Confirm DMARC is missing or has p=none policy
-            4. Check if domain is in bug bounty scope
-            5. Report to bug bounty program
-            6. Include: domain, dig output screenshots, explanation
-               of spoofing impact
-            
-            ───────────────────────────────────
-            SCAN INFO:
-            ───────────────────────────────────
-            Batch: ${{ matrix.batch }}
-            Run ID: ${{ github.run_id }}
-            Time: ${{ github.run_started_at }}
-            Repository: ${{ github.repository }}
-
+          body: file://results.txt
           to: ${{ secrets.EMAIL_TO }}
           from: BugBountyBot
 
@@ -140,6 +98,7 @@ jobs:
     if: always()
     steps:
       - name: Send completion email
+        if: needs.scan.result == 'success'
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
@@ -148,24 +107,37 @@ jobs:
           password: ${{ secrets.EMAIL_PASS }}
           subject: "✅ SPF/DMARC Scan Complete - ${{ github.run_id }}"
           body: |
-            ═══════════════════════════════════
             ✅ SPF/DMARC SCAN COMPLETE
-            ═══════════════════════════════════
-            
-            All batches have finished scanning.
-            If any SPF/DMARC issues were found you already received a separate email.
-            If you received no hit emails — no issues found this run.
-            
-            ───────────────────────────────────
-            SCAN INFO:
-            ───────────────────────────────────
+
+            All batches finished. If issues were found you received separate emails.
+
             Status: ${{ needs.scan.result }}
             Run ID: ${{ github.run_id }}
-            Time: ${{ github.run_started_at }}
             Repository: ${{ github.repository }}
-            
-            View full logs:
-            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
+            View logs:
+            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          to: ${{ secrets.EMAIL_TO }}
+          from: BugBountyBot
+
+      - name: Send failure email
+        if: needs.scan.result == 'failure'
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USER }}
+          password: ${{ secrets.EMAIL_PASS }}
+          subject: "❌ SPF/DMARC Scan FAILED - ${{ github.run_id }}"
+          body: |
+            ❌ SPF/DMARC SCAN FAILED
+
+            One or more batches failed. Check logs immediately.
+
+            Run ID: ${{ github.run_id }}
+            Repository: ${{ github.repository }}
+
+            View logs:
+            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
           to: ${{ secrets.EMAIL_TO }}
           from: BugBountyBot
