@@ -12,7 +12,7 @@ jobs:
       batches: ${{ steps.split.outputs.batches }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Split domains into batches of 25
         id: split
@@ -30,7 +30,7 @@ jobs:
         batch: ${{ fromJson(needs.prepare.outputs.batches) }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install tools
         run: |
@@ -54,7 +54,7 @@ jobs:
       - name: Filter IP-based subdomains
         run: |
           grep -vP '^\d+[-\.]\d+[-\.]\d+[-\.]\d+\.' subs_raw.txt > subs.txt || true
-          echo "After filtering IP-based subdomains: $(wc -l < subs.txt)"
+          echo "After filtering: $(wc -l < subs.txt)"
 
       - name: Run httpx
         run: |
@@ -68,6 +68,15 @@ jobs:
           nuclei -l cname_404.txt -t takeovers -silent -retries 2 -timeout 10 -bulk-size 25 -concurrency 25 -o results.txt || true
           echo "Nuclei findings: $(wc -l < results.txt 2>/dev/null || echo 0)"
 
+      - name: Check results
+        id: check_results
+        run: |
+          if [ -s results.txt ]; then
+            echo "has_results=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_results=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Show results
         run: |
           if [ -s results.txt ]; then
@@ -77,16 +86,8 @@ jobs:
             echo "No results found in batch ${{ matrix.batch }}"
           fi
 
-      - name: Send email if results found
-        if: success()
-        run: |
-          if [ ! -s results.txt ]; then
-            echo "No hits, skipping email"
-            exit 0
-          fi
-
       - name: Send email
-        if: success() && hashFiles('results.txt') != ''
+        if: steps.check_results.outputs.has_results == 'true'
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
@@ -98,21 +99,20 @@ jobs:
             ═══════════════════════════════════
             🎯 SUBDOMAIN TAKEOVER VULNERABILITY
             ═══════════════════════════════════
-            
+
             What this means:
-            A subdomain is pointing to an external service (like GitHub Pages, 
+            A subdomain is pointing to an external service (like GitHub Pages,
             Heroku, AWS S3, etc.) that has been deleted or is unclaimed.
-            This means anyone can register that service and take control 
-            of the subdomain — serving malicious content under the company's domain.
-            
+            Anyone can register that service and take control of the subdomain.
+
             Severity: HIGH
             Impact: Account takeover, phishing, credential theft
-            
+
             ───────────────────────────────────
             FINDINGS:
             ───────────────────────────────────
-            ${{ env.RESULTS }}
-            
+            ${{ steps.check_results.outputs.results }}
+
             ───────────────────────────────────
             NEXT STEPS:
             ───────────────────────────────────
@@ -122,15 +122,13 @@ jobs:
             4. Register the service to prove takeover (do NOT serve malicious content)
             5. Report to the bug bounty program immediately
             6. Include: subdomain, CNAME, proof of takeover, screenshots
-            
+
             ───────────────────────────────────
             SCAN INFO:
             ───────────────────────────────────
             Batch: ${{ matrix.batch }}
             Run ID: ${{ github.run_id }}
-            Time: ${{ github.run_started_at }}
             Repository: ${{ github.repository }}
-            
           to: ${{ secrets.EMAIL_TO }}
           from: BugBountyBot
 
@@ -140,6 +138,7 @@ jobs:
     if: always()
     steps:
       - name: Send completion email
+        if: needs.scan.result == 'success'
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
@@ -151,21 +150,39 @@ jobs:
             ═══════════════════════════════════
             ✅ SUBDOMAIN TAKEOVER SCAN COMPLETE
             ═══════════════════════════════════
-            
-            All batches have finished scanning.
-            If any hits were found you already received a separate email.
-            If you received no hit emails — no takeovers found this run.
-            
-            ───────────────────────────────────
-            SCAN INFO:
-            ───────────────────────────────────
+
+            All batches finished. If hits were found you received separate emails.
+            If no hit emails — no takeovers found this run.
+
             Status: ${{ needs.scan.result }}
             Run ID: ${{ github.run_id }}
-            Time: ${{ github.run_started_at }}
             Repository: ${{ github.repository }}
-            
-            View full logs:
+
+            View logs:
             https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-            
+          to: ${{ secrets.EMAIL_TO }}
+          from: BugBountyBot
+
+      - name: Send failure email
+        if: needs.scan.result == 'failure'
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USER }}
+          password: ${{ secrets.EMAIL_PASS }}
+          subject: "❌ Takeover Scan FAILED - ${{ github.run_id }}"
+          body: |
+            ═══════════════════════════════════
+            ❌ SUBDOMAIN TAKEOVER SCAN FAILED
+            ═══════════════════════════════════
+
+            One or more batches failed. Check logs immediately.
+
+            Run ID: ${{ github.run_id }}
+            Repository: ${{ github.repository }}
+
+            View logs:
+            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
           to: ${{ secrets.EMAIL_TO }}
           from: BugBountyBot
