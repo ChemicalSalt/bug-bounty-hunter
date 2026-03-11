@@ -1,9 +1,9 @@
 name: S3 Bucket Scanner
 
 on:
-  schedule:
-    - cron: '0 2 * * *'
   workflow_dispatch:
+  schedule:
+    - cron: '0 4 * * *'
 
 jobs:
   prepare:
@@ -12,7 +12,7 @@ jobs:
       batches: ${{ steps.split.outputs.batches }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Split domains into batches of 25
         id: split
@@ -30,7 +30,7 @@ jobs:
         batch: ${{ fromJson(needs.prepare.outputs.batches) }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install tools
         run: |
@@ -68,6 +68,15 @@ jobs:
           nuclei -l live_hosts.txt -t misconfiguration/aws -t misconfiguration/s3 -silent -retries 2 -timeout 10 -bulk-size 25 -concurrency 25 -o results.txt || true
           echo "Findings: $(wc -l < results.txt 2>/dev/null || echo 0)"
 
+      - name: Check results
+        id: check_results
+        run: |
+          if [ -s results.txt ]; then
+            echo "has_results=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_results=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Show results
         run: |
           if [ -s results.txt ]; then
@@ -77,31 +86,16 @@ jobs:
             echo "No S3 issues found in batch ${{ matrix.batch }}"
           fi
 
-      - name: Send email if results found
-        if: success()
-        run: |
-          if [ ! -s results.txt ]; then
-            echo "No hits, skipping email"
-            exit 0
-          fi
-
       - name: Send email
-        if: success() && hashFiles('results.txt') != ''
+        if: steps.check_results.outputs.has_results == 'true'
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
           server_port: 465
           username: ${{ secrets.EMAIL_USER }}
           password: ${{ secrets.EMAIL_PASS }}
-          subject: "🪣 S3 Bucket Hit Found - Batch ${{ matrix.batch }}"
-          body: |
-            S3 bucket misconfiguration found!
-            
-            Batch: ${{ matrix.batch }}
-            Time: ${{ github.run_started_at }}
-            
-            Results:
-            $(cat results.txt)
+          subject: "🪣 S3 Bucket Misconfiguration Found - Batch ${{ matrix.batch }}"
+          body: file://results.txt
           to: ${{ secrets.EMAIL_TO }}
           from: BugBountyBot
 
@@ -111,6 +105,7 @@ jobs:
     if: always()
     steps:
       - name: Send completion email
+        if: needs.scan.result == 'success'
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
@@ -119,11 +114,37 @@ jobs:
           password: ${{ secrets.EMAIL_PASS }}
           subject: "✅ S3 Scan Complete - ${{ github.run_id }}"
           body: |
-            All batches finished scanning for S3 misconfigurations.
-            
+            ✅ S3 BUCKET SCAN COMPLETE
+
+            All batches finished. If issues were found you received separate emails.
+
             Status: ${{ needs.scan.result }}
-            Time: ${{ github.run_started_at }}
-            
-            Check GitHub Actions for full results.
+            Run ID: ${{ github.run_id }}
+            Repository: ${{ github.repository }}
+
+            View logs:
+            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          to: ${{ secrets.EMAIL_TO }}
+          from: BugBountyBot
+
+      - name: Send failure email
+        if: needs.scan.result == 'failure'
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USER }}
+          password: ${{ secrets.EMAIL_PASS }}
+          subject: "❌ S3 Scan FAILED - ${{ github.run_id }}"
+          body: |
+            ❌ S3 SCAN FAILED
+
+            One or more batches failed. Check logs immediately.
+
+            Run ID: ${{ github.run_id }}
+            Repository: ${{ github.repository }}
+
+            View logs:
+            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
           to: ${{ secrets.EMAIL_TO }}
           from: BugBountyBot
