@@ -12,7 +12,7 @@ jobs:
       batches: ${{ steps.split.outputs.batches }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Split domains into batches of 25
         id: split
@@ -30,7 +30,7 @@ jobs:
         batch: ${{ fromJson(needs.prepare.outputs.batches) }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install tools
         run: |
@@ -68,6 +68,15 @@ jobs:
           nuclei -l live_hosts.txt -t exposures/apis -silent -retries 2 -timeout 10 -bulk-size 25 -concurrency 25 -o results.txt || true
           echo "Findings: $(wc -l < results.txt 2>/dev/null || echo 0)"
 
+      - name: Check results
+        id: check_results
+        run: |
+          if [ -s results.txt ]; then
+            echo "has_results=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_results=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Show results
         run: |
           if [ -s results.txt ]; then
@@ -77,16 +86,8 @@ jobs:
             echo "No exposed API docs found in batch ${{ matrix.batch }}"
           fi
 
-      - name: Send email if results found
-        if: success()
-        run: |
-          if [ ! -s results.txt ]; then
-            echo "No hits, skipping email"
-            exit 0
-          fi
-
       - name: Send email
-        if: success() && hashFiles('results.txt') != ''
+        if: steps.check_results.outputs.has_results == 'true'
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
@@ -94,46 +95,7 @@ jobs:
           username: ${{ secrets.EMAIL_USER }}
           password: ${{ secrets.EMAIL_PASS }}
           subject: "📖 Exposed API Docs Found - Batch ${{ matrix.batch }}"
-          body: |
-            ═══════════════════════════════════
-            📖 EXPOSED SWAGGER / API DOCS FOUND
-            ═══════════════════════════════════
-            
-            What this means:
-            The target has publicly exposed API documentation such as
-            Swagger UI, OpenAPI spec, Postman collections or GraphQL
-            playground. This reveals all API endpoints, parameters,
-            authentication methods and may expose internal endpoints
-            not meant to be public.
-            
-            Severity: LOW to HIGH depending on what endpoints are exposed
-            Impact: API enumeration, finding hidden endpoints, auth bypass
-            
-            ───────────────────────────────────
-            FINDINGS:
-            ───────────────────────────────────
-            ${{ env.RESULTS }}
-            
-            ───────────────────────────────────
-            NEXT STEPS:
-            ───────────────────────────────────
-            1. Open the Swagger/API docs URL in browser
-            2. Look for endpoints marked as internal or admin
-            3. Check for endpoints without authentication
-            4. Look for sensitive operations — delete, export, admin
-            5. Try accessing undocumented or internal endpoints
-            6. Check if API keys or tokens are shown in examples
-            7. Report exposed docs + any interesting endpoints found
-            8. Include: URL, screenshot, list of sensitive endpoints
-            
-            ───────────────────────────────────
-            SCAN INFO:
-            ───────────────────────────────────
-            Batch: ${{ matrix.batch }}
-            Run ID: ${{ github.run_id }}
-            Time: ${{ github.run_started_at }}
-            Repository: ${{ github.repository }}
-
+          body: file://results.txt
           to: ${{ secrets.EMAIL_TO }}
           from: BugBountyBot
 
@@ -143,6 +105,7 @@ jobs:
     if: always()
     steps:
       - name: Send completion email
+        if: needs.scan.result == 'success'
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
@@ -151,24 +114,37 @@ jobs:
           password: ${{ secrets.EMAIL_PASS }}
           subject: "✅ Swagger/API Docs Scan Complete - ${{ github.run_id }}"
           body: |
-            ═══════════════════════════════════
             ✅ SWAGGER/API DOCS SCAN COMPLETE
-            ═══════════════════════════════════
-            
-            All batches have finished scanning.
-            If any exposed API docs were found you already received a separate email.
-            If you received no hit emails — no exposed docs found this run.
-            
-            ───────────────────────────────────
-            SCAN INFO:
-            ───────────────────────────────────
+
+            All batches finished. If docs were found you received separate emails.
+
             Status: ${{ needs.scan.result }}
             Run ID: ${{ github.run_id }}
-            Time: ${{ github.run_started_at }}
             Repository: ${{ github.repository }}
-            
-            View full logs:
-            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
+            View logs:
+            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          to: ${{ secrets.EMAIL_TO }}
+          from: BugBountyBot
+
+      - name: Send failure email
+        if: needs.scan.result == 'failure'
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USER }}
+          password: ${{ secrets.EMAIL_PASS }}
+          subject: "❌ Swagger/API Docs Scan FAILED - ${{ github.run_id }}"
+          body: |
+            ❌ SWAGGER/API DOCS SCAN FAILED
+
+            One or more batches failed. Check logs immediately.
+
+            Run ID: ${{ github.run_id }}
+            Repository: ${{ github.repository }}
+
+            View logs:
+            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
           to: ${{ secrets.EMAIL_TO }}
           from: BugBountyBot
