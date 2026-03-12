@@ -52,23 +52,8 @@ jobs:
         run: |
           export PATH=$PATH:$(go env GOPATH)/bin
           nuclei -l live_hosts.txt -tags jwt -silent -retries 2 -timeout 10 -bulk-size 25 -concurrency 25 -o results.txt || true
-      - name: Check results
-        id: check_results
-        run: |
-          if [ -s results.txt ]; then
-            echo "has_results=true" >> $GITHUB_OUTPUT
-          else
-            echo "has_results=false" >> $GITHUB_OUTPUT
-          fi
-      - name: Show results
-        run: |
-          if [ -s results.txt ]; then
-            cat results.txt
-          else
-            echo "No findings in batch ${{ matrix.batch }}"
-          fi
       - name: Send email
-        if: steps.check_results.outputs.has_results == 'true'
+        if: hashFiles('results.txt') != ''
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
