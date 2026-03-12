@@ -51,31 +51,16 @@ jobs:
       - name: Run nuclei
         run: |
           export PATH=$PATH:$(go env GOPATH)/bin
-          nuclei -l live_hosts.txt -tags graphql -silent -retries 2 -timeout 10 -bulk-size 25 -concurrency 25 -o results.txt || true
-      - name: Check results
-        id: check_results
-        run: |
-          if [ -s results.txt ]; then
-            echo "has_results=true" >> $GITHUB_OUTPUT
-          else
-            echo "has_results=false" >> $GITHUB_OUTPUT
-          fi
-      - name: Show results
-        run: |
-          if [ -s results.txt ]; then
-            cat results.txt
-          else
-            echo "No findings in batch ${{ matrix.batch }}"
-          fi
+          nuclei -l live_hosts.txt -tags graphql -severity medium,high,critical -silent -retries 2 -timeout 10 -bulk-size 25 -concurrency 25 -o results.txt || true
       - name: Send email
-        if: steps.check_results.outputs.has_results == 'true'
+        if: hashFiles('results.txt') != ''
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
           server_port: 465
           username: ${{ secrets.EMAIL_USER }}
           password: ${{ secrets.EMAIL_PASS }}
-          subject: "🔍 GraphQL Introspection Found - Batch ${{ matrix.batch }}"
+          subject: "🔍 GraphQL Vulnerability Found - Batch ${{ matrix.batch }}"
           body: file://results.txt
           to: ${{ secrets.EMAIL_TO }}
           from: BugBountyBot
