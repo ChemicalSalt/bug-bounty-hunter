@@ -1,0 +1,63 @@
+id: exposed-debug-endpoints
+
+info:
+  name: Exposed Debug/Internal Endpoints
+  author: BugBountyBot
+  severity: medium
+  description: Detects commonly exposed debug, health, and internal endpoints that should not be publicly accessible
+  tags: debug,exposure,config
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}/__debug__"
+      - "{{BaseURL}}/debug"
+      - "{{BaseURL}}/debug/vars"
+      - "{{BaseURL}}/debug/pprof"
+      - "{{BaseURL}}/internal"
+      - "{{BaseURL}}/internal/health"
+      - "{{BaseURL}}/internal/status"
+      - "{{BaseURL}}/admin/debug"
+      - "{{BaseURL}}/api/debug"
+      - "{{BaseURL}}/api/v1/debug"
+      - "{{BaseURL}}/api/v2/debug"
+      - "{{BaseURL}}/_debug"
+      - "{{BaseURL}}/_internal"
+      - "{{BaseURL}}/actuator"
+      - "{{BaseURL}}/actuator/env"
+      - "{{BaseURL}}/actuator/mappings"
+      - "{{BaseURL}}/actuator/beans"
+      - "{{BaseURL}}/actuator/httptrace"
+      - "{{BaseURL}}/actuator/dump"
+      - "{{BaseURL}}/heapdump"
+      - "{{BaseURL}}/threaddump"
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+
+      - type: word
+        condition: or
+        words:
+          - "debug"
+          - "heap"
+          - "goroutine"
+          - "thread"
+          - "stack"
+          - "environment"
+          - "properties"
+          - "beans"
+          - "mappings"
+          - "internal"
+        part: body
+
+      - type: word
+        negative: true
+        words:
+          - "404"
+          - "Not Found"
+          - "Access Denied"
+          - "Forbidden"
+        part: body
