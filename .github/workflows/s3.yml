@@ -48,10 +48,14 @@ jobs:
         run: |
           export PATH=$PATH:$(go env GOPATH)/bin
           httpx -l subs.txt -silent -o live_hosts.txt || true
+      - name: Update nuclei templates
+        run: |
+          export PATH=$PATH:$(go env GOPATH)/bin
+          nuclei -update-templates -silent
       - name: Run nuclei
         run: |
           export PATH=$PATH:$(go env GOPATH)/bin
-          nuclei -l live_hosts.txt -t misconfiguration/aws -t misconfiguration/s3 -silent -retries 2 -timeout 10 -bulk-size 25 -concurrency 25 -o results.txt || true
+          nuclei -l live_hosts.txt -tags aws-s3,s3 -silent -retries 2 -timeout 10 -bulk-size 25 -concurrency 25 -o results.txt || true
       - name: Send email
         if: hashFiles('results.txt') != ''
         uses: dawidd6/action-send-mail@v3
@@ -60,7 +64,7 @@ jobs:
           server_port: 465
           username: ${{ secrets.EMAIL_USER }}
           password: ${{ secrets.EMAIL_PASS }}
-          subject: "🪣 S3 Bucket Misconfiguration Found - Batch ${{ matrix.batch }}"
+          subject: "S3 Bucket Misconfiguration Found - Batch ${{ matrix.batch }}"
           body: file://results.txt
           to: ${{ secrets.EMAIL_TO }}
           from: BugBountyBot
