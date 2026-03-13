@@ -1,150 +1,17 @@
-name: Scan Template Engine
-
+name: Exposed Secrets Scanner
 on:
-  workflow_call:
-    inputs:
-      scan_name:
-        required: true
-        type: string
-      tags:
-        required: false
-        type: string
-        default: ''
-      severity:
-        required: false
-        type: string
-        default: 'low,medium,high,critical'
-      cron_info:
-        required: false
-        type: string
-        default: ''
-      use_katana:
-        required: false
-        type: boolean
-        default: false
-      httpx_flags:
-        required: false
-        type: string
-        default: '-silent'
-      nuclei_input:
-        required: false
-        type: string
-        default: 'live_hosts'
-    secrets:
-      EMAIL_USER:
-        required: true
-      EMAIL_PASS:
-        required: true
-      EMAIL_TO:
-        required: true
-
+  workflow_dispatch:
+  schedule:
+    - cron: '0 2 * * *'
 jobs:
-  prepare:
-    runs-on: ubuntu-latest
-    outputs:
-      batches: ${{ steps.split.outputs.batches }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Split domains into batches of 25
-        id: split
-        run: |
-          total=$(wc -l < domains.txt)
-          num_batches=$(( (total + 24) / 25 ))
-          batches=$(seq 1 $num_batches | jq -R . | jq -sc .)
-          echo "batches=$batches" >> $GITHUB_OUTPUT
-
   scan:
-    needs: prepare
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        batch: ${{ fromJson(needs.prepare.outputs.batches) }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install tools
-        run: |
-          go install github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest
-          go install github.com/projectdiscovery/httpx/cmd/httpx@latest
-          go install github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest
-          if [ "${{ inputs.use_katana }}" = "true" ]; then
-            go install github.com/projectdiscovery/katana/cmd/katana@latest
-          fi
-
-      - name: Split domains
-        run: |
-          start=$(( (${{ matrix.batch }} - 1) * 25 + 1 ))
-          sed -n "${start},$((start + 24))p" domains.txt > batch_domains.txt
-
-      - name: Run subfinder
-        run: |
-          export PATH=$PATH:$(go env GOPATH)/bin
-          subfinder -dL batch_domains.txt -silent -o subs_raw.txt
-          grep -vP '^\d+[-\.]\d+[-\.]\d+[-\.]\d+\.' subs_raw.txt > subs.txt || true
-
-      - name: Run httpx
-        run: |
-          export PATH=$PATH:$(go env GOPATH)/bin
-          httpx -l subs.txt ${{ inputs.httpx_flags }} -o live_hosts.txt || true
-
-      - name: Run katana (if enabled)
-        if: inputs.use_katana == true
-        run: |
-          export PATH=$PATH:$(go env GOPATH)/bin
-          katana -list live_hosts.txt -silent -js-crawl -depth 2 -o urls.txt || true
-
-      - name: Update nuclei templates
-        run: |
-          export PATH=$PATH:$(go env GOPATH)/bin
-          nuclei -update-templates -silent
-
-      - name: Run nuclei
-        run: |
-          export PATH=$PATH:$(go env GOPATH)/bin
-          INPUT_FILE="${{ inputs.nuclei_input }}.txt"
-
-          # Build tags flag
-          TAGS_FLAG=""
-          if [ -n "${{ inputs.tags }}" ]; then
-            TAGS_FLAG="-tags ${{ inputs.tags }}"
-          fi
-
-          # Include custom templates if they exist in repo
-          CUSTOM_FLAG=""
-          if [ -d "custom-templates" ]; then
-            CUSTOM_FLAG="-t custom-templates"
-          fi
-
-          nuclei -l "$INPUT_FILE" \
-            $TAGS_FLAG \
-            $CUSTOM_FLAG \
-            -severity ${{ inputs.severity }} \
-            -silent -retries 2 -timeout 10 \
-            -bulk-size 25 -concurrency 25 \
-            -o results.txt || true
-
-      - name: Check for results
-        id: check
-        run: |
-          if [ -s results.txt ]; then
-            echo "found=true" >> $GITHUB_OUTPUT
-          else
-            echo "found=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Send email
-        if: steps.check.outputs.found == 'true'
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.gmail.com
-          server_port: 465
-          username: ${{ secrets.EMAIL_USER }}
-          password: ${{ secrets.EMAIL_PASS }}
-          subject: "[${{ inputs.scan_name }}] Finding - Batch ${{ matrix.batch }}"
-          body: file://results.txt
-          to: ${{ secrets.EMAIL_TO }}
-          from: BugBountyBot
+    uses: ./.github/workflows/scan-template.yml
+    with:
+      scan_name: "Exposed Secrets"
+      tags: "token,secret,api-key"
+      use_katana: true
+      nuclei_input: "urls"
+    secrets:
+      EMAIL_USER: ${{ secrets.EMAIL_USER }}
+      EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+      EMAIL_TO: ${{ secrets.EMAIL_TO }}
