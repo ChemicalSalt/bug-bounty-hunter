@@ -48,6 +48,10 @@ jobs:
         run: |
           export PATH=$PATH:$(go env GOPATH)/bin
           httpx -l subs.txt -silent -mc 403 -o live_hosts.txt || true
+      - name: Update nuclei templates
+        run: |
+          export PATH=$PATH:$(go env GOPATH)/bin
+          nuclei -update-templates -silent
       - name: Run nuclei
         run: |
           export PATH=$PATH:$(go env GOPATH)/bin
