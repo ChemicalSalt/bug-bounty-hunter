@@ -48,10 +48,14 @@ jobs:
         run: |
           export PATH=$PATH:$(go env GOPATH)/bin
           httpx -l subs.txt -cname -status-code -mc 404 -silent -o cname_404.txt || true
+      - name: Update nuclei templates
+        run: |
+          export PATH=$PATH:$(go env GOPATH)/bin
+          nuclei -update-templates -silent
       - name: Run nuclei
         run: |
           export PATH=$PATH:$(go env GOPATH)/bin
-          nuclei -l cname_404.txt -t takeovers -silent -retries 2 -timeout 10 -bulk-size 25 -concurrency 25 -o results.txt || true
+          nuclei -l cname_404.txt -tags takeover -silent -retries 2 -timeout 10 -bulk-size 25 -concurrency 25 -o results.txt || true
       - name: Send email
         if: hashFiles('results.txt') != ''
         uses: dawidd6/action-send-mail@v3
