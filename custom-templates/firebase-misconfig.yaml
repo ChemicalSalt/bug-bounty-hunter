@@ -1,0 +1,67 @@
+id: firebase-open-database
+
+info:
+  name: Firebase Open Database
+  author: BugBountyBot
+  severity: high
+  description: Detects publicly accessible Firebase databases that allow unauthenticated read access
+  tags: firebase,exposure,misconfig
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}/.json"
+      - "{{BaseURL}}/users.json"
+      - "{{BaseURL}}/data.json"
+      - "{{BaseURL}}/admin.json"
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+
+      - type: word
+        condition: or
+        words:
+          - "firebaseio.com"
+          - '"uid"'
+          - '"email"'
+          - '"users"'
+          - '"token"'
+        part: body
+
+      - type: word
+        negative: true
+        words:
+          - '"error" : "Permission denied"'
+          - "Permission denied"
+        part: body
+
+---
+
+id: firebase-api-key-exposed
+
+info:
+  name: Firebase API Key Exposed in Response
+  author: BugBountyBot
+  severity: medium
+  description: Firebase API key found exposed in HTTP response
+  tags: firebase,api-key,exposure
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}"
+      - "{{BaseURL}}/index.html"
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+
+      - type: regex
+        regex:
+          - "AIza[0-9A-Za-z\\-_]{35}"
+        part: body
