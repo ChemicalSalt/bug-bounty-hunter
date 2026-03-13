@@ -51,7 +51,7 @@ jobs:
       - name: Update nuclei templates
         run: |
           export PATH=$PATH:$(go env GOPATH)/bin
-          nuclei -update-templates
+          nuclei -update-templates -silent
       - name: Run nuclei
         run: |
           export PATH=$PATH:$(go env GOPATH)/bin
