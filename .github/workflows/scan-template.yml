@@ -47,11 +47,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Split domains into batches of 25
+      - name: Split domains into batches of 100
         id: split
         run: |
           total=$(wc -l < domains.txt)
-          num_batches=$(( (total + 24) / 25 ))
+          num_batches=$(( (total + 99) / 100 ))
           batches=$(seq 1 $num_batches | jq -R . | jq -sc .)
           echo "batches=$batches" >> $GITHUB_OUTPUT
 
@@ -60,6 +60,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
+      max-parallel: 10
       matrix:
         batch: ${{ fromJson(needs.prepare.outputs.batches) }}
     steps:
@@ -77,8 +78,8 @@ jobs:
 
       - name: Split domains
         run: |
-          start=$(( (${{ matrix.batch }} - 1) * 25 + 1 ))
-          sed -n "${start},$((start + 24))p" domains.txt > batch_domains.txt
+          start=$(( (${{ matrix.batch }} - 1) * 100 + 1 ))
+          sed -n "${start},$((start + 99))p" domains.txt > batch_domains.txt
 
       - name: Run subfinder
         run: |
@@ -107,13 +108,11 @@ jobs:
           export PATH=$PATH:$(go env GOPATH)/bin
           INPUT_FILE="${{ inputs.nuclei_input }}.txt"
 
-          # Build tags flag
           TAGS_FLAG=""
           if [ -n "${{ inputs.tags }}" ]; then
             TAGS_FLAG="-tags ${{ inputs.tags }}"
           fi
 
-          # Include custom templates if they exist in repo
           CUSTOM_FLAG=""
           if [ -d "custom-templates" ]; then
             CUSTOM_FLAG="-t custom-templates"
@@ -124,7 +123,7 @@ jobs:
             $CUSTOM_FLAG \
             -severity ${{ inputs.severity }} \
             -silent -retries 2 -timeout 10 \
-            -bulk-size 25 -concurrency 25 \
+            -bulk-size 50 -concurrency 50 \
             -o results.txt || true
 
       - name: Check for results
