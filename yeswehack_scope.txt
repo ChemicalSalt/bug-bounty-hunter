@@ -94,7 +94,6 @@ IN:m.blablacar.tr
 IN:mangerbouger.fr
 IN:osu.eu-west-2.outscale.com
 IN:ownit.se
-IN:pit.evoting.ch
 IN:pprd.cybermalveillance.gouv.fr
 IN:professionnels.vaccination-info-service.fr
 IN:scalews.withings.com

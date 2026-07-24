@@ -76,18 +76,23 @@ def fetch_intigriti_scope(program_id, token):
 
     domains = data.get("domains", {}).get("content", [])
     in_scope = []
+    out_scope = []
     for d in domains:
         asset_type = d.get("type", {}).get("value", "")
         tier = d.get("tier", {}).get("value", "")
         endpoint = d.get("endpoint")
-        if asset_type in ("Wildcard", "Url") and tier != "No Bounty" and endpoint:
+        if asset_type not in ("Wildcard", "Url") or not endpoint:
+            continue
+        if tier == "Out Of Scope":
+            out_scope.append(endpoint)
+        elif tier != "No Bounty":
             in_scope.append(endpoint)
 
     roe = data.get("rulesOfEngagement", {}).get("content", {})
     safe_harbor = roe.get("safeHarbour")
     rate_limit = roe.get("testingRequirements", {}).get("automatedTooling")
 
-    return {"scope": in_scope, "safe_harbor": safe_harbor, "rate_limit": rate_limit, "error": None}
+    return {"scope": in_scope, "out_scope": out_scope, "safe_harbor": safe_harbor, "rate_limit": rate_limit, "error": None}
 
 def find_match(programs, keyword, platform=None):
     if platform == "intigriti":
@@ -198,6 +203,7 @@ def main():
     hackerone_scope_lines = []
     hackerone_out_lines = []
     intigriti_scope_lines = []
+    intigriti_out_lines = []
     yeswehack_scope_lines = []
     bugcrowd_scope_lines = []
     bugcrowd_out_lines = []
@@ -266,10 +272,15 @@ def main():
         m = matches[0]
         is_open = (m["status"].lower() == "open")
         is_bbp = True
+        intigriti_scope_result = None
         if platform == "hackerone":
             is_bbp = m.get("offers_bounties") is True
-        elif platform == "intigriti":
-            is_bbp = m.get("type") == "Bug Bounty"
+        elif platform == "intigriti" and is_open:
+            intigriti_scope_result = fetch_intigriti_scope(m["id"], intigriti_token)
+            if intigriti_scope_result["error"]:
+                is_bbp = False
+            else:
+                is_bbp = len(intigriti_scope_result["scope"]) > 0
         tag = "OPEN  " if is_open else "BLOCKED"
         print(f"[{tag}]  {platform}/{keyword} -> '{m['name']}' (handle={m['handle']}) status={m['status']} bbp={is_bbp} ({len(domains)} domain(s))")
         if not is_open or not is_bbp:
@@ -286,14 +297,16 @@ def main():
                     hackerone_out_lines.append(asset)
                 print(f"    [SCOPE] {len(scope_result['scope'])} in-scope, {len(scope_result.get('out_scope', []))} out-of-scope asset(s) found")
 
-        if platform == "intigriti" and is_open and is_bbp:
-            scope_result = fetch_intigriti_scope(m["id"], intigriti_token)
+        if platform == "intigriti" and is_open and intigriti_scope_result is not None:
+            scope_result = intigriti_scope_result
             if scope_result["error"]:
                 print(f"    [SCOPE ERROR] {scope_result['error']}")
             else:
                 for asset in scope_result["scope"]:
                     intigriti_scope_lines.append(asset)
-                print(f"    [SCOPE] {len(scope_result['scope'])} in-scope asset(s) found | safe_harbor={scope_result['safe_harbor']} | rate_limit={scope_result['rate_limit']}")
+                for asset in scope_result.get("out_scope", []):
+                    intigriti_out_lines.append(asset)
+                print(f"    [SCOPE] {len(scope_result['scope'])} in-scope, {len(scope_result.get('out_scope', []))} out-of-scope asset(s) found | safe_harbor={scope_result['safe_harbor']} | rate_limit={scope_result['rate_limit']}")
 
     print("=" * 70)
     print(f"\nSUMMARY: {len(excluded_domains)} domains would be EXCLUDED")
@@ -318,11 +331,14 @@ def main():
     print(f"Wrote {len(hackerone_scope_lines)} in-scope + {len(hackerone_out_lines)} out-of-scope HackerOne assets to {scope_output_path}")
 
     intigriti_scope_lines = sorted(set(intigriti_scope_lines))
+    intigriti_out_lines = sorted(set(intigriti_out_lines))
     intigriti_scope_output_path = os.environ.get("INTIGRITI_SCOPE_OUTPUT_PATH") or os.path.join(HOME, "bug-bounty-hunter", "intigriti_scope.txt")
     with open(intigriti_scope_output_path, "w") as f:
         for asset in intigriti_scope_lines:
             f.write(f"IN:{asset}\n")
-    print(f"Wrote {len(intigriti_scope_lines)} Intigriti in-scope assets to {intigriti_scope_output_path}")
+        for asset in intigriti_out_lines:
+            f.write(f"OUT:{asset}\n")
+    print(f"Wrote {len(intigriti_scope_lines)} in-scope + {len(intigriti_out_lines)} out-of-scope Intigriti assets to {intigriti_scope_output_path}")
 
     yeswehack_scope_lines = sorted(set(yeswehack_scope_lines))
     yeswehack_scope_output_path = os.environ.get("YESWEHACK_SCOPE_OUTPUT_PATH") or os.path.join(HOME, "bug-bounty-hunter", "yeswehack_scope.txt")
