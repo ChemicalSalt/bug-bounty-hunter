@@ -120,5 +120,6 @@ Trouw	automation ban: [Cerebras-confirmed ban, no regex match]
 CM.com	rate limit too strict: 2/s
 Arbonia VDP program	rate limit too strict: 2/s
 Vlerick Business School	rate limit too strict: 2/s
+Liveperson Conversational Cloud	Application tier, no access
 Zabka Group Vulnerability Disclosure Program	rate limit too strict: 3/s
 Fortnox Bug Bounty Program	Application tier, no access

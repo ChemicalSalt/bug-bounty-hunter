@@ -1,9 +1,13 @@
+gojek-bug-bounty-program	automation ban: [Cerebras-confirmed ban] e strictly forbidden.
+- Avoid tests that could cause de
+goto-financial-public-bounty-program	automation ban: [Cerebras-confirmed ban] e strictly forbidden.
+- Avoid tests that could cause de
+infomaniak-bug-bounty-program	automation ban: [Cerebras-confirmed ban] e strictly forbidden.
+- Avoid tests that could cause de
 alasco-gmbh-bug-bounty-program	automation ban: [Cerebras-confirmed ban] den.
 - Tests that could cause degradation or interrupti
 fdj-united-online-betting-gaming-bug-bounty-program	automation ban: [Cerebras-confirmed ban] perform any social engineering against users or FDJ Uni
 dojo	not BBP (VDP or other)
-infomaniak-bug-bounty-program	automation ban: [Cerebras-confirmed ban] e strictly forbidden.
-- Avoid tests that could cause de
 doctolib-public-bug-bounty-program	requires ID verification: [Cerebras-confirmed ID requirement] eatures for healthcare professionals
 
 Certai
@@ -21,10 +25,6 @@ private-internet-access-bug-bounty-program	automation ban: [Cerebras-confirmed b
 zecible-public-bug-bounty-program	automation ban: [Cerebras-confirmed ban] e strictly forbidden.
 - Avoid tests that could cause de
 komoju-public-bug-bounty-program	automation ban: [Cerebras-confirmed ban] e strictly forbidden.
-- Avoid tests that could cause de
-gojek-bug-bounty-program	automation ban: [Cerebras-confirmed ban] e strictly forbidden.
-- Avoid tests that could cause de
-goto-financial-public-bounty-program	automation ban: [Cerebras-confirmed ban] e strictly forbidden.
 - Avoid tests that could cause de
 pine-labs-bug-bounty-program	automation ban: [Cerebras-confirmed ban] e strictly forbidden.
 - Avoid tests that could cause de
@@ -73,8 +73,8 @@ paddle-com-public-bug-bounty-program	automation ban: [Cerebras-confirmed ban] e 
 - Avoid tests that could cause de
 ovh	automation ban: [Cerebras-confirmed ban] e strictly forbidden.
 - Avoid tests that could cause de
-imou-public-bug-bounty-program	automation ban: [Cerebras-confirmed ban] strictly forbidden.
-- Avoid tests that could cause deg
+imou-public-bug-bounty-program	automation ban: [Cerebras-confirmed ban] e strictly forbidden.
+- Avoid tests that could cause de
 maya-public-bug-bounty-program	automation ban: [Cerebras-confirmed ban] e strictly forbidden.
 - Avoid tests that could cause de
 ooredoo-qpsc-bug-bounty-program	automation ban: [Cerebras-confirmed ban] e strictly forbidden.

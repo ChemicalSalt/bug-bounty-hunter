@@ -415,6 +415,10 @@
     "is_ban": true,
     "reason": "The snippet tells testers to avoid using automated scanners, restricting the act of scanning"
   },
+  "0a4177476f1f9dcb5d6d27a2e0318343ed53693d15b9d027d53baf3ae658258c": {
+    "is_ban": false,
+    "reason": "No statement restricts using automated scanners, only program updates"
+  },
   "0a6b071ec4c7d3f0db1c263ac49388a4452e855b64198d90db124a05ac7638f5": {
     "rate": null,
     "reason": "No request rate or scanning throttle is specified"
@@ -2074,6 +2078,10 @@
   "37f2757ccef18e32632e2c829c98556500c6bcc7a5cb4f9f31b9838298a5219b": {
     "rate": null,
     "reason": "No rate limit or scanning throttle is mentioned"
+  },
+  "37f55dc50438796cd37d20d50e1826723da64934fff986e1aff69fac9d2a2257": {
+    "is_ban": false,
+    "reason": "No requirement for personal identity documents or verification is stated"
   },
   "383fdc959f2e96231dfb2ffa534808e07e1f2ce4a3cd0bd667a64314ba22457e": {
     "is_ban": false,
@@ -6258,6 +6266,10 @@
   "aea5502a05bfdbf7194e3111657d2fa9f6dc57fde73f7ae01f12de20a400b779": {
     "rate": null,
     "reason": "No request rate or scanning throttle is mentioned"
+  },
+  "aed35e8e14105629b71774450547b3500830b73d340047092c1476d56bc31814": {
+    "rate": null,
+    "reason": "No rate limit mentioned"
   },
   "aed4b08dc5ab2620785090cace04f8ca025e9f290c180e71e9723667c8155e2e": {
     "rate": null,
