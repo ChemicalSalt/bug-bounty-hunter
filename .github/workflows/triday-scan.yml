@@ -160,7 +160,7 @@ jobs:
           export PATH=$PATH:$(go env GOPATH)/bin
           touch subzy_results.txt
           if [ -s combined.txt ]; then
-            timeout 3000 subzy run --targets combined.txt --hide_fails --verify_ssl -o subzy_results.txt || true
+            timeout 3000 subzy run --targets combined.txt --hide_fails --verify_ssl --concurrency 5 -o subzy_results.txt || true
           fi
           echo "Findings: $(wc -l < subzy_results.txt)"
       - name: Show results
@@ -259,7 +259,7 @@ jobs:
             -H "X-Intigriti-Research: Chemical, Oxidizer" \
             -H "X-YesWeHack-Research: Chemical, Oxidizer" \
             -silent -retries 0 -timeout 3 \
-            -bulk-size 50 -concurrency 50 \
+            -bulk-size 5 -concurrency 5 \
             -rate-limit 5 -fhr -max-host-error 30 \
             -no-color -o results.txt || true
           grep -E "\[(medium|high|critical)\]" results.txt > results_filtered.txt 2>/dev/null || true
@@ -324,6 +324,13 @@ jobs:
           end=$(( batch_num * batch_size ))
           sed -n "${start},${end}p" combined.txt > input.txt
           echo "Batch $batch_num/$num_batches: $(wc -l < input.txt) of $total hosts"
+
+      - name: Pre-filter dead hosts (liveness check)
+        run: |
+          echo "Hosts before liveness filter: $(wc -l < input.txt)"
+          cat input.txt | xargs -P 30 -I @@H@@ bash -c 'code=$(curl -s -o /dev/null -m 2 -w "%{http_code}" "@@H@@" 2>/dev/null || echo 000); if [ "$code" != "000" ]; then echo "@@H@@"; fi' > input_live.txt || true
+          if [ -s input_live.txt ]; then mv input_live.txt input.txt; fi
+          echo "Hosts after liveness filter: $(wc -l < input.txt)"
 
       - name: Get week number
         id: date
@@ -393,7 +400,7 @@ jobs:
             -H "X-Intigriti-Research: Chemical, Oxidizer" \
             -H "X-YesWeHack-Research: Chemical, Oxidizer" \
             -silent -retries 0 -timeout 3 \
-            -bulk-size 50 -concurrency 50 \
+            -bulk-size 5 -concurrency 5 \
             -rate-limit 5 -fhr -max-host-error 30 \
             -no-color -o results.txt || true
 
@@ -461,6 +468,13 @@ jobs:
           sed -n "${start},${end}p" live_hosts_403.txt > input_403.txt
           echo "Batch $batch_num/$num_batches: $(wc -l < input_403.txt) of $total hosts"
 
+      - name: Pre-filter dead hosts (liveness check)
+        run: |
+          echo "Hosts before liveness filter: $(wc -l < input_403.txt)"
+          cat input_403.txt | xargs -P 30 -I @@H@@ bash -c 'code=$(curl -s -o /dev/null -m 2 -w "%{http_code}" "@@H@@" 2>/dev/null || echo 000); if [ "$code" != "000" ]; then echo "@@H@@"; fi' > input_403_live.txt || true
+          if [ -s input_403_live.txt ]; then mv input_403_live.txt input_403.txt; fi
+          echo "Hosts after liveness filter: $(wc -l < input_403.txt)"
+
       - name: Get week number
         id: date
         run: echo "week=$(date +'%Y-%U')" >> $GITHUB_OUTPUT
@@ -520,7 +534,7 @@ jobs:
             -H "X-Intigriti-Research: Chemical, Oxidizer" \
             -H "X-YesWeHack-Research: Chemical, Oxidizer" \
             -silent -retries 0 -timeout 3 \
-            -bulk-size 50 -concurrency 50 \
+            -bulk-size 5 -concurrency 5 \
             -rate-limit 5 -fhr -max-host-error 30 \
             -no-color -o results.txt || true
 
@@ -592,10 +606,17 @@ jobs:
           pattern: takeover-results
         continue-on-error: true
 
+      - name: Download subzy results
+        uses: actions/download-artifact@v4
+        with:
+          path: all_results
+          pattern: subzy-results
+        continue-on-error: true
+
       - name: Merge, deduplicate, and filter against seen findings
         id: merge
         run: |
-          find all_results -name "results.txt" | xargs cat 2>/dev/null | \
+          find all_results -name "results.txt" -o -name "subzy_results.txt" | xargs cat 2>/dev/null | \
             sort -u > final_findings.txt || true
           touch seen_findings.txt
           comm -23 <(sort final_findings.txt) <(sort seen_findings.txt) > new_findings.txt || true
