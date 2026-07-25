@@ -352,6 +352,12 @@ jobs:
       matrix:
         batch: ${{ fromJson(needs.prepare.outputs.batches) }}
     steps:
+      - name: Checkout domains branch (for seen_findings.txt)
+        uses: actions/checkout@v4
+        with:
+          ref: domains
+          fetch-depth: 1
+
       - name: Download host list
         uses: actions/download-artifact@v4
         with:
@@ -451,14 +457,20 @@ jobs:
           mv results_filtered.txt results.txt
           echo "Findings: $(wc -l < results.txt)"
 
+      - name: Filter against previously seen findings
+        run: |
+          touch seen_findings.txt
+          comm -23 <(sort -u results.txt) <(sort -u seen_findings.txt) > new_results.txt || true
+          echo "Total: $(wc -l < results.txt) | New (never emailed): $(wc -l < new_results.txt)"
+
       - name: Show results
         id: showresults
         if: always()
         run: |
-          count=$(wc -l < results.txt 2>/dev/null || echo 0)
+          count=$(wc -l < new_results.txt 2>/dev/null || echo 0)
           echo "count=$count" >> $GITHUB_OUTPUT
-          echo "Total findings: $count"
-          if [ "$count" -gt "0" ]; then cat results.txt; else echo "No findings"; fi
+          echo "New findings: $count"
+          if [ "$count" -gt "0" ]; then cat new_results.txt; else echo "No new findings"; fi
 
       - name: Immediate email if findings
         if: steps.showresults.outputs.count != '0'
@@ -468,8 +480,8 @@ jobs:
           server_port: 465
           username: ${{ secrets.EMAIL_USER }}
           password: ${{ secrets.EMAIL_PASS }}
-          subject: "[Daily Main - Batch ${{ matrix.batch }}] ${{ steps.showresults.outputs.count }} Finding(s)"
-          body: file://results.txt
+          subject: "[Daily Main - Batch ${{ matrix.batch }}] ${{ steps.showresults.outputs.count }} New Finding(s)"
+          body: file://new_results.txt
           to: ${{ secrets.EMAIL_TO }}
           from: BugBountyBot
 
@@ -495,6 +507,12 @@ jobs:
       matrix:
         batch: ${{ fromJson(needs.prepare.outputs.batches) }}
     steps:
+      - name: Checkout domains branch (for seen_findings.txt)
+        uses: actions/checkout@v4
+        with:
+          ref: domains
+          fetch-depth: 1
+
       - name: Download host lists
         uses: actions/download-artifact@v4
         with:
@@ -585,14 +603,20 @@ jobs:
           mv results_filtered.txt results.txt
           echo "Findings: $(wc -l < results.txt)"
 
+      - name: Filter against previously seen findings
+        run: |
+          touch seen_findings.txt
+          comm -23 <(sort -u results.txt) <(sort -u seen_findings.txt) > new_results.txt || true
+          echo "Total: $(wc -l < results.txt) | New (never emailed): $(wc -l < new_results.txt)"
+
       - name: Show results
         id: showresults
         if: always()
         run: |
-          count=$(wc -l < results.txt 2>/dev/null || echo 0)
+          count=$(wc -l < new_results.txt 2>/dev/null || echo 0)
           echo "count=$count" >> $GITHUB_OUTPUT
-          echo "Total findings: $count"
-          if [ "$count" -gt "0" ]; then cat results.txt; else echo "No findings"; fi
+          echo "New findings: $count"
+          if [ "$count" -gt "0" ]; then cat new_results.txt; else echo "No new findings"; fi
 
       - name: Immediate email if findings
         if: steps.showresults.outputs.count != '0'
@@ -602,8 +626,8 @@ jobs:
           server_port: 465
           username: ${{ secrets.EMAIL_USER }}
           password: ${{ secrets.EMAIL_PASS }}
-          subject: "[403 Bypass - Batch ${{ matrix.batch }}] ${{ steps.showresults.outputs.count }} Finding(s)"
-          body: file://results.txt
+          subject: "[403 Bypass - Batch ${{ matrix.batch }}] ${{ steps.showresults.outputs.count }} New Finding(s)"
+          body: file://new_results.txt
           to: ${{ secrets.EMAIL_TO }}
           from: BugBountyBot
 
