@@ -266,6 +266,8 @@ jobs:
           if [ "$NUCLEI_EXIT" -eq 124 ]; then
             echo "[TIMING] WARNING: nuclei was killed by timeout - scan incomplete, batch will NOT be marked done"
           fi
+          grep -E "\[(medium|high|critical)\]" results.txt > results_filtered.txt 2>/dev/null || true
+          mv results_filtered.txt results.txt
           echo "Findings: $(wc -l < results.txt)"
 
       - name: Show results
@@ -555,6 +557,8 @@ jobs:
           SCAN_END=$(date +%s)
           echo "[TIMING] Scan end: $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
           echo "[TIMING] Elapsed seconds: $(( SCAN_END - SCAN_START ))"
+          grep -E "\[(medium|high|critical)\]" results.txt > results_filtered.txt 2>/dev/null || true
+          mv results_filtered.txt results.txt
           echo "Findings: $(wc -l < results.txt)"
 
       - name: Show results
@@ -709,6 +713,8 @@ jobs:
           SCAN_END=$(date +%s)
           echo "[TIMING] Scan end: $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
           echo "[TIMING] Elapsed seconds: $(( SCAN_END - SCAN_START ))"
+          grep -E "\[(medium|high|critical)\]" results.txt > results_filtered.txt 2>/dev/null || true
+          mv results_filtered.txt results.txt
           echo "Findings: $(wc -l < results.txt)"
 
       - name: Show results
