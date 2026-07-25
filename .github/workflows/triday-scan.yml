@@ -252,7 +252,7 @@ jobs:
             -t "$TEMPLATES_DIR/http/takeovers" \
             -itags takeover,subdomain-takeover \
             -etags ssl,tls,http-missing-headers,tech,info,dns,helpers,passive \
-            -severity low,medium,high,critical \
+            -severity medium,high,critical \
             -H "User-Agent: Mozilla/5.0 BugBounty/42 (YWH) Chemical Oxidizer CS_YWH/BB" \
             -H "X-Bug-Bounty: HackerOne-Chemical, HackerOne-Oxidizer" \
             -H "X-Bugcrowd-Research: Chemical, Oxidizer" \
@@ -262,6 +262,8 @@ jobs:
             -bulk-size 50 -concurrency 50 \
             -rate-limit 5 -fhr -max-host-error 30 \
             -no-color -o results.txt || true
+          grep -E "\[(medium|high|critical)\]" results.txt > results_filtered.txt 2>/dev/null || true
+          mv results_filtered.txt results.txt
           echo "Findings: $(wc -l < results.txt)"
 
       - name: Show results
@@ -384,7 +386,7 @@ jobs:
             -t "$TEMPLATE_PATHS" \
             -itags cve,cors,panel,admin \
             -etags ssl,tls,http-missing-headers,tech,info,dns,helpers,passive \
-            -severity low,medium,high,critical \
+            -severity medium,high,critical \
             -H "User-Agent: Mozilla/5.0 BugBounty/42 (YWH) Chemical Oxidizer CS_YWH/BB" \
             -H "X-Bug-Bounty: HackerOne-Chemical, HackerOne-Oxidizer" \
             -H "X-Bugcrowd-Research: Chemical, Oxidizer" \
@@ -395,6 +397,8 @@ jobs:
             -rate-limit 5 -fhr -max-host-error 30 \
             -no-color -o results.txt || true
 
+          grep -E "\[(medium|high|critical)\]" results.txt > results_filtered.txt 2>/dev/null || true
+          mv results_filtered.txt results.txt
           echo "Findings: $(wc -l < results.txt)"
 
       - name: Show results
@@ -509,7 +513,7 @@ jobs:
             -t "$TEMPLATES_DIR/http/misconfiguration" \
             -itags 403 \
             -etags ssl,tls,http-missing-headers,tech,info,dns,helpers,passive \
-            -severity low,medium,high,critical \
+            -severity medium,high,critical \
             -H "User-Agent: Mozilla/5.0 BugBounty/42 (YWH) Chemical Oxidizer CS_YWH/BB" \
             -H "X-Bug-Bounty: HackerOne-Chemical, HackerOne-Oxidizer" \
             -H "X-Bugcrowd-Research: Chemical, Oxidizer" \
@@ -520,6 +524,8 @@ jobs:
             -rate-limit 5 -fhr -max-host-error 30 \
             -no-color -o results.txt || true
 
+          grep -E "\[(medium|high|critical)\]" results.txt > results_filtered.txt 2>/dev/null || true
+          mv results_filtered.txt results.txt
           echo "Findings: $(wc -l < results.txt)"
 
       - name: Show results
