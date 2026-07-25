@@ -346,6 +346,8 @@ jobs:
             exit 1
           fi
 
+          grep -E "\[(medium|high|critical)\]" results.txt > results_filtered.txt 2>/dev/null || true
+          mv results_filtered.txt results.txt
           echo "Findings: $(wc -l < results.txt 2>/dev/null || echo 0)"
 
       - name: Show results
