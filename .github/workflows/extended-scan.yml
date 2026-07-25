@@ -12,7 +12,7 @@ concurrency:
 
 jobs:
   prepare:
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion != 'cancelled'
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -681,6 +681,16 @@ jobs:
         with:
           ref: main
           fetch-depth: 1
+
+      - name: Checkout domains branch (for seen_findings_custom.txt)
+        uses: actions/checkout@v4
+        with:
+          ref: domains
+          path: domains_data
+          fetch-depth: 1
+
+      - name: Copy seen findings from domains branch
+        run: cp domains_data/seen_findings_custom.txt . 2>/dev/null || touch seen_findings_custom.txt
 
       - name: Download host list
         uses: actions/download-artifact@v4
