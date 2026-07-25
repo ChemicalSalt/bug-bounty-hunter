@@ -270,19 +270,25 @@ jobs:
           mv results_filtered.txt results.txt
           echo "Findings: $(wc -l < results.txt)"
 
+      - name: Filter against previously seen findings
+        run: |
+          touch seen_findings_combined.txt
+          comm -23 <(sort -u results.txt) <(sort -u seen_findings_combined.txt) > new_results.txt || true
+          echo "Total findings: $(wc -l < results.txt) | New (never emailed): $(wc -l < new_results.txt)"
+
       - name: Show results
         if: always()
         run: |
-          count=$(wc -l < results.txt 2>/dev/null || echo 0)
-          echo "Total findings: $count"
-          if [ "$count" -gt "0" ]; then cat results.txt; else echo "No findings"; fi
+          count=$(wc -l < new_results.txt 2>/dev/null || echo 0)
+          echo "New findings: $count"
+          if [ "$count" -gt "0" ]; then cat new_results.txt; else echo "No new findings"; fi
 
       - name: Check for results
         id: check
         run: |
-          if [ -s results.txt ]; then
+          if [ -s new_results.txt ]; then
             echo "found=true" >> $GITHUB_OUTPUT
-            echo "count=$(wc -l < results.txt)" >> $GITHUB_OUTPUT
+            echo "count=$(wc -l < new_results.txt)" >> $GITHUB_OUTPUT
           else
             echo "found=false" >> $GITHUB_OUTPUT
             echo "count=0" >> $GITHUB_OUTPUT
@@ -296,8 +302,8 @@ jobs:
           server_port: 465
           username: ${{ secrets.EMAIL_USER }}
           password: ${{ secrets.EMAIL_PASS }}
-          subject: "[Weekend Combined ${{ matrix.batch }}] ${{ steps.check.outputs.count }} Finding(s)"
-          body: file://results.txt
+          subject: "[Weekend Combined ${{ matrix.batch }}] ${{ steps.check.outputs.count }} New Finding(s)"
+          body: file://new_results.txt
           to: ${{ secrets.EMAIL_TO }}
           from: BugBountyBot
 
@@ -312,6 +318,14 @@ jobs:
         with:
           name: batch-marker-combined-${{ matrix.batch }}
           path: batch_marker.txt
+          retention-days: 1
+
+      - name: Upload batch findings for seen-list merge
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: batch-findings-combined-${{ matrix.batch }}
+          path: results.txt
           retention-days: 1
 
   finalize_progress:
@@ -331,6 +345,35 @@ jobs:
         with:
           path: batch_markers
           pattern: batch-marker-*
+
+      - name: Download all batch findings
+        uses: actions/download-artifact@v4
+        with:
+          path: batch_findings
+          pattern: batch-findings-*
+        continue-on-error: true
+
+      - name: Merge findings into seen-list files
+        run: |
+          touch seen_findings_combined.txt seen_findings_jssecrets.txt seen_findings_custom.txt
+          for d in batch_findings/batch-findings-*; do
+            [ -d "$d" ] || continue
+            name=$(basename "$d")
+            job=$(echo "$name" | sed -E 's/^batch-findings-(combined|custom|jssecrets)-[0-9]+$/\1/')
+            if [ "$job" = "combined" ] && [ -f "$d/results.txt" ]; then
+              cat "$d/results.txt" >> seen_findings_combined.txt
+            elif [ "$job" = "jssecrets" ] && [ -f "$d/results.txt" ]; then
+              cat "$d/results.txt" >> seen_findings_jssecrets.txt
+            elif [ "$job" = "custom" ] && [ -f "$d/results.txt" ]; then
+              cat "$d/results.txt" >> seen_findings_custom.txt
+            fi
+          done
+          sort -u seen_findings_combined.txt -o seen_findings_combined.txt
+          sort -u seen_findings_jssecrets.txt -o seen_findings_jssecrets.txt
+          sort -u seen_findings_custom.txt -o seen_findings_custom.txt
+          echo "seen_findings_combined.txt: $(wc -l < seen_findings_combined.txt) total"
+          echo "seen_findings_jssecrets.txt: $(wc -l < seen_findings_jssecrets.txt) total"
+          echo "seen_findings_custom.txt: $(wc -l < seen_findings_custom.txt) total"
 
       - name: Merge markers into weekend_progress.txt
         run: |
@@ -388,7 +431,7 @@ jobs:
             fi
           fi
 
-          git add weekend_progress.txt weekend_offset.txt weekend_stall_count.txt weekend_stuck_batches.log 2>/dev/null || git add weekend_progress.txt weekend_offset.txt weekend_stall_count.txt
+          git add weekend_progress.txt weekend_offset.txt weekend_stall_count.txt weekend_stuck_batches.log seen_findings_combined.txt seen_findings_jssecrets.txt seen_findings_custom.txt 2>/dev/null || git add weekend_progress.txt weekend_offset.txt weekend_stall_count.txt seen_findings_combined.txt seen_findings_jssecrets.txt seen_findings_custom.txt
           git diff --staged --quiet || git commit -m "Weekend scan progress update $(date +'%Y-%m-%d')"
           git push origin domains || (git pull --rebase origin domains && git push origin domains) || echo "::warning::Push failed for weekend_progress.txt"
 
@@ -561,19 +604,25 @@ jobs:
           mv results_filtered.txt results.txt
           echo "Findings: $(wc -l < results.txt)"
 
+      - name: Filter against previously seen findings
+        run: |
+          touch seen_findings_jssecrets.txt
+          comm -23 <(sort -u results.txt) <(sort -u seen_findings_jssecrets.txt) > new_results.txt || true
+          echo "Total findings: $(wc -l < results.txt) | New (never emailed): $(wc -l < new_results.txt)"
+
       - name: Show results
         if: always()
         run: |
-          count=$(wc -l < results.txt 2>/dev/null || echo 0)
-          echo "Total findings: $count"
-          if [ "$count" -gt "0" ]; then cat results.txt; else echo "No findings"; fi
+          count=$(wc -l < new_results.txt 2>/dev/null || echo 0)
+          echo "New findings: $count"
+          if [ "$count" -gt "0" ]; then cat new_results.txt; else echo "No new findings"; fi
 
       - name: Check for results
         id: check
         run: |
-          if [ -s results.txt ]; then
+          if [ -s new_results.txt ]; then
             echo "found=true" >> $GITHUB_OUTPUT
-            echo "count=$(wc -l < results.txt)" >> $GITHUB_OUTPUT
+            echo "count=$(wc -l < new_results.txt)" >> $GITHUB_OUTPUT
           else
             echo "found=false" >> $GITHUB_OUTPUT
             echo "count=0" >> $GITHUB_OUTPUT
@@ -587,8 +636,8 @@ jobs:
           server_port: 465
           username: ${{ secrets.EMAIL_USER }}
           password: ${{ secrets.EMAIL_PASS }}
-          subject: "[Weekend JS Secrets ${{ matrix.batch }}] ${{ steps.check.outputs.count }} Finding(s)"
-          body: file://results.txt
+          subject: "[Weekend JS Secrets ${{ matrix.batch }}] ${{ steps.check.outputs.count }} New Finding(s)"
+          body: file://new_results.txt
           to: ${{ secrets.EMAIL_TO }}
           from: BugBountyBot
 
@@ -603,6 +652,14 @@ jobs:
         with:
           name: batch-marker-jssecrets-${{ matrix.batch }}
           path: batch_marker.txt
+          retention-days: 1
+
+      - name: Upload batch findings for seen-list merge
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: batch-findings-jssecrets-${{ matrix.batch }}
+          path: results.txt
           retention-days: 1
 
   # ─── CUSTOM TEMPLATES ──────────────────────────────────────────
@@ -717,19 +774,25 @@ jobs:
           mv results_filtered.txt results.txt
           echo "Findings: $(wc -l < results.txt)"
 
+      - name: Filter against previously seen findings
+        run: |
+          touch seen_findings_custom.txt
+          comm -23 <(sort -u results.txt) <(sort -u seen_findings_custom.txt) > new_results.txt || true
+          echo "Total findings: $(wc -l < results.txt) | New (never emailed): $(wc -l < new_results.txt)"
+
       - name: Show results
         if: always()
         run: |
-          count=$(wc -l < results.txt 2>/dev/null || echo 0)
-          echo "Total findings: $count"
-          if [ "$count" -gt "0" ]; then cat results.txt; else echo "No findings"; fi
+          count=$(wc -l < new_results.txt 2>/dev/null || echo 0)
+          echo "New findings: $count"
+          if [ "$count" -gt "0" ]; then cat new_results.txt; else echo "No new findings"; fi
 
       - name: Check for results
         id: check
         run: |
-          if [ -s results.txt ]; then
+          if [ -s new_results.txt ]; then
             echo "found=true" >> $GITHUB_OUTPUT
-            echo "count=$(wc -l < results.txt)" >> $GITHUB_OUTPUT
+            echo "count=$(wc -l < new_results.txt)" >> $GITHUB_OUTPUT
           else
             echo "found=false" >> $GITHUB_OUTPUT
             echo "count=0" >> $GITHUB_OUTPUT
@@ -743,8 +806,8 @@ jobs:
           server_port: 465
           username: ${{ secrets.EMAIL_USER }}
           password: ${{ secrets.EMAIL_PASS }}
-          subject: "[Weekend Custom ${{ matrix.batch }}] ${{ steps.check.outputs.count }} Finding(s)"
-          body: file://results.txt
+          subject: "[Weekend Custom ${{ matrix.batch }}] ${{ steps.check.outputs.count }} New Finding(s)"
+          body: file://new_results.txt
           to: ${{ secrets.EMAIL_TO }}
           from: BugBountyBot
 
@@ -759,4 +822,12 @@ jobs:
         with:
           name: batch-marker-custom-${{ matrix.batch }}
           path: batch_marker.txt
+          retention-days: 1
+
+      - name: Upload batch findings for seen-list merge
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: batch-findings-custom-${{ matrix.batch }}
+          path: results.txt
           retention-days: 1
