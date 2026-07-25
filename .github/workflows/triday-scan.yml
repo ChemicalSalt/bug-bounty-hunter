@@ -136,6 +136,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
+      - name: Checkout domains branch (for seen_findings.txt)
+        uses: actions/checkout@v4
+        with:
+          ref: domains
+          fetch-depth: 1
       - name: Download host lists
         uses: actions/download-artifact@v4
         with:
@@ -163,14 +168,19 @@ jobs:
             timeout 3000 subzy run --targets combined.txt --hide_fails --verify_ssl --concurrency 5 -o subzy_results.txt || true
           fi
           echo "Findings: $(wc -l < subzy_results.txt)"
+      - name: Filter against previously seen findings
+        run: |
+          touch seen_findings.txt
+          comm -23 <(sort -u subzy_results.txt) <(sort -u seen_findings.txt) > new_subzy_results.txt || true
+          echo "Total: $(wc -l < subzy_results.txt) | New (never emailed): $(wc -l < new_subzy_results.txt)"
       - name: Show results
         id: showresults
         if: always()
         run: |
-          count=$(wc -l < subzy_results.txt 2>/dev/null || echo 0)
+          count=$(wc -l < new_subzy_results.txt 2>/dev/null || echo 0)
           echo "count=$count" >> $GITHUB_OUTPUT
-          echo "Total findings: $count"
-          if [ "$count" -gt "0" ]; then cat subzy_results.txt; else echo "No findings"; fi
+          echo "New findings: $count"
+          if [ "$count" -gt "0" ]; then cat new_subzy_results.txt; else echo "No new findings"; fi
       - name: Immediate email if findings
         if: steps.showresults.outputs.count != '0'
         uses: dawidd6/action-send-mail@v3
@@ -179,10 +189,20 @@ jobs:
           server_port: 465
           username: ${{ secrets.EMAIL_USER }}
           password: ${{ secrets.EMAIL_PASS }}
-          subject: "[Subzy Takeover] ${{ steps.showresults.outputs.count }} Finding(s)"
-          body: file://subzy_results.txt
+          subject: "[Subzy Takeover] ${{ steps.showresults.outputs.count }} New Finding(s)"
+          body: file://new_subzy_results.txt
           to: ${{ secrets.EMAIL_TO }}
           from: BugBountyBot
+      - name: Update seen_findings.txt and push
+        if: always()
+        run: |
+          cat subzy_results.txt >> seen_findings.txt
+          sort -u seen_findings.txt -o seen_findings.txt
+          git config user.name "BugBountyBot"
+          git config user.email "bot@users.noreply.github.com"
+          git add seen_findings.txt
+          git diff --staged --quiet || git commit -m "Subzy takeover seen findings update $(date +'%Y-%m-%d') — $(wc -l < seen_findings.txt) total seen"
+          git push origin domains || (git pull --rebase origin domains && git push origin domains) || echo "::warning::Push to domains failed - seen_findings.txt may be stale, future emails could repeat findings from today"
       - name: Upload subzy results
         uses: actions/upload-artifact@v4
         with:
@@ -197,6 +217,12 @@ jobs:
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
+      - name: Checkout domains branch (for seen_findings.txt)
+        uses: actions/checkout@v4
+        with:
+          ref: domains
+          fetch-depth: 1
+
       - name: Download host lists
         uses: actions/download-artifact@v4
         with:
@@ -266,14 +292,20 @@ jobs:
           mv results_filtered.txt results.txt
           echo "Findings: $(wc -l < results.txt)"
 
+      - name: Filter against previously seen findings
+        run: |
+          touch seen_findings.txt
+          comm -23 <(sort -u results.txt) <(sort -u seen_findings.txt) > new_results.txt || true
+          echo "Total: $(wc -l < results.txt) | New (never emailed): $(wc -l < new_results.txt)"
+
       - name: Show results
         id: showresults
         if: always()
         run: |
-          count=$(wc -l < results.txt 2>/dev/null || echo 0)
+          count=$(wc -l < new_results.txt 2>/dev/null || echo 0)
           echo "count=$count" >> $GITHUB_OUTPUT
-          echo "Total findings: $count"
-          if [ "$count" -gt "0" ]; then cat results.txt; else echo "No findings"; fi
+          echo "New findings: $count"
+          if [ "$count" -gt "0" ]; then cat new_results.txt; else echo "No new findings"; fi
 
       - name: Immediate email if findings
         if: steps.showresults.outputs.count != '0'
@@ -283,10 +315,21 @@ jobs:
           server_port: 465
           username: ${{ secrets.EMAIL_USER }}
           password: ${{ secrets.EMAIL_PASS }}
-          subject: "[Takeover] ${{ steps.showresults.outputs.count }} Finding(s)"
-          body: file://results.txt
+          subject: "[Takeover] ${{ steps.showresults.outputs.count }} New Finding(s)"
+          body: file://new_results.txt
           to: ${{ secrets.EMAIL_TO }}
           from: BugBountyBot
+
+      - name: Update seen_findings.txt and push
+        if: always()
+        run: |
+          cat results.txt >> seen_findings.txt
+          sort -u seen_findings.txt -o seen_findings.txt
+          git config user.name "BugBountyBot"
+          git config user.email "bot@users.noreply.github.com"
+          git add seen_findings.txt
+          git diff --staged --quiet || git commit -m "Takeover seen findings update $(date +'%Y-%m-%d') — $(wc -l < seen_findings.txt) total seen"
+          git push origin domains || (git pull --rebase origin domains && git push origin domains) || echo "::warning::Push to domains failed - seen_findings.txt may be stale, future emails could repeat findings from today"
 
       - name: Upload takeover results
         uses: actions/upload-artifact@v4
