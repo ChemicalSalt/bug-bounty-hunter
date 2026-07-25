@@ -66,18 +66,45 @@ withings-public-program	Scanwatch 2
 withings-public-program	Scanwatch Nova
 withings-public-program	Scanwatch
 tencent-bug-bounty-program	In-Scope Products (for the full list please visit https://en.security.tencent.com/index.php/policy)
-swiss-post-evoting	Source Code
-swiss-post-evoting	System Specification
-swiss-post-evoting	Scenarios with Special Bounties
-swiss-post-evoting	Protocol of the Swiss Post Voting System
-ant-group-security-response-center-bug-bounty-program	Any Other Applications found here: https://security-en.alipay.com/home
-swiss-post	(*.post.ch:80|*.post.ch:443) AND 194.41.128.0/17
-bug-bounty-program-blablacar	https://edge.blablacar.(fr|de|co.uk|in|es|mx|be|hr|hu|it|nl|pl|com.br|pt|ro|ru|com|tr|com.ua))
-outscale	Any resource created or accessed with the Outscale Cloud on eu-west-2 region -  created by the Hunter
-withings-public-program	Body Scan scale
-withings-public-program	Body Comp scale
-withings-public-program	Scanwatch Light
-withings-public-program	Scanwatch 2
-withings-public-program	Scanwatch Nova
-withings-public-program	Scanwatch
-tencent-bug-bounty-program	In-Scope Products (for the full list please visit https://en.security.tencent.com/index.php/policy)
+unknown	Any Other Applications found here: https://security-en.alipay.com/home
+unknown	https://edge.blablacar.(fr|de|co.uk|in|es|mx|be|hr|hu|it|nl|pl|com.br|pt|ro|ru|com|tr|com.ua))
+unknown	Any resource created or accessed with the Outscale Cloud on eu-west-2 region -  created by the Hunter
+unknown	(*.post.ch:80|*.post.ch:443) AND 194.41.128.0/17
+unknown	Source Code
+unknown	System Specification
+unknown	Scenarios with Special Bounties
+unknown	Protocol of the Swiss Post Voting System
+unknown	Body Scan scale
+unknown	Body Comp scale
+unknown	Scanwatch Light
+unknown	Scanwatch 2
+unknown	Scanwatch Nova
+unknown	Scanwatch
+unknown	Any Other Applications found here: https://security-en.alipay.com/home
+unknown	https://edge.blablacar.(fr|de|co.uk|in|es|mx|be|hr|hu|it|nl|pl|com.br|pt|ro|ru|com|tr|com.ua))
+unknown	Any resource created or accessed with the Outscale Cloud on eu-west-2 region -  created by the Hunter
+unknown	(*.post.ch:80|*.post.ch:443) AND 194.41.128.0/17
+unknown	Source Code
+unknown	System Specification
+unknown	Scenarios with Special Bounties
+unknown	Protocol of the Swiss Post Voting System
+unknown	Body Scan scale
+unknown	Body Comp scale
+unknown	Scanwatch Light
+unknown	Scanwatch 2
+unknown	Scanwatch Nova
+unknown	Scanwatch
+unknown	Any Other Applications found here: https://security-en.alipay.com/home
+unknown	https://edge.blablacar.(fr|de|co.uk|in|es|mx|be|hr|hu|it|nl|pl|com.br|pt|ro|ru|com|tr|com.ua))
+unknown	Any resource created or accessed with the Outscale Cloud on eu-west-2 region -  created by the Hunter
+unknown	(*.post.ch:80|*.post.ch:443) AND 194.41.128.0/17
+unknown	Source Code
+unknown	System Specification
+unknown	Scenarios with Special Bounties
+unknown	Protocol of the Swiss Post Voting System
+unknown	Body Scan scale
+unknown	Body Comp scale
+unknown	Scanwatch Light
+unknown	Scanwatch 2
+unknown	Scanwatch Nova
+unknown	Scanwatch
