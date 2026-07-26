@@ -260,7 +260,7 @@ jobs:
             -bulk-size 5 -concurrency 5 \
             -rate-limit 5 -fhr -max-host-error 30 \
             -stats -si 30 \
-            -no-color -o results.txt
+            -no-color -o results.txt -je nuclei_findings.json -irr
           NUCLEI_EXIT=$?
           echo "$NUCLEI_EXIT" > nuclei_exit_code.txt
           if [ "$NUCLEI_EXIT" -eq 124 ]; then
@@ -302,6 +302,11 @@ jobs:
             echo "count=0" >> $GITHUB_OUTPUT
           fi
 
+      - name: Build detailed email body
+        if: steps.check.outputs.found == 'true'
+        run: |
+          python3 build_email_body.py || cp new_results.txt new_results_detailed.txt
+
       - name: Send email alert
         if: steps.check.outputs.found == 'true'
         uses: dawidd6/action-send-mail@v3
@@ -311,7 +316,7 @@ jobs:
           username: ${{ secrets.EMAIL_USER }}
           password: ${{ secrets.EMAIL_PASS }}
           subject: "[Weekend Combined ${{ matrix.batch }}] ${{ steps.check.outputs.count }} New Finding(s)"
-          body: file://new_results.txt
+          body: file://new_results_detailed.txt
           to: ${{ secrets.EMAIL_TO }}
           from: BugBountyBot
 
@@ -597,7 +602,7 @@ jobs:
             -bulk-size 5 -concurrency 5 \
             -rate-limit 5 -fhr -max-host-error 30 \
             -stats -si 30 \
-            -no-color -o results.txt
+            -no-color -o results.txt -je nuclei_findings.json -irr
           NUCLEI_EXIT=$?
           echo "$NUCLEI_EXIT" > nuclei_exit_code.txt
           if [ "$NUCLEI_EXIT" -eq 124 ]; then
@@ -636,6 +641,11 @@ jobs:
             echo "count=0" >> $GITHUB_OUTPUT
           fi
 
+      - name: Build detailed email body
+        if: steps.check.outputs.found == 'true'
+        run: |
+          python3 build_email_body.py || cp new_results.txt new_results_detailed.txt
+
       - name: Send email alert
         if: steps.check.outputs.found == 'true'
         uses: dawidd6/action-send-mail@v3
@@ -645,7 +655,7 @@ jobs:
           username: ${{ secrets.EMAIL_USER }}
           password: ${{ secrets.EMAIL_PASS }}
           subject: "[Weekend JS Secrets ${{ matrix.batch }}] ${{ steps.check.outputs.count }} New Finding(s)"
-          body: file://new_results.txt
+          body: file://new_results_detailed.txt
           to: ${{ secrets.EMAIL_TO }}
           from: BugBountyBot
 
@@ -777,7 +787,7 @@ jobs:
             -bulk-size 5 -concurrency 5 \
             -rate-limit 5 -fhr -max-host-error 30 \
             -stats -si 30 \
-            -no-color -o results.txt
+            -no-color -o results.txt -je nuclei_findings.json -irr
           NUCLEI_EXIT=$?
           echo "$NUCLEI_EXIT" > nuclei_exit_code.txt
           if [ "$NUCLEI_EXIT" -eq 124 ]; then
@@ -816,6 +826,11 @@ jobs:
             echo "count=0" >> $GITHUB_OUTPUT
           fi
 
+      - name: Build detailed email body
+        if: steps.check.outputs.found == 'true'
+        run: |
+          python3 build_email_body.py || cp new_results.txt new_results_detailed.txt
+
       - name: Send email alert
         if: steps.check.outputs.found == 'true'
         uses: dawidd6/action-send-mail@v3
@@ -825,7 +840,7 @@ jobs:
           username: ${{ secrets.EMAIL_USER }}
           password: ${{ secrets.EMAIL_PASS }}
           subject: "[Weekend Custom ${{ matrix.batch }}] ${{ steps.check.outputs.count }} New Finding(s)"
-          body: file://new_results.txt
+          body: file://new_results_detailed.txt
           to: ${{ secrets.EMAIL_TO }}
           from: BugBountyBot
 
