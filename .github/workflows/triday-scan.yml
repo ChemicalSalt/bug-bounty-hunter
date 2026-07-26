@@ -3,6 +3,14 @@ on:
   schedule:
     - cron: '30 18 * * 2-4'   # 12:00am IST Wed-Fri (UTC Tue-Thu 18:30, +5:30 rolls to next day IST)
   workflow_dispatch:
+    inputs:
+      runner:
+        description: 'Where to run'
+        type: choice
+        options:
+          - github
+          - self-hosted
+        default: github
 
 concurrency:
   group: bug-bounty-pipeline
@@ -10,7 +18,7 @@ concurrency:
 
 jobs:
   prepare:
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event.inputs.runner == 'self-hosted' && fromJson('["self-hosted","linux","x64"]') || 'ubuntu-latest' }}
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     outputs:
@@ -133,7 +141,7 @@ jobs:
   subzy_takeover:
     needs: prepare
     if: needs.prepare.outputs.has_hosts == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event.inputs.runner == 'self-hosted' && fromJson('["self-hosted","linux","x64"]') || 'ubuntu-latest' }}
     timeout-minutes: 60
     steps:
       - name: Checkout domains branch (for seen_findings.txt)
@@ -212,7 +220,7 @@ jobs:
   takeover:
     needs: prepare
     if: needs.prepare.outputs.has_hosts == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event.inputs.runner == 'self-hosted' && fromJson('["self-hosted","linux","x64"]') || 'ubuntu-latest' }}
     timeout-minutes: 120
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -342,7 +350,7 @@ jobs:
   daily_main:
     needs: prepare
     if: needs.prepare.outputs.has_hosts == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event.inputs.runner == 'self-hosted' && fromJson('["self-hosted","linux","x64"]') || 'ubuntu-latest' }}
     timeout-minutes: 350
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -497,7 +505,7 @@ jobs:
   bypass_403:
     needs: prepare
     if: needs.prepare.outputs.has_403 == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event.inputs.runner == 'self-hosted' && fromJson('["self-hosted","linux","x64"]') || 'ubuntu-latest' }}
     timeout-minutes: 120
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -643,7 +651,7 @@ jobs:
   notify:
     needs: [daily_main, bypass_403, takeover, subzy_takeover]
     if: always()
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event.inputs.runner == 'self-hosted' && fromJson('["self-hosted","linux","x64"]') || 'ubuntu-latest' }}
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
