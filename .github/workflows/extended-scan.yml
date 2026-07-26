@@ -168,6 +168,14 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
+
+      - name: Checkout main branch script (build_email_body.py)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: main_scripts
+          fetch-depth: 1
+
       - name: Download host list
         uses: actions/download-artifact@v4
         with:
@@ -305,7 +313,7 @@ jobs:
       - name: Build detailed email body
         if: steps.check.outputs.found == 'true'
         run: |
-          python3 build_email_body.py || cp new_results.txt new_results_detailed.txt
+          python3 main_scripts/build_email_body.py || cp new_results.txt new_results_detailed.txt
 
       - name: Send email alert
         if: steps.check.outputs.found == 'true'
@@ -469,6 +477,14 @@ jobs:
           ref: domains
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
+
+
+      - name: Checkout main branch script (build_email_body.py)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: main_scripts
+          fetch-depth: 1
 
       - name: Download host list
         uses: actions/download-artifact@v4
@@ -644,7 +660,7 @@ jobs:
       - name: Build detailed email body
         if: steps.check.outputs.found == 'true'
         run: |
-          python3 build_email_body.py || cp new_results.txt new_results_detailed.txt
+          python3 main_scripts/build_email_body.py || cp new_results.txt new_results_detailed.txt
 
       - name: Send email alert
         if: steps.check.outputs.found == 'true'
