@@ -749,14 +749,6 @@ segment.digitalocean.com,intigriti,dd9dba85-e047-42f3-b59e-9328c7d49672
 status.digitalocean.com,intigriti,dd9dba85-e047-42f3-b59e-9328c7d49672
 tracking.digitalocean.com,intigriti,dd9dba85-e047-42f3-b59e-9328c7d49672
 waves.digitalocean.com,intigriti,dd9dba85-e047-42f3-b59e-9328c7d49672
-*.db.ondigitalocean.com,intigriti,dd9dba85-e047-42f3-b59e-9328c7d49672
-*.db1.ondigitalocean.com,intigriti,dd9dba85-e047-42f3-b59e-9328c7d49672
-*.digitaloceanspaces.com,intigriti,dd9dba85-e047-42f3-b59e-9328c7d49672
-*.doserverless.co,intigriti,dd9dba85-e047-42f3-b59e-9328c7d49672
-*.k8s.ondigitalocean.com,intigriti,dd9dba85-e047-42f3-b59e-9328c7d49672
-*.ondigitalocean.app,intigriti,dd9dba85-e047-42f3-b59e-9328c7d49672
-registry.digitalocean.com/*,intigriti,dd9dba85-e047-42f3-b59e-9328c7d49672
-*.doserverless-dev3.io,intigriti,dd9dba85-e047-42f3-b59e-9328c7d49672
 *.ondbaasdev.com,intigriti,dd9dba85-e047-42f3-b59e-9328c7d49672
 *.onstagingocean.app,intigriti,dd9dba85-e047-42f3-b59e-9328c7d49672
 dropbox.com,intigriti,e540980d-b56e-4956-afff-f914653a4f6e
