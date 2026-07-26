@@ -50,6 +50,17 @@ AUTOMATION_BAN_PATTERNS = [
     r"do not use scanners",
 ]
 
+SAFE_HARBOR_PATTERNS = [
+    r"safe harbor",
+    r"good faith security research",
+    r"will not (?:pursue|initiate|bring) legal action",
+    r"authoriz\w+ under (?:this|our) polic",
+    r"we will not (?:sue|prosecute)",
+    r"legal safe harbor",
+    r"exempt(?:ion)? from (?:legal action|prosecution)",
+]
+SAFE_HARBOR_PATTERN = re.compile("|".join(SAFE_HARBOR_PATTERNS), re.I)
+
 RATE_LIMIT_PATTERN = re.compile(
     r"(\d+)\s*(?:requests?|reqs?)\s*(?:per|/)\s*(second|sec|s|minute|min|m|hour|hr|h)\b", re.I
 )
@@ -82,17 +93,24 @@ def fetch_json(url, headers=None, timeout=15, max_retries=5):
             data = json.loads(body)
             return data, None
         except urllib.error.HTTPError as e:
-            if e.code in (403, 429) and attempt < max_retries - 1:
+            retryable = e.code in (403, 429) or e.code >= 500
+            if retryable and attempt < max_retries - 1:
                 retry_after = e.headers.get("Retry-After") if e.headers else None
                 wait = float(retry_after) if retry_after else (2 ** attempt)
                 log(f"[RATE LIMIT] {url} -> {e.code}, retrying in {wait}s (attempt {attempt+1}/{max_retries})")
                 time.sleep(wait)
                 continue
             return None, f"HTTPError {e.code}"
-        except FETCH_EXCEPTIONS as e:
-            code = getattr(e, "code", None)
-            return None, f"{type(e).__name__}" + (f" {code}" if code else f": {e}")
-    return None, "HTTPError max_retries_exceeded"
+        except (urllib.error.URLError, socket.timeout) as e:
+            if attempt < max_retries - 1:
+                wait = 2 ** attempt
+                log(f"[NETWORK] {url} -> {type(e).__name__}: {e}, retrying in {wait}s (attempt {attempt+1}/{max_retries})")
+                time.sleep(wait)
+                continue
+            return None, f"{type(e).__name__}: {e}"
+        except (json.JSONDecodeError, KeyError, TypeError) as e:
+            return None, f"{type(e).__name__}: {e}"
+    return None, "max_retries_exceeded"
 
 
 def check_automation_ban(text):
@@ -104,6 +122,129 @@ def check_automation_ban(text):
             start = max(0, m.start() - 100)
             end = min(len(text), m.end() + 100)
             return True, text[start:end].strip()
+    return False, None
+
+
+def check_safe_harbor(text):
+    if not text:
+        return False, None
+    m = SAFE_HARBOR_PATTERN.search(text)
+    if m:
+        start = max(0, m.start() - 100)
+        end = min(len(text), m.end() + 100)
+        return True, text[start:end].strip()
+    return False, None
+
+
+def cerebras_check_safe_harbor(text, program_name):
+    if not text:
+        return None
+    cache_key = hashlib.sha256(("safeharbor:" + text[:2000]).encode()).hexdigest()
+    if cache_key in _CEREBRAS_CACHE:
+        cached = _CEREBRAS_CACHE[cache_key]
+        log_cerebras_call(program_name, text[:200], cached.get("is_ban"), cached["reason"] + " [CACHED]", error=None)
+        return cached.get("has_safe_harbor")
+    if not CEREBRAS_API_KEY:
+        return None
+    global _CEREBRAS_QUOTA_EXHAUSTED_UNTIL, _CEREBRAS_CALLS_SINCE_SAVE
+    if time.time() < _CEREBRAS_QUOTA_EXHAUSTED_UNTIL:
+        return None
+    _cerebras_pace()
+    prompt = (
+        "You are reviewing policy text from a bug bounty program. Answer "
+        "ONLY with valid JSON, no other text, in this exact format: "
+        '{"has_safe_harbor": true or false, "reason": "one short sentence"}.'
+        "\n\n"
+        "Question: Does this policy text explicitly grant researchers legal "
+        "safe harbor - i.e. a promise that the company will not pursue legal "
+        "action or law enforcement referral against researchers who follow "
+        "the program's rules in good faith? Look for phrases like 'safe "
+        "harbor', 'good faith research', 'will not pursue legal action', "
+        "'authorized under this policy'. Answer false if the policy is "
+        "silent on legal protection, vague, or only discusses rewards/scope "
+        "without any legal-action promise.\n\n"
+        f"Text:\n{text[:2000]}"
+    )
+    body = json.dumps({
+        "model": "gpt-oss-120b",
+        "messages": [{"role": "user", "content": prompt}],
+        "temperature": 0,
+        "reasoning_effort": "low",
+        "max_tokens": 700,
+    }).encode()
+    req = urllib.request.Request(
+        CEREBRAS_URL,
+        data=body,
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {CEREBRAS_API_KEY}",
+            "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) Python-urllib-client",
+        },
+        method="POST",
+    )
+    last_err = None
+    for attempt in range(3):
+        try:
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                data = json.loads(resp.read().decode())
+            text_resp = data["choices"][0]["message"]["content"].strip()
+            text_resp = text_resp.strip("`")
+            if text_resp.startswith("json"):
+                text_resp = text_resp[4:].strip()
+            m = re.search(r'"has_safe_harbor"\s*:\s*(true|false)', text_resp, re.IGNORECASE)
+            if not m:
+                raise ValueError(f"could not find has_safe_harbor in response: {text_resp[:150]}")
+            has_sh = m.group(1).lower() == "true"
+            rm = re.search(r'"reason"\s*:\s*"(.*?)"\s*}', text_resp, re.DOTALL)
+            reason = rm.group(1) if rm else text_resp[:150]
+            log_cerebras_call(program_name, text[:200], has_sh, reason, error=None)
+            _CEREBRAS_CACHE[cache_key] = {"has_safe_harbor": has_sh, "reason": reason}
+            _CEREBRAS_CALLS_SINCE_SAVE += 1
+            if _CEREBRAS_CALLS_SINCE_SAVE >= 50:
+                save_cerebras_cache(_CEREBRAS_CACHE)
+                _CEREBRAS_CALLS_SINCE_SAVE = 0
+            return has_sh
+        except urllib.error.HTTPError as e:
+            last_err = e
+            if e.code == 429:
+                try:
+                    retry_after = e.headers.get("Retry-After") if e.headers else None
+                    ra_val = float(retry_after) if retry_after is not None else None
+                except (TypeError, ValueError):
+                    ra_val = None
+                if ra_val is not None and ra_val > 300:
+                    _CEREBRAS_QUOTA_EXHAUSTED_UNTIL = time.time() + ra_val
+                    break
+            if e.code in (503, 429) and attempt < 2:
+                time.sleep(5 * (attempt + 1))
+                continue
+            break
+        except Exception as e:
+            last_err = e
+            if attempt < 2:
+                time.sleep(5 * (attempt + 1))
+                continue
+            break
+    log_cerebras_call(program_name, text[:200], None, None, error=str(last_err))
+    return None
+
+
+def check_safe_harbor_two_layer(text, program_name):
+    found, snippet = check_safe_harbor(text)
+    if found:
+        result = cerebras_check_safe_harbor(snippet, program_name)
+        if result is None:
+            return "review", f"[Cerebras call failed — needs manual review] {snippet[:80]}"
+        if result:
+            return True, f"[Cerebras-confirmed safe harbor] {snippet[:80]}"
+        return "review", f"[Regex matched but Cerebras did not confirm — needs manual review] {snippet[:80]}"
+    if not text:
+        return False, None
+    result = cerebras_check_safe_harbor(text[:2000], program_name)
+    if result is None:
+        return "review", "[Cerebras call failed on full-text check — needs manual review]"
+    if result:
+        return True, "[Cerebras-confirmed safe harbor, no regex match]"
     return False, None
 
 
@@ -260,10 +401,10 @@ def cerebras_check_rate_limit(text, program_name):
         log_cerebras_call(program_name, text[:200], cached.get("is_ban"), cached["reason"] + " [CACHED]", error=None)
         return cached.get("rate")
     if not CEREBRAS_API_KEY:
-        return None
+        return "error"
     global _CEREBRAS_QUOTA_EXHAUSTED_UNTIL
     if time.time() < _CEREBRAS_QUOTA_EXHAUSTED_UNTIL:
-        return None
+        return "error"
     _cerebras_pace()
     prompt = (
         "You are reviewing policy text from a bug bounty program. Answer "
@@ -359,16 +500,19 @@ def cerebras_check_rate_limit(text, program_name):
                 continue
             break
     log_cerebras_call(program_name, text[:200], None, None, error=str(last_err))
-    return None
+    return "error"
 
 
 def check_rate_limit_two_layer(text, program_name):
     rate = check_rate_limit(text)
     if rate is not None:
-        return rate
+        return rate, None
     if not text:
-        return None
-    return cerebras_check_rate_limit(text, program_name)
+        return None, None
+    result = cerebras_check_rate_limit(text, program_name)
+    if result == "error":
+        return None, "review"
+    return result, None
 def clean_html(text):
     return re.sub(r"<[^<]+?>", " ", text or "")
 
@@ -408,31 +552,10 @@ def vet_hackerone_program(handle, auth, results):
     data, err = fetch_json(f"https://api.hackerone.com/v1/hackers/programs/{handle}", headers)
     time.sleep(0.3)
     if err:
-        results["skipped"].append((handle, err))
+        results["skipped"].append((handle, err, 0))
         return
     a = data.get("attributes", {})
     policy = a.get("policy", "") or ""
-    if a.get("offers_bounties") is not True:
-        results["excluded"].append((handle, "not BBP (VDP or other)"))
-        return
-    banned, snippet = check_automation_ban_two_layer(policy, handle)
-    if banned == "review":
-        results["skipped"].append((handle, snippet))
-        return
-    if banned:
-        results["excluded"].append((handle, f"automation ban: {snippet[:80]}"))
-        return
-    id_req, id_snippet = check_id_verification_two_layer(policy, handle)
-    if id_req == "review":
-        results["skipped"].append((handle, id_snippet))
-        return
-    if id_req:
-        results["excluded"].append((handle, f"requires ID verification: {id_snippet[:80]}"))
-        return
-    rate = check_rate_limit_two_layer(policy, handle)
-    if rate is not None and rate < MIN_RATE_LIMIT:
-        results["excluded"].append((handle, f"rate limit too strict: {rate}/s"))
-        return
     domains = []
     out_domains = []
     for s in data.get("relationships", {}).get("structured_scopes", {}).get("data", []):
@@ -446,9 +569,41 @@ def vet_hackerone_program(handle, auth, results):
             domains.append(asset)
         elif sa.get("eligible_for_submission") is False:
             out_domains.append(asset)
+    domain_count = len(domains)
+    if a.get("submission_state") != "open":
+        results["excluded"].append((handle, f"not open (submission_state={a.get('submission_state')})", domain_count))
+        return
+    if a.get("offers_bounties") is not True:
+        results["excluded"].append((handle, "not BBP (VDP or other)", domain_count))
+        return
+    if a.get("gold_standard_safe_harbor") is not True:
+        results["excluded"].append((handle, "safe harbor not confirmed", domain_count))
+        return
+    safe_harbor = a.get("gold_standard_safe_harbor")
+    banned, snippet = check_automation_ban_two_layer(policy, handle)
+    if banned == "review":
+        results["skipped"].append((handle, snippet, domain_count))
+        return
+    if banned:
+        results["excluded"].append((handle, f"automation ban: {snippet[:80]}", domain_count))
+        return
+    id_req, id_snippet = check_id_verification_two_layer(policy, handle)
+    if id_req is True:
+        results["excluded"].append((handle, f"requires ID verification: {id_snippet[:80]}", domain_count))
+        return
+    # id_req == "review" (Cerebras couldn't answer) or False -> proceed;
+    # per policy, unresolved ID-verification status alone should not drop a program.
+    rate, rate_status = check_rate_limit_two_layer(policy, handle)
+    if rate_status == "review":
+        results["skipped"].append((handle, "Cerebras call failed on rate-limit check", domain_count))
+        return
+    if rate is None or rate < MIN_RATE_LIMIT:
+        results["excluded"].append((handle, f"rate limit not confirmed >= {MIN_RATE_LIMIT}/s (found: {rate})", domain_count))
+        return
     results["included"].append({
         "handle": handle,
         "offers_bounties": a.get("offers_bounties"),
+        "safe_harbor": safe_harbor,
         "domains": domains,
         "out_domains": out_domains,
     })
@@ -470,11 +625,16 @@ def discover_intigriti(token):
 def vet_intigriti_program(program, token, results):
     pid = program["id"]
     name = program.get("name", pid)
-    if program.get("confidentialityLevel", {}).get("value") == "Application":
-        results["excluded"].append((name, "Application tier, no access"))
+    status = program.get("status", {}).get("value")
+    if status != "Open":
+        results["excluded"].append((pid, f"{name}: not open (status={status})", 0))
+        return
+    confidentiality = program.get("confidentialityLevel", {}).get("value")
+    if confidentiality != "Public":
+        results["excluded"].append((pid, f"{name}: not public (confidentialityLevel={confidentiality})", 0))
         return
     if program.get("type", {}).get("value") != "Bug Bounty":
-        results["excluded"].append((name, "not BBP (VDP or other)"))
+        results["excluded"].append((pid, f"{name}: not BBP (VDP or other)", 0))
         return
     headers = {"Authorization": f"Bearer {token}", "Accept": "application/json"}
     data, err = fetch_json(
@@ -483,30 +643,9 @@ def vet_intigriti_program(program, token, results):
     time.sleep(0.3)
     if err:
         if "403" in err:
-            results["excluded"].append((name, "private/invite-gated program, no API access"))
+            results["excluded"].append((pid, f"{name}: private/invite-gated program, no API access", 0))
         else:
-            results["skipped"].append((name, err))
-        return
-    roe = data.get("rulesOfEngagement", {}).get("content", {})
-    testing = roe.get("testingRequirements", {})
-    rate = testing.get("automatedTooling")
-    if rate is not None and rate < MIN_RATE_LIMIT:
-        results["excluded"].append((name, f"rate limit too strict: {rate}/s"))
-        return
-    roe_text = json.dumps(roe)
-    banned, snippet = check_automation_ban_two_layer(roe_text, name)
-    if banned == "review":
-        results["skipped"].append((name, snippet))
-        return
-    if banned:
-        results["excluded"].append((name, f"automation ban: {snippet[:80]}"))
-        return
-    id_req, id_snippet = check_id_verification_two_layer(roe_text, name)
-    if id_req == "review":
-        results["skipped"].append((name, id_snippet))
-        return
-    if id_req:
-        results["excluded"].append((name, f"requires ID verification: {id_snippet[:80]}"))
+            results["skipped"].append((pid, f"{name}: {err}", 0))
         return
     domains = []
     out_domains = []
@@ -529,9 +668,32 @@ def vet_intigriti_program(program, token, results):
         if tier == "No Bounty":
             continue
         domains.append(endpoint)
+    domain_count = len(domains)
+    roe = data.get("rulesOfEngagement", {}).get("content", {})
+    if roe.get("safeHarbour") is not True:
+        results["excluded"].append((pid, f"{name}: safe harbor not confirmed", domain_count))
+        return
+    testing = roe.get("testingRequirements", {})
+    rate = testing.get("automatedTooling")
+    if rate is None or rate < MIN_RATE_LIMIT:
+        results["excluded"].append((pid, f"{name}: rate limit not confirmed >= {MIN_RATE_LIMIT}/s (found: {rate})", domain_count))
+        return
+    roe_text = json.dumps(roe)
+    banned, snippet = check_automation_ban_two_layer(roe_text, name)
+    if banned == "review":
+        results["skipped"].append((pid, f"{name}: {snippet}", domain_count))
+        return
+    if banned:
+        results["excluded"].append((pid, f"{name}: automation ban: {snippet[:80]}", domain_count))
+        return
+    id_req, id_snippet = check_id_verification_two_layer(roe_text, name)
+    if id_req is True:
+        results["excluded"].append((pid, f"{name}: requires ID verification: {id_snippet[:80]}", domain_count))
+        return
+    # id_req == "review" or False -> proceed; unresolved ID status alone should not drop a program.
     results["included"].append({
         "handle": pid,
-        "safe_harbor": roe.get("safeHarbour"),
+        "safe_harbor": safe_harbor,
         "rate_limit": rate,
         "domains": domains,
         "out_domains": out_domains,
@@ -574,6 +736,24 @@ def extract_ywh_domains(scope_entries, slug="unknown"):
     return sorted(set(domains))
 
 
+_YWH_OOS_DOMAIN_RE = re.compile(r"(?:\*\.)?\b[a-zA-Z0-9][a-zA-Z0-9*\-]*(?:\.[a-zA-Z0-9*][a-zA-Z0-9*\-]*){1,}\b")
+
+
+def extract_ywh_out_of_scope_domains(out_of_scope_entries, slug="unknown"):
+    # YesWeHack's out_of_scope field is free-text prose, not structured
+    # scope entries like `scopes` - so this is a best-effort regex sweep,
+    # not an exact parse. Deliberately generous: a false positive here
+    # only over-excludes (safe), a false negative under-excludes (unsafe).
+    out_domains = []
+    for entry in out_of_scope_entries or []:
+        if not isinstance(entry, str):
+            continue
+        text = re.sub(r"https?://", "", entry)
+        for m in _YWH_OOS_DOMAIN_RE.findall(text):
+            out_domains.append(m.strip(".").lower())
+    return sorted(set(out_domains))
+
+
 def discover_yeswehack():
     programs = []
     page = 1
@@ -597,44 +777,71 @@ def discover_yeswehack():
 
 def vet_yeswehack_program(program, results):
     slug = program["slug"]
+    if program.get("status") != "V":
+        results["excluded"].append((slug, f"not open (status={program.get('status')})", 0))
+        return
+    if program.get("public") is not True:
+        results["excluded"].append((slug, "not public", 0))
+        return
+    if program.get("demo") is True:
+        results["excluded"].append((slug, "demo program", 0))
+        return
+    if program.get("disabled") is True:
+        results["excluded"].append((slug, "disabled program", 0))
+        return
+    if program.get("archived") is True:
+        results["excluded"].append((slug, "archived program", 0))
+        return
+    if program.get("bounty") is not True:
+        results["excluded"].append((slug, "not BBP (VDP or other)", 0))
+        return
     data, err = fetch_json(
         f"https://api.yeswehack.com/programs/{slug}",
         {"User-Agent": "Mozilla/5.0", "Accept": "application/json"},
     )
     time.sleep(0.3)
     if err:
-        results["skipped"].append((slug, err))
-        return
-    if program.get("bounty") is not True:
-        results["excluded"].append((slug, "not BBP (VDP or other)"))
-        return
-    rules = data.get("rules", "") or ""
-    banned, snippet = check_automation_ban_two_layer(rules, slug)
-    if banned == "review":
-        results["skipped"].append((slug, snippet))
-        return
-    if banned:
-        results["excluded"].append((slug, f"automation ban: {snippet[:80]}"))
-        return
-    id_req, id_snippet = check_id_verification_two_layer(rules, slug)
-    if id_req == "review":
-        results["skipped"].append((slug, id_snippet))
-        return
-    if id_req:
-        results["excluded"].append((slug, f"requires ID verification: {id_snippet[:80]}"))
-        return
-    rate = check_rate_limit_two_layer(rules, slug)
-    if rate is not None and rate < MIN_RATE_LIMIT:
-        results["excluded"].append((slug, f"rate limit too strict: {rate}/s"))
+        results["skipped"].append((slug, err, 0))
         return
     domains = extract_ywh_domains(data.get("scopes", []), slug)
+    out_domains = extract_ywh_out_of_scope_domains(data.get("out_of_scope", []), slug)
+    if out_domains:
+        domains = sorted(set(domains) - set(out_domains))
+    domain_count = len(domains)
+    rules = data.get("rules", "") or ""
+    sh_ok, sh_snippet = check_safe_harbor_two_layer(rules, slug)
+    if sh_ok == "review":
+        results["excluded"].append((slug, f"safe harbor unresolved: {sh_snippet[:80]}", domain_count))
+        return
+    if not sh_ok:
+        results["excluded"].append((slug, f"safe harbor not confirmed: {(sh_snippet or "no rules text")[:80]}", domain_count))
+        return
+    banned, snippet = check_automation_ban_two_layer(rules, slug)
+    if banned == "review":
+        results["skipped"].append((slug, snippet, domain_count))
+        return
+    if banned:
+        results["excluded"].append((slug, f"automation ban: {snippet[:80]}", domain_count))
+        return
+    id_req, id_snippet = check_id_verification_two_layer(rules, slug)
+    if id_req is True:
+        results["excluded"].append((slug, f"requires ID verification: {id_snippet[:80]}", domain_count))
+        return
+    # id_req == "review" or False -> proceed; unresolved ID status alone should not drop a program.
+    rate, rate_status = check_rate_limit_two_layer(rules, slug)
+    if rate_status == "review":
+        results["skipped"].append((slug, "Cerebras call failed on rate-limit check", domain_count))
+        return
+    if rate is None or rate < MIN_RATE_LIMIT:
+        results["excluded"].append((slug, f"rate limit not confirmed >= {MIN_RATE_LIMIT}/s (found: {rate})", domain_count))
+        return
     results["included"].append({
         "slug": slug,
         "bounty": program.get("bounty"),
-        "safe_harbor": bool(re.search(r"safe.?harbor", rules, re.I)) and not re.search(
-            r"no\s+safe.?harbor|safe.?harbor\s+is\s+not|not\s+provid\w*\s+.{0,20}safe.?harbor|without\s+safe.?harbor",
-            rules, re.I),
+        "safe_harbor": True,
+        "rate_limit": rate,
         "domains": domains,
+        "out_domains": out_domains,
     })
 
 
@@ -677,14 +884,20 @@ def discover_bugcrowd():
 def vet_bugcrowd_program(program, results):
     slug = program["briefUrl"].rstrip("/").split("/")[-1]
     if program.get("isDemo"):
-        results["excluded"].append((slug, "demo engagement"))
+        results["excluded"].append((slug, "demo engagement", 0))
         return
     if program.get("isBanned"):
-        results["excluded"].append((slug, "banned engagement"))
+        results["excluded"].append((slug, "banned engagement", 0))
+        return
+    if program.get("isPrivate") is not False:
+        results["excluded"].append((slug, "private/invite-only engagement", 0))
+        return
+    if program.get("accessStatus") != "open":
+        results["excluded"].append((slug, f"not open (accessStatus={program.get('accessStatus')})", 0))
         return
     engagement_type = (program.get("productEngagementType") or {}).get("label")
     if engagement_type != "Bug Bounty":
-        results["excluded"].append((slug, f"not BBP (type: {engagement_type})"))
+        results["excluded"].append((slug, f"not BBP (type: {engagement_type})", 0))
         return
     cl_data, err = fetch_json(
         f"https://bugcrowd.com/engagements/{slug}/changelog.json",
@@ -692,11 +905,11 @@ def vet_bugcrowd_program(program, results):
     )
     time.sleep(0.3)
     if err:
-        results["skipped"].append((slug, err))
+        results["skipped"].append((slug, err, 0))
         return
     changelogs = cl_data.get("changelogs", [])
     if not changelogs:
-        results["skipped"].append((slug, "no changelog entries"))
+        results["skipped"].append((slug, "no changelog entries", 0))
         return
     latest = next((c for c in changelogs if c.get("changelogState") == "Latest"), changelogs[0])
     full, err2 = fetch_json(
@@ -705,30 +918,16 @@ def vet_bugcrowd_program(program, results):
     )
     time.sleep(0.3)
     if err2:
-        results["skipped"].append((slug, err2))
+        results["skipped"].append((slug, err2, 0))
         return
-    brief = full.get("data", {}).get("brief", {})
-    desc = clean_html(brief.get("description", ""))
-    overview = clean_html(brief.get("targetsOverview", ""))
-    text = desc + overview
-    banned, snippet = check_automation_ban_two_layer(text, slug)
-    if banned == "review":
-        results["skipped"].append((slug, snippet))
+    sh_status = (brief.get("safeHarborStatus") or {}).get("status")
+    if sh_status is None:
+        results["skipped"].append((slug, "safe harbor status unknown - needs review"))
         return
-    if banned:
-        results["excluded"].append((slug, f"automation ban: {snippet[:80]}"))
+    if sh_status != "full":
+        results["excluded"].append((slug, f"no full safe harbor (status: {sh_status})"))
         return
-    id_req, id_snippet = check_id_verification_two_layer(text, slug)
-    if id_req == "review":
-        results["skipped"].append((slug, id_snippet))
-        return
-    if id_req:
-        results["excluded"].append((slug, f"requires ID verification: {id_snippet[:80]}"))
-        return
-    rate = check_rate_limit_two_layer(text, slug)
-    if rate is not None and rate < MIN_RATE_LIMIT:
-        results["excluded"].append((slug, f"rate limit too strict: {rate}/s"))
-        return
+    safe_harbor = True
     skip_categories = ("android", "ios", "ip_address", "network")
     domains = []
     out_domains = []
@@ -747,9 +946,38 @@ def vet_bugcrowd_program(program, results):
             domains.extend(target_domains)
         else:
             out_domains.extend(target_domains)
+    domain_count = len(set(domains))
+    brief = full.get("data", {}).get("brief", {})
+    safe_harbor_status = (brief.get("safeHarborStatus") or {}).get("status")
+    if safe_harbor_status != "full":
+        results["excluded"].append((slug, f"safe harbor not confirmed (status={safe_harbor_status})", domain_count))
+        return
+    desc = clean_html(brief.get("description", ""))
+    overview = clean_html(brief.get("targetsOverview", ""))
+    text = desc + overview
+    banned, snippet = check_automation_ban_two_layer(text, slug)
+    if banned == "review":
+        results["skipped"].append((slug, snippet, domain_count))
+        return
+    if banned:
+        results["excluded"].append((slug, f"automation ban: {snippet[:80]}", domain_count))
+        return
+    id_req, id_snippet = check_id_verification_two_layer(text, slug)
+    if id_req is True:
+        results["excluded"].append((slug, f"requires ID verification: {id_snippet[:80]}", domain_count))
+        return
+    # id_req == "review" or False -> proceed; unresolved ID status alone should not drop a program.
+    rate, rate_status = check_rate_limit_two_layer(text, slug)
+    if rate_status == "review":
+        results["skipped"].append((slug, "Cerebras call failed on rate-limit check", domain_count))
+        return
+    if rate is None or rate < MIN_RATE_LIMIT:
+        results["excluded"].append((slug, f"rate limit not confirmed >= {MIN_RATE_LIMIT}/s (found: {rate})", domain_count))
+        return
     results["included"].append({
         "slug": slug,
-        "safe_harbor": (brief.get("safeHarborStatus") or {}).get("status"),
+        "safe_harbor": safe_harbor_status,
+        "rate_limit": rate,
         "domains": sorted(set(domains)),
         "out_domains": sorted(set(out_domains)),
     })
@@ -833,11 +1061,11 @@ def summarize(platform, results, total_discovered):
     excluded_path = f"{platform.lower()}_excluded_full.txt"
     skipped_path = f"{platform.lower()}_skipped_full.txt"
     with open(excluded_path, "w") as ef:
-        for name, reason in results["excluded"]:
-            ef.write(f"{name}\t{reason}\n")
+        for name, reason, domain_count in results["excluded"]:
+            ef.write(f"{name}\t{reason}\t{domain_count}\n")
     with open(skipped_path, "w") as sf:
-        for name, reason in results["skipped"]:
-            sf.write(f"{name}\t{reason}\n")
+        for name, reason, domain_count in results["skipped"]:
+            sf.write(f"{name}\t{reason}\t{domain_count}\n")
     n_excluded = len(results["excluded"])
     n_skipped = len(results["skipped"])
     log(f"  [FULL LIST] excluded -> {excluded_path} ({n_excluded} rows)")
@@ -845,19 +1073,21 @@ def summarize(platform, results, total_discovered):
 
     if results["excluded"]:
         log("  exclusion reasons (first 10):")
-        for name, reason in results["excluded"][:10]:
-            log(f"    - {name}: {reason}")
+        for name, reason, domain_count in results["excluded"][:10]:
+            log(f"    - {name}: {reason} (domains: {domain_count})")
     if results["skipped"]:
         log("  skip reasons (first 10):")
-        for name, reason in results["skipped"][:10]:
-            log(f"    - {name}: {reason}")
+        for name, reason, domain_count in results["skipped"][:10]:
+            log(f"    - {name}: {reason} (domains: {domain_count})")
 
     stats_path = os.path.join(OUTPUT_DIR, "discovery_stats.csv")
     is_new = not os.path.exists(stats_path)
     with open(stats_path, "a", newline="") as sf:
         w = csv.writer(sf)
         if is_new:
-            w.writerow(["timestamp_utc", "platform", "total_discovered", "included", "excluded", "skipped"])
+            w.writerow(["timestamp_utc", "platform", "total_discovered", "included", "excluded", "skipped", "excluded_domains", "skipped_domains"])
+        excluded_domains = sum(d for _, _, d in results["excluded"])
+        skipped_domains = sum(d for _, _, d in results["skipped"])
         w.writerow([
             datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
             platform,
@@ -865,6 +1095,8 @@ def summarize(platform, results, total_discovered):
             len(results["included"]),
             n_excluded,
             n_skipped,
+            excluded_domains,
+            skipped_domains,
         ])
     log(f"  [STATS] appended to {stats_path}")
 
