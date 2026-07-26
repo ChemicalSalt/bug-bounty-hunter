@@ -5,6 +5,14 @@ name: Extended Scan
 # trigger, for consistency with triday-scan and monthly-vet.
 on:
   workflow_dispatch:
+    inputs:
+      runner:
+        description: 'Where to run heavy jobs'
+        type: choice
+        options:
+          - self-hosted
+          - github
+        default: self-hosted
 
 concurrency:
   group: extended-scan-pipeline
@@ -13,7 +21,7 @@ concurrency:
 jobs:
   prepare:
     if: github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event.inputs.runner == 'github' && 'ubuntu-latest' || fromJson('["self-hosted","linux","x64"]') }}
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     outputs:
@@ -143,7 +151,7 @@ jobs:
   weekend_combined:
     needs: prepare
     if: needs.prepare.outputs.has_hosts == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event.inputs.runner == 'github' && 'ubuntu-latest' || fromJson('["self-hosted","linux","x64"]') }}
     timeout-minutes: 350
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -331,7 +339,7 @@ jobs:
   finalize_progress:
     needs: [prepare, weekend_combined, weekend_custom_batched, weekend_js_secrets_batched]
     if: always() && needs.weekend_combined.result != 'cancelled'
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event.inputs.runner == 'github' && 'ubuntu-latest' || fromJson('["self-hosted","linux","x64"]') }}
     steps:
       - name: Checkout domains branch
         uses: actions/checkout@v4
@@ -440,7 +448,7 @@ jobs:
   weekend_js_secrets_batched:
     needs: [prepare, weekend_custom_batched]
     if: always() && !cancelled() && needs.prepare.outputs.has_hosts == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event.inputs.runner == 'github' && 'ubuntu-latest' || fromJson('["self-hosted","linux","x64"]') }}
     timeout-minutes: 350
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -666,7 +674,7 @@ jobs:
   weekend_custom_batched:
     needs: [prepare, weekend_combined]
     if: always() && !cancelled() && needs.prepare.outputs.has_hosts == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event.inputs.runner == 'github' && 'ubuntu-latest' || fromJson('["self-hosted","linux","x64"]') }}
     timeout-minutes: 350
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
