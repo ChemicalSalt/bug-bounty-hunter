@@ -142,7 +142,7 @@ def cerebras_check_safe_harbor(text, program_name):
     cache_key = hashlib.sha256(("safeharbor:" + text[:2000]).encode()).hexdigest()
     if cache_key in _CEREBRAS_CACHE:
         cached = _CEREBRAS_CACHE[cache_key]
-        log_cerebras_call(program_name, text[:200], cached.get("is_ban"), cached["reason"] + " [CACHED]", error=None)
+        log_cerebras_call(program_name, text[:200], cached.get("has_safe_harbor"), cached["reason"] + " [CACHED]", error=None)
         return cached.get("has_safe_harbor")
     if not CEREBRAS_API_KEY:
         return None
