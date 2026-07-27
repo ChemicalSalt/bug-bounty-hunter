@@ -18,6 +18,7 @@ except ImportError:
 
 MAX_REMOVAL_PCT = float(os.environ.get("VALIDATE_MAX_REMOVAL_PCT", "15"))
 MAX_SKIP_RATE_PCT = float(os.environ.get("VALIDATE_MAX_SKIP_RATE_PCT", "15"))
+MAX_EXCLUDED_RATE_PCT = float(os.environ.get("VALIDATE_MAX_EXCLUDED_RATE_PCT", "95"))
 
 ROOT_DOMAIN_FILES = [
     os.environ.get("DOMAINS_TXT_PATH", "domains.txt"),
@@ -110,25 +111,40 @@ def check_file(path, is_root_domain_file):
 def check_skip_rate(csv_path="discovery_stats.csv"):
     problems = []
     if not os.path.exists(csv_path):
-        return True, []
+        return False, [f"{csv_path} does not exist - cannot verify run health, failing closed"]
     import csv
     latest = {}
     with open(csv_path) as f:
         reader = csv.DictReader(f)
         for row in reader:
             latest[row["platform"]] = row
+    if not latest:
+        return False, [f"{csv_path} has no data rows - cannot verify run health, failing closed"]
     ok = True
     for platform, row in latest.items():
         try:
             total = int(row["total_discovered"])
             skipped = int(row["skipped"])
+            included = int(row["included"])
+            excluded = int(row["excluded"])
         except (KeyError, ValueError):
+            problems.append(f"{platform}: missing/non-numeric total_discovered, included, excluded, or skipped column")
+            ok = False
             continue
         if total == 0:
+            problems.append(f"{platform}: total_discovered is 0 - discovery may have failed silently")
+            ok = False
             continue
-        pct = (skipped / total) * 100
-        if pct > MAX_SKIP_RATE_PCT:
-            problems.append(f"{platform}: skip rate {pct:.1f}% ({skipped}/{total}) exceeds {MAX_SKIP_RATE_PCT}% threshold")
+        skip_pct = (skipped / total) * 100
+        if skip_pct > MAX_SKIP_RATE_PCT:
+            problems.append(f"{platform}: skip rate {skip_pct:.1f}% ({skipped}/{total}) exceeds {MAX_SKIP_RATE_PCT}% threshold")
+            ok = False
+        excluded_pct = (excluded / total) * 100
+        if excluded_pct > MAX_EXCLUDED_RATE_PCT:
+            problems.append(f"{platform}: excluded rate {excluded_pct:.1f}% ({excluded}/{total}) exceeds {MAX_EXCLUDED_RATE_PCT}% threshold - possible systemic failure (auth, quota, broken check)")
+            ok = False
+        if included == 0:
+            problems.append(f"{platform}: included count is 0 out of {total} discovered - possible systemic failure")
             ok = False
     return ok, problems
 
