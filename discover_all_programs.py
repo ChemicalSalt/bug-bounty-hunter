@@ -920,12 +920,13 @@ def vet_bugcrowd_program(program, results):
     if err2:
         results["skipped"].append((slug, err2, 0))
         return
+    brief = full.get("data", {}).get("brief", {})
     sh_status = (brief.get("safeHarborStatus") or {}).get("status")
     if sh_status is None:
-        results["skipped"].append((slug, "safe harbor status unknown - needs review"))
+        results["skipped"].append((slug, "safe harbor status unknown - needs review", 0))
         return
     if sh_status != "full":
-        results["excluded"].append((slug, f"no full safe harbor (status: {sh_status})"))
+        results["excluded"].append((slug, f"no full safe harbor (status: {sh_status})", 0))
         return
     safe_harbor = True
     skip_categories = ("android", "ios", "ip_address", "network")
@@ -947,7 +948,6 @@ def vet_bugcrowd_program(program, results):
         else:
             out_domains.extend(target_domains)
     domain_count = len(set(domains))
-    brief = full.get("data", {}).get("brief", {})
     safe_harbor_status = (brief.get("safeHarborStatus") or {}).get("status")
     if safe_harbor_status != "full":
         results["excluded"].append((slug, f"safe harbor not confirmed (status={safe_harbor_status})", domain_count))
