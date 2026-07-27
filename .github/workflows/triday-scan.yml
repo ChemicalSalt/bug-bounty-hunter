@@ -295,7 +295,7 @@ jobs:
             -silent -retries 0 -timeout 3 \
             -bulk-size 5 -concurrency 5 \
             -rate-limit 5 -fhr -max-host-error 30 \
-            -no-color -o results.txt || true
+            -no-color -o results.txt -je nuclei_findings.json -irr || true
           grep -E "\[(medium|high|critical)\]" results.txt > results_filtered.txt 2>/dev/null || true
           mv results_filtered.txt results.txt
           echo "Findings: $(wc -l < results.txt)"
@@ -315,6 +315,11 @@ jobs:
           echo "New findings: $count"
           if [ "$count" -gt "0" ]; then cat new_results.txt; else echo "No new findings"; fi
 
+      - name: Build detailed email body
+        if: steps.showresults.outputs.count != '0'
+        run: |
+          python3 build_email_body.py || cp new_results.txt new_results_detailed.txt
+
       - name: Immediate email if findings
         if: steps.showresults.outputs.count != '0'
         uses: dawidd6/action-send-mail@v3
@@ -324,7 +329,7 @@ jobs:
           username: ${{ secrets.EMAIL_USER }}
           password: ${{ secrets.EMAIL_PASS }}
           subject: "[Takeover] ${{ steps.showresults.outputs.count }} New Finding(s)"
-          body: file://new_results.txt
+          body: file://new_results_detailed.txt
           to: ${{ secrets.EMAIL_TO }}
           from: BugBountyBot
 
@@ -459,7 +464,7 @@ jobs:
             -silent -retries 0 -timeout 3 \
             -bulk-size 5 -concurrency 5 \
             -rate-limit 5 -fhr -max-host-error 30 \
-            -no-color -o results.txt || true
+            -no-color -o results.txt -je nuclei_findings.json -irr || true
 
           grep -E "\[(medium|high|critical)\]" results.txt > results_filtered.txt 2>/dev/null || true
           mv results_filtered.txt results.txt
@@ -480,6 +485,11 @@ jobs:
           echo "New findings: $count"
           if [ "$count" -gt "0" ]; then cat new_results.txt; else echo "No new findings"; fi
 
+      - name: Build detailed email body
+        if: steps.showresults.outputs.count != '0'
+        run: |
+          python3 build_email_body.py || cp new_results.txt new_results_detailed.txt
+
       - name: Immediate email if findings
         if: steps.showresults.outputs.count != '0'
         uses: dawidd6/action-send-mail@v3
@@ -489,7 +499,7 @@ jobs:
           username: ${{ secrets.EMAIL_USER }}
           password: ${{ secrets.EMAIL_PASS }}
           subject: "[Daily Main - Batch ${{ matrix.batch }}] ${{ steps.showresults.outputs.count }} New Finding(s)"
-          body: file://new_results.txt
+          body: file://new_results_detailed.txt
           to: ${{ secrets.EMAIL_TO }}
           from: BugBountyBot
 
@@ -605,7 +615,7 @@ jobs:
             -silent -retries 0 -timeout 3 \
             -bulk-size 5 -concurrency 5 \
             -rate-limit 5 -fhr -max-host-error 30 \
-            -no-color -o results.txt || true
+            -no-color -o results.txt -je nuclei_findings.json -irr || true
 
           grep -E "\[(medium|high|critical)\]" results.txt > results_filtered.txt 2>/dev/null || true
           mv results_filtered.txt results.txt
@@ -626,6 +636,11 @@ jobs:
           echo "New findings: $count"
           if [ "$count" -gt "0" ]; then cat new_results.txt; else echo "No new findings"; fi
 
+      - name: Build detailed email body
+        if: steps.showresults.outputs.count != '0'
+        run: |
+          python3 build_email_body.py || cp new_results.txt new_results_detailed.txt
+
       - name: Immediate email if findings
         if: steps.showresults.outputs.count != '0'
         uses: dawidd6/action-send-mail@v3
@@ -635,7 +650,7 @@ jobs:
           username: ${{ secrets.EMAIL_USER }}
           password: ${{ secrets.EMAIL_PASS }}
           subject: "[403 Bypass - Batch ${{ matrix.batch }}] ${{ steps.showresults.outputs.count }} New Finding(s)"
-          body: file://new_results.txt
+          body: file://new_results_detailed.txt
           to: ${{ secrets.EMAIL_TO }}
           from: BugBountyBot
 
