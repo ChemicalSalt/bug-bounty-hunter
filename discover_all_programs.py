@@ -1029,11 +1029,13 @@ def merge_scope_file(path, entries_by_program, max_removal_pct=15):
         backup_path = f"{path}.bak.{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         shutil.copy2(path, backup_path)
         log(f"  [BACKUP] {path} -> {backup_path}")
-    with open(path, "w") as f:
+    tmp_path = f"{path}.tmp"
+    with open(tmp_path, "w") as f:
         for d in sorted(new_domains):
             f.write(f"IN:{d}\n")
         for d in sorted(new_out_domains):
             f.write(f"OUT:{d}\n")
+    os.replace(tmp_path, path)
     if added or removed or out_added or out_removed:
         diff_path = path.replace(".txt", "_diff.log")
         with open(diff_path, "a") as f:
@@ -1061,12 +1063,16 @@ def summarize(platform, results, total_discovered):
 
     excluded_path = f"{platform.lower()}_excluded_full.txt"
     skipped_path = f"{platform.lower()}_skipped_full.txt"
-    with open(excluded_path, "w") as ef:
+    excluded_tmp = f"{excluded_path}.tmp"
+    with open(excluded_tmp, "w") as ef:
         for name, reason, domain_count in results["excluded"]:
             ef.write(f"{name}\t{reason}\t{domain_count}\n")
-    with open(skipped_path, "w") as sf:
+    os.replace(excluded_tmp, excluded_path)
+    skipped_tmp = f"{skipped_path}.tmp"
+    with open(skipped_tmp, "w") as sf:
         for name, reason, domain_count in results["skipped"]:
             sf.write(f"{name}\t{reason}\t{domain_count}\n")
+    os.replace(skipped_tmp, skipped_path)
     n_excluded = len(results["excluded"])
     n_skipped = len(results["skipped"])
     log(f"  [FULL LIST] excluded -> {excluded_path} ({n_excluded} rows)")
@@ -1203,9 +1209,11 @@ def write_excluded_domains_file(path, existing_rows, platform_sources, ran_platf
             fresh_excluded.add(domain)
 
     excluded_domains = kept_excluded | fresh_excluded
-    with open(path, "w") as f:
+    tmp_path = f"{path}.tmp"
+    with open(tmp_path, "w") as f:
         for d in sorted(excluded_domains):
             f.write(f"{d}\n")
+    os.replace(tmp_path, path)
     log(f"[EXCLUDED] {path}: {len(excluded_domains)} domain(s) excluded total "
         f"({len(fresh_excluded)} from this run's platforms, {len(kept_excluded)} kept from skipped platforms)")
     return len(excluded_domains)
@@ -1272,9 +1280,11 @@ def rebuild_domains_txt(scope_paths, max_removal_pct=15):
         shutil.copy2(DOMAINS_TXT_PATH, backup_path)
         log(f"[BACKUP] {DOMAINS_TXT_PATH} -> {backup_path}")
 
-    with open(DOMAINS_TXT_PATH, "w") as f:
+    domains_tmp_path = f"{DOMAINS_TXT_PATH}.tmp"
+    with open(domains_tmp_path, "w") as f:
         for d in sorted(new_roots):
             f.write(f"{d}\n")
+    os.replace(domains_tmp_path, DOMAINS_TXT_PATH)
 
     if added or removed:
         diff_path = DOMAINS_TXT_PATH.replace(".txt", "_diff.log")
@@ -1409,8 +1419,10 @@ def load_cerebras_cache():
     return {}
 
 def save_cerebras_cache(cache):
-    with open(CEREBRAS_CACHE_PATH, "w") as f:
+    tmp_path = f"{CEREBRAS_CACHE_PATH}.tmp"
+    with open(tmp_path, "w") as f:
         json.dump(cache, f, indent=2, sort_keys=True)
+    os.replace(tmp_path, CEREBRAS_CACHE_PATH)
 
 _CEREBRAS_CACHE = load_cerebras_cache()
 _CEREBRAS_QUOTA_EXHAUSTED_UNTIL = 0
