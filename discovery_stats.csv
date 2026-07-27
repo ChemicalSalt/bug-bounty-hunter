@@ -1,4 +1,4 @@
-timestamp_utc,platform,total_discovered,included,excluded,skipped
+timestamp_utc,platform,total_discovered,included,excluded,skipped,excluded_domains,skipped_domains,run_id
 2026-07-17T23:30:51Z,HackerOne,590,236,354,0
 2026-07-18T00:14:57Z,Intigriti,209,86,123,0
 2026-07-18T00:25:08Z,YesWeHack,63,16,47,0
@@ -23,3 +23,11 @@ timestamp_utc,platform,total_discovered,included,excluded,skipped
 2026-07-24T20:15:19Z,Intigriti,211,86,125,0
 2026-07-24T20:16:52Z,YesWeHack,62,16,46,0
 2026-07-24T20:22:19Z,Bugcrowd,240,214,26,0
+2026-07-26T18:44:38Z,YesWeHack,62,0,62,0,596,0
+2026-07-26T18:55:10Z,Bugcrowd,240,10,230,0,1157,0
+2026-07-26T19:16:42Z,HackerOne,590,4,586,0,14602,0
+2026-07-26T19:18:25Z,Intigriti,211,44,167,0,285,0
+2026-07-26T19:30:42Z,HackerOne,590,4,586,0,14599,0
+2026-07-26T19:32:27Z,Intigriti,211,44,167,0,285,0
+2026-07-26T19:44:37Z,YesWeHack,62,1,61,0,592,0
+2026-07-26T19:54:48Z,Bugcrowd,240,10,230,0,1157,0

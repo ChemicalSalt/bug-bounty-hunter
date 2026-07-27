@@ -1086,7 +1086,7 @@ def summarize(platform, results, total_discovered):
     with open(stats_path, "a", newline="") as sf:
         w = csv.writer(sf)
         if is_new:
-            w.writerow(["timestamp_utc", "platform", "total_discovered", "included", "excluded", "skipped", "excluded_domains", "skipped_domains"])
+            w.writerow(["timestamp_utc", "platform", "total_discovered", "included", "excluded", "skipped", "excluded_domains", "skipped_domains", "run_id"])
         excluded_domains = sum(d for _, _, d in results["excluded"])
         skipped_domains = sum(d for _, _, d in results["skipped"])
         w.writerow([
@@ -1098,6 +1098,7 @@ def summarize(platform, results, total_discovered):
             n_skipped,
             excluded_domains,
             skipped_domains,
+            os.environ.get("GITHUB_RUN_ID", "local"),
         ])
     log(f"  [STATS] appended to {stats_path}")
 
@@ -1336,6 +1337,7 @@ def main():
             log("[H1] skipped due to --platform filter")
         else:
             log("[H1] no HACKERONE_TOKEN set, skipping platform")
+            summarize("HackerOne", h1_results, 0)
 
     int_results = new_results()
     if args.platform in (None, "intigriti") and int_token:
@@ -1353,6 +1355,7 @@ def main():
             log("[Intigriti] skipped due to --platform filter")
         else:
             log("[Intigriti] no INTIGRITI_TOKEN set, skipping platform")
+            summarize("Intigriti", int_results, 0)
 
     ywh_results = new_results()
     if args.platform in (None, "yeswehack"):

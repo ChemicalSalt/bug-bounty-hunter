@@ -108,8 +108,10 @@ def check_file(path, is_root_domain_file):
     return (len(problems) == 0), problems
 
 
-def check_skip_rate(csv_path="discovery_stats.csv"):
+def check_skip_rate(csv_path="discovery_stats.csv", expected_run_id=None):
     problems = []
+    if expected_run_id is None:
+        expected_run_id = os.environ.get("GITHUB_RUN_ID", "local")
     if not os.path.exists(csv_path):
         return False, [f"{csv_path} does not exist - cannot verify run health, failing closed"]
     import csv
@@ -122,6 +124,11 @@ def check_skip_rate(csv_path="discovery_stats.csv"):
         return False, [f"{csv_path} has no data rows - cannot verify run health, failing closed"]
     ok = True
     for platform, row in latest.items():
+        row_run_id = row.get("run_id")
+        if row_run_id != expected_run_id:
+            problems.append(f"{platform}: latest row is from run_id={row_run_id!r}, expected {expected_run_id!r} - stale data, this platform did not report for the current run")
+            ok = False
+            continue
         try:
             total = int(row["total_discovered"])
             skipped = int(row["skipped"])
