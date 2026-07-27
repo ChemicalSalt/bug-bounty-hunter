@@ -673,6 +673,7 @@ def vet_intigriti_program(program, token, results):
     if roe.get("safeHarbour") is not True:
         results["excluded"].append((pid, f"{name}: safe harbor not confirmed", domain_count))
         return
+    safe_harbor = roe.get("safeHarbour")
     testing = roe.get("testingRequirements", {})
     rate = testing.get("automatedTooling")
     if rate is None or rate < MIN_RATE_LIMIT:
