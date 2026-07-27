@@ -59,8 +59,10 @@ def main():
     patterns = load_patterns()
     if not patterns:
         print("[SCOPE FILTER] No scope patterns loaded (scope files missing/empty) - failing closed, writing empty output")
-        with open(OUTPUT_PATH, "w") as f:
+        tmp_path = f"{OUTPUT_PATH}.tmp"
+        with open(tmp_path, "w") as f:
             pass
+        os.replace(tmp_path, OUTPUT_PATH)
         return
 
     with open(INPUT_PATH) as f:
@@ -75,9 +77,11 @@ def main():
         else:
             dropped += 1
 
-    with open(OUTPUT_PATH, "w") as f:
+    tmp_path = f"{OUTPUT_PATH}.tmp"
+    with open(tmp_path, "w") as f:
         for h in kept:
             f.write(h + "\n")
+    os.replace(tmp_path, OUTPUT_PATH)
 
     print(f"[SCOPE FILTER] {len(hosts)} hosts checked, {len(kept)} kept, {dropped} dropped (not in declared scope)")
 

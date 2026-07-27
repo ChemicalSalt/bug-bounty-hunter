@@ -1,3 +1,4 @@
+import os
 import json
 import re
 
@@ -45,8 +46,10 @@ def main():
             out.append("[raw request/response unavailable for this match]")
         out.append("")
 
-    with open("new_results_detailed.txt", "w") as f:
+    tmp_path = "new_results_detailed.txt.tmp"
+    with open(tmp_path, "w") as f:
         f.write("\n".join(out))
+    os.replace(tmp_path, "new_results_detailed.txt")
 
 
 if __name__ == "__main__":

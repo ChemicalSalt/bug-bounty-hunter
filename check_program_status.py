@@ -1,3 +1,4 @@
+import os
 #!/usr/bin/env python3
 import csv, json, urllib.request, urllib.error, re, os, sys, base64, time
 from discover_all_programs import extract_ywh_domains, extract_ywh_out_of_scope_domains, check_automation_ban_two_layer, check_rate_limit_two_layer, check_safe_harbor_two_layer, check_id_verification_two_layer, CEREBRAS_API_KEY
@@ -468,49 +469,59 @@ def main():
     for platform, keyword in manual_review_needed:
         print(f"    - {platform}/{keyword}")
 
-    with open(EXCLUDE_OUTPUT_PATH, "w") as f:
+    exclude_tmp_path = f"{EXCLUDE_OUTPUT_PATH}.tmp"
+    with open(exclude_tmp_path, "w") as f:
         for d in excluded_domains:
             f.write(d + "\n")
+    os.replace(exclude_tmp_path, EXCLUDE_OUTPUT_PATH)
     print(f"\nWrote {len(excluded_domains)} domains to {EXCLUDE_OUTPUT_PATH}")
 
     hackerone_scope_lines = sorted(set(hackerone_scope_lines))
     hackerone_out_lines = sorted(set(hackerone_out_lines))
     scope_output_path = os.environ.get("HACKERONE_SCOPE_OUTPUT_PATH") or os.path.join(HOME, "bug-bounty-hunter", "hackerone_scope.txt")
-    with open(scope_output_path, "w") as f:
+    scope_tmp_path = f"{scope_output_path}.tmp"
+    with open(scope_tmp_path, "w") as f:
         for asset in hackerone_scope_lines:
             f.write(f"IN:{asset}\n")
         for asset in hackerone_out_lines:
             f.write(f"OUT:{asset}\n")
+    os.replace(scope_tmp_path, scope_output_path)
     print(f"Wrote {len(hackerone_scope_lines)} in-scope + {len(hackerone_out_lines)} out-of-scope HackerOne assets to {scope_output_path}")
 
     intigriti_scope_lines = sorted(set(intigriti_scope_lines))
     intigriti_out_lines = sorted(set(intigriti_out_lines))
     intigriti_scope_output_path = os.environ.get("INTIGRITI_SCOPE_OUTPUT_PATH") or os.path.join(HOME, "bug-bounty-hunter", "intigriti_scope.txt")
-    with open(intigriti_scope_output_path, "w") as f:
+    intigriti_tmp_path = f"{intigriti_scope_output_path}.tmp"
+    with open(intigriti_tmp_path, "w") as f:
         for asset in intigriti_scope_lines:
             f.write(f"IN:{asset}\n")
         for asset in intigriti_out_lines:
             f.write(f"OUT:{asset}\n")
+    os.replace(intigriti_tmp_path, intigriti_scope_output_path)
     print(f"Wrote {len(intigriti_scope_lines)} in-scope + {len(intigriti_out_lines)} out-of-scope Intigriti assets to {intigriti_scope_output_path}")
 
     yeswehack_scope_lines = sorted(set(yeswehack_scope_lines))
     yeswehack_out_lines = sorted(set(yeswehack_out_lines))
     yeswehack_scope_output_path = os.environ.get("YESWEHACK_SCOPE_OUTPUT_PATH") or os.path.join(HOME, "bug-bounty-hunter", "yeswehack_scope.txt")
-    with open(yeswehack_scope_output_path, "w") as f:
+    yeswehack_tmp_path = f"{yeswehack_scope_output_path}.tmp"
+    with open(yeswehack_tmp_path, "w") as f:
         for asset in yeswehack_scope_lines:
             f.write(f"IN:{asset}\n")
         for asset in yeswehack_out_lines:
             f.write(f"OUT:{asset}\n")
+    os.replace(yeswehack_tmp_path, yeswehack_scope_output_path)
     print(f"Wrote {len(yeswehack_scope_lines)} in-scope + {len(yeswehack_out_lines)} out-of-scope YesWeHack assets to {yeswehack_scope_output_path}")
 
     bugcrowd_scope_lines = sorted(set(bugcrowd_scope_lines))
     bugcrowd_out_lines = sorted(set(bugcrowd_out_lines))
     bugcrowd_scope_output_path = os.environ.get("BUGCROWD_SCOPE_OUTPUT_PATH") or os.path.join(HOME, "bug-bounty-hunter", "bugcrowd_scope.txt")
-    with open(bugcrowd_scope_output_path, "w") as f:
+    bugcrowd_tmp_path = f"{bugcrowd_scope_output_path}.tmp"
+    with open(bugcrowd_tmp_path, "w") as f:
         for asset in bugcrowd_scope_lines:
             f.write(f"IN:{asset}\n")
         for asset in bugcrowd_out_lines:
             f.write(f"OUT:{asset}\n")
+    os.replace(bugcrowd_tmp_path, bugcrowd_scope_output_path)
     print(f"Wrote {len(bugcrowd_scope_lines)} in-scope + {len(bugcrowd_out_lines)} out-of-scope Bugcrowd assets to {bugcrowd_scope_output_path}")
 
 if __name__ == "__main__":

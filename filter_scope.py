@@ -1,3 +1,4 @@
+import os
 import csv
 import re
 import sys
@@ -50,8 +51,10 @@ def main():
             continue
         kept = [h for h in hosts if root_of(h) in scoped_roots]
         dropped = len(hosts) - len(kept)
-        with open(fname, "w") as f:
+        tmp_fname = f"{fname}.tmp"
+        with open(tmp_fname, "w") as f:
             f.write("\n".join(kept) + ("\n" if kept else ""))
+        os.replace(tmp_fname, fname)
         print(f"[FILTER] {fname}: kept {len(kept)}, dropped {dropped} (no scope match)")
 
 if __name__ == "__main__":
