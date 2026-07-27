@@ -574,7 +574,7 @@ jobs:
             echo "::warning::Katana timed out (exit 124) - proceeding with partial/no crawled URLs, nuclei will still run"
           fi
           if [ -f urls.txt ]; then
-            sort -u urls.txt | head -100 > urls_capped.txt
+            sort -u urls.txt | head -10 > urls_capped.txt
             mv urls_capped.txt urls.txt
           else
             touch urls.txt
