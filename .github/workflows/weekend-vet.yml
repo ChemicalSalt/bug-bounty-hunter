@@ -69,6 +69,7 @@ jobs:
           git config --global user.name "BugBountyBot"
           for f in domain_program_map.csv \
             hackerone_scope.txt intigriti_scope.txt yeswehack_scope.txt bugcrowd_scope.txt \
+            hackerone_scope_diff.log intigriti_scope_diff.log yeswehack_scope_diff.log bugcrowd_scope_diff.log \
             excluded_domains.txt \
             cerebras_ban_cache.json \
             discovery_stats.csv \
