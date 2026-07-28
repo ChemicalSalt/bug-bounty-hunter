@@ -121,7 +121,8 @@ def check_automation_ban(text):
         if m:
             start = max(0, m.start() - 100)
             end = min(len(text), m.end() + 100)
-            return True, text[start:end].strip()
+            cleaned = re.sub(r"\s+", " ", text[start:end]).strip()
+            return True, cleaned
     return False, None
 
 
@@ -132,7 +133,8 @@ def check_safe_harbor(text):
     if m:
         start = max(0, m.start() - 100)
         end = min(len(text), m.end() + 100)
-        return True, text[start:end].strip()
+        cleaned = re.sub(r"\s+", " ", text[start:end]).strip()
+        return True, cleaned
     return False, None
 
 
@@ -255,7 +257,8 @@ def check_id_verification_required(text):
     if m:
         start = max(0, m.start() - 100)
         end = min(len(text), m.end() + 100)
-        return True, text[start:end].strip()
+        cleaned = re.sub(r"\s+", " ", text[start:end]).strip()
+        return True, cleaned
     return False, None
 
 def cerebras_check_id_verification(snippet, program_name):
@@ -812,7 +815,7 @@ def vet_yeswehack_program(program, results):
     rules = data.get("rules", "") or ""
     sh_ok, sh_snippet = check_safe_harbor_two_layer(rules, slug)
     if sh_ok == "review":
-        results["excluded"].append((slug, f"safe harbor unresolved: {sh_snippet[:80]}", domain_count))
+        results["skipped"].append((slug, f"safe harbor unresolved: {sh_snippet[:80]}", domain_count))
         return
     if not sh_ok:
         results["excluded"].append((slug, f"safe harbor not confirmed: {(sh_snippet or "no rules text")[:80]}", domain_count))
@@ -1054,7 +1057,7 @@ def merge_scope_file(path, entries_by_program, max_removal_pct=15):
         f"{len(out_removed) if not out_guard_triggered else 0} removed)")
     return {"applied": True, "added": len(added), "removed": len(removed), "total": len(new_domains),
             "out_total": len(new_out_domains)}
-def summarize(platform, results, total_discovered):
+def summarize(platform, results, total_discovered, write_files=True):
     log(f"\n=== {platform} summary ===")
     log(f"  total discovered from platform: {total_discovered}")
     log(f"  included: {len(results['included'])}")
@@ -1063,16 +1066,19 @@ def summarize(platform, results, total_discovered):
 
     excluded_path = f"{platform.lower()}_excluded_full.txt"
     skipped_path = f"{platform.lower()}_skipped_full.txt"
-    excluded_tmp = f"{excluded_path}.tmp"
-    with open(excluded_tmp, "w") as ef:
-        for name, reason, domain_count in results["excluded"]:
-            ef.write(f"{name}\t{reason}\t{domain_count}\n")
-    os.replace(excluded_tmp, excluded_path)
-    skipped_tmp = f"{skipped_path}.tmp"
-    with open(skipped_tmp, "w") as sf:
-        for name, reason, domain_count in results["skipped"]:
-            sf.write(f"{name}\t{reason}\t{domain_count}\n")
-    os.replace(skipped_tmp, skipped_path)
+    if write_files:
+        excluded_tmp = f"{excluded_path}.tmp"
+        with open(excluded_tmp, "w") as ef:
+            for name, reason, domain_count in results["excluded"]:
+                ef.write(f"{name}\t{reason}\t{domain_count}\n")
+        os.replace(excluded_tmp, excluded_path)
+        skipped_tmp = f"{skipped_path}.tmp"
+        with open(skipped_tmp, "w") as sf:
+            for name, reason, domain_count in results["skipped"]:
+                sf.write(f"{name}\t{reason}\t{domain_count}\n")
+        os.replace(skipped_tmp, skipped_path)
+    else:
+        log(f"  [SKIP] not writing {excluded_path} / {skipped_path} (platform not run)")
     n_excluded = len(results["excluded"])
     n_skipped = len(results["skipped"])
     log(f"  [FULL LIST] excluded -> {excluded_path} ({n_excluded} rows)")
@@ -1347,7 +1353,7 @@ def main():
             log("[H1] skipped due to --platform filter")
         else:
             log("[H1] no HACKERONE_TOKEN set, skipping platform")
-            summarize("HackerOne", h1_results, 0)
+            summarize("HackerOne", h1_results, 0, write_files=False)
 
     int_results = new_results()
     if args.platform in (None, "intigriti") and int_token:
@@ -1365,7 +1371,7 @@ def main():
             log("[Intigriti] skipped due to --platform filter")
         else:
             log("[Intigriti] no INTIGRITI_TOKEN set, skipping platform")
-            summarize("Intigriti", int_results, 0)
+            summarize("Intigriti", int_results, 0, write_files=False)
 
     ywh_results = new_results()
     if args.platform in (None, "yeswehack"):
