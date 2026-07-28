@@ -294,7 +294,7 @@ def main():
                     has_scope = len(ywh_domains) > 0
                     policy_text = strip_html(ywh_data.get("rules") or ywh_data.get("rules_html") or "")
                     ban_result = check_automation_ban_two_layer(policy_text, f"yeswehack/{keyword}")
-                    rate_result = check_rate_limit_two_layer(policy_text, f"yeswehack/{keyword}")
+                    rate_result, _ = check_rate_limit_two_layer(policy_text, f"yeswehack/{keyword}")
                     sh_result = check_safe_harbor_two_layer(policy_text, f"yeswehack/{keyword}")
                     id_result = check_id_verification_two_layer(policy_text, f"yeswehack/{keyword}")
                     ban_ok = ban_result[0] is False
@@ -333,7 +333,7 @@ def main():
                         is_public = scope_result.get("participation") == "open"
                         policy_text = scope_result.get("policy") or ""
                         ban_result = check_automation_ban_two_layer(policy_text, f"bugcrowd/{keyword}")
-                        rate_result = check_rate_limit_two_layer(policy_text, f"bugcrowd/{keyword}")
+                        rate_result, _ = check_rate_limit_two_layer(policy_text, f"bugcrowd/{keyword}")
                         sh_result = check_safe_harbor_two_layer(policy_text, f"bugcrowd/{keyword}")
                         id_result = check_id_verification_two_layer(policy_text, f"bugcrowd/{keyword}")
                         ban_ok = ban_result[0] is False
@@ -392,7 +392,7 @@ def main():
                 else:
                     ban_text = strip_html(scope_result.get("policy"))
                     ban_result = automation_ban_check(ban_text, f"hackerone/{keyword}")
-                    rate_result = check_rate_limit_two_layer(ban_text, f"hackerone/{keyword}")
+                    rate_result, _ = check_rate_limit_two_layer(ban_text, f"hackerone/{keyword}")
                     id_result = check_id_verification_two_layer(ban_text, f"hackerone/{keyword}")
                     ban_ok = ban_result is False
                     rate_ok = rate_result is not None and rate_result >= FLAT_RATE_LIMIT
