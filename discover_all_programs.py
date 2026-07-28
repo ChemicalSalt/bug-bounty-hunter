@@ -149,7 +149,7 @@ def check_safe_harbor(text):
 def cerebras_check_safe_harbor(text, program_name):
     if not text:
         return None
-    cache_key = hashlib.sha256(("safeharbor:" + text[:2000]).encode()).hexdigest()
+    cache_key = hashlib.sha256(("safeharbor:" + text[:8000]).encode()).hexdigest()
     if cache_key in _CEREBRAS_CACHE:
         cached = _CEREBRAS_CACHE[cache_key]
         log_cerebras_call(program_name, text[:200], cached.get("has_safe_harbor"), cached["reason"] + " [CACHED]", error=None)
@@ -173,7 +173,7 @@ def cerebras_check_safe_harbor(text, program_name):
         "'authorized under this policy'. Answer false if the policy is "
         "silent on legal protection, vague, or only discusses rewards/scope "
         "without any legal-action promise.\n\n"
-        f"Text:\n{text[:2000]}"
+        f"Text:\n{text[:8000]}"
     )
     body = json.dumps({
         "model": "gpt-oss-120b",
@@ -250,7 +250,7 @@ def check_safe_harbor_two_layer(text, program_name):
         return "review", f"[Regex matched but Cerebras did not confirm — needs manual review] {snippet[:80]}"
     if not text:
         return False, None
-    result = cerebras_check_safe_harbor(text[:2000], program_name)
+    result = cerebras_check_safe_harbor(text[:8000], program_name)
     if result is None:
         return "review", "[Cerebras call failed on full-text check — needs manual review]"
     if result:
@@ -380,7 +380,7 @@ def check_id_verification_two_layer(text, program_name):
         return False, None
     if not text:
         return False, None
-    result = cerebras_check_id_verification(text[:2000], program_name)
+    result = cerebras_check_id_verification(text[:8000], program_name)
     if result is None:
         return "review", "[Cerebras call failed on full-text check — needs manual review]"
     if result:
@@ -408,7 +408,7 @@ def check_rate_limit(text):
 def cerebras_check_rate_limit(text, program_name):
     if not text:
         return None
-    cache_key = hashlib.sha256(("ratecheck:" + text[:2000]).encode()).hexdigest()
+    cache_key = hashlib.sha256(("ratecheck:" + text[:8000]).encode()).hexdigest()
     if cache_key in _CEREBRAS_CACHE:
         cached = _CEREBRAS_CACHE[cache_key]
         log_cerebras_call(program_name, text[:200], cached.get("is_ban"), cached["reason"] + " [CACHED]", error=None)
@@ -429,7 +429,7 @@ def cerebras_check_rate_limit(text, program_name):
         "'max 1 req/s')? Extract the numeric rate and its time unit if "
         "stated, even if phrased informally. Return null for both fields "
         "if no rate limit is mentioned at all.\n\n"
-        f"Text:\n{text[:2000]}"
+        f"Text:\n{text[:8000]}"
     )
     body = json.dumps({
         "model": "gpt-oss-120b",
@@ -1716,7 +1716,7 @@ def check_automation_ban_two_layer(text, program_name):
         return False, None
     # Regex found no explicit ban language — send full policy to Cerebras
     # for a real read instead of guessing off loose keywords.
-    result = cerebras_check_ban(text[:2000], program_name)
+    result = cerebras_check_ban(text[:8000], program_name)
     if result is None:
         return "review", "[Cerebras call failed on full-text check — needs manual review]"
     if result:
