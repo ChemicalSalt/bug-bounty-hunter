@@ -13,6 +13,7 @@ import csv
 import json
 import os
 import shutil
+import sys
 from datetime import datetime, timezone
 import re
 import hashlib
@@ -30,6 +31,9 @@ EXCLUDED_OUTPUT_PATH = os.environ.get("EXCLUDED_OUTPUT_PATH") or os.path.join(HO
 
 MIN_RATE_LIMIT = 5
 DOMAINS_TXT_PATH = os.environ.get("DOMAINS_TXT_PATH") or os.path.join(HOME, "bug-bounty-hunter", "domains.txt")
+
+MIN_ABSOLUTE_DOMAINS_PER_PLATFORM = int(os.environ.get("MIN_ABSOLUTE_DOMAINS_PER_PLATFORM") or 5)
+MIN_ABSOLUTE_DOMAINS_TOTAL = int(os.environ.get("MIN_ABSOLUTE_DOMAINS_TOTAL") or 20)
 CANDIDATE_DOMAINS_REVIEW_CAP = int(os.environ.get("CANDIDATE_DOMAINS_REVIEW_CAP") or 100)
 
 FETCH_EXCEPTIONS = (
@@ -62,7 +66,11 @@ SAFE_HARBOR_PATTERNS = [
 SAFE_HARBOR_PATTERN = re.compile("|".join(SAFE_HARBOR_PATTERNS), re.I)
 
 RATE_LIMIT_PATTERN = re.compile(
-    r"(\d+)\s*(?:requests?|reqs?)\s*(?:per|/)\s*(second|sec|s|minute|min|m|hour|hr|h)\b", re.I
+    r"(?P<value>\d+(?:\.\d+)?)\s*(?:"
+    r"rps\b"
+    r"|(?:requests?|reqs?)?\s*(?:per|/)\s*(?P<unit>second|sec|s|minute|min|m|hour|hr|h|day|d)\b"
+    r")",
+    re.I,
 )
 
 ID_VERIFICATION_PATTERNS = [
@@ -386,12 +394,14 @@ def check_rate_limit(text):
     m = RATE_LIMIT_PATTERN.search(text)
     if not m:
         return None
-    value = int(m.group(1))
-    unit = m.group(2).lower()
+    value = float(m.group("value"))
+    unit = (m.group("unit") or "s").lower()  # no unit group -> matched bare "rps" -> per-second
     if unit in ("minute", "min", "m"):
         return value / 60
     if unit in ("hour", "hr", "h"):
         return value / 3600
+    if unit in ("day", "d"):
+        return value / 86400
     return value
 
 
@@ -412,7 +422,7 @@ def cerebras_check_rate_limit(text, program_name):
     prompt = (
         "You are reviewing policy text from a bug bounty program. Answer "
         "ONLY with valid JSON, no other text, in this exact format: "
-        '{"rate_limit": number or null, "unit": "second" or "minute" or "hour" or null, "reason": "one short sentence"}.\n\n'
+        '{"rate_limit": number or null, "unit": "second" or "minute" or "hour" or "day" or null, "reason": "one short sentence"}.\n\n'
         "Question: Does this text state a maximum request rate or scanning "
         "throttle for automated tools (e.g. 'no more than 10 requests per "
         "second', 'please keep scanning to a slow, reasonable pace', "
@@ -447,7 +457,7 @@ def cerebras_check_rate_limit(text, program_name):
             if content.startswith("json"):
                 content = content[4:].strip()
             rm = re.search(r'"rate_limit"\s*:\s*(\d+(?:\.\d+)?|null)', content)
-            um = re.search(r'"unit"\s*:\s*"?(second|minute|hour|null)"?', content, re.IGNORECASE)
+            um = re.search(r'"unit"\s*:\s*"?(second|minute|hour|day|null)"?', content, re.IGNORECASE)
             reasonm = re.search(r'"reason"\s*:\s*"(.*?)"\s*}', content, re.DOTALL)
             reason = reasonm.group(1) if reasonm else content[:150]
             if not rm or rm.group(1) == "null":
@@ -460,6 +470,8 @@ def cerebras_check_rate_limit(text, program_name):
                 rate = value / 60
             elif unit == "hour":
                 rate = value / 3600
+            elif unit == "day":
+                rate = value / 86400
             else:
                 rate = value
             log_cerebras_call(program_name, text[:200], True, reason, error=None)
@@ -550,6 +562,33 @@ def discover_hackerone(token):
     return programs, auth
 
 
+def fetch_hackerone_structured_scopes(handle, headers):
+    """Fetch the FULL structured-scope list for a program via HackerOne's
+    dedicated, paginated endpoint, rather than trusting the relationships
+    blob embedded in the single program-show response (which HackerOne's
+    own docs say is not the source of truth for the complete list - see
+    'Get Structured Scopes'). Returns (list_of_scope_attribute_dicts, error).
+    On any fetch error, returns (None, err) so the caller can fall back."""
+    scopes = []
+    url = f"https://api.hackerone.com/v1/hackers/programs/{handle}/structured_scopes?page[size]=100"
+    seen_urls = set()
+    while url:
+        if url in seen_urls:
+            break  # defensive: avoid an infinite loop if the API ever repeats a `next` link
+        seen_urls.add(url)
+        data, err = fetch_json(url, headers)
+        if err:
+            return None, err
+        for s in data.get("data", []):
+            sa = s.get("attributes", {})
+            if sa:
+                scopes.append(sa)
+        url = data.get("links", {}).get("next")
+        if url:
+            time.sleep(0.3)
+    return scopes, None
+
+
 def vet_hackerone_program(handle, auth, results):
     headers = {"Authorization": f"Basic {auth}", "Accept": "application/json"}
     data, err = fetch_json(f"https://api.hackerone.com/v1/hackers/programs/{handle}", headers)
@@ -561,8 +600,13 @@ def vet_hackerone_program(handle, auth, results):
     policy = a.get("policy", "") or ""
     domains = []
     out_domains = []
-    for s in data.get("relationships", {}).get("structured_scopes", {}).get("data", []):
-        sa = s.get("attributes", {})
+    scope_attrs, scope_err = fetch_hackerone_structured_scopes(handle, headers)
+    if scope_err:
+        # Dedicated endpoint failed (rate limit, transient error, etc.) -
+        # fall back to whatever was embedded in the program-show response
+        # rather than treating the whole program as unvettable.
+        scope_attrs = [s.get("attributes", {}) for s in data.get("relationships", {}).get("structured_scopes", {}).get("data", [])]
+    for sa in scope_attrs:
         if sa.get("asset_type") not in ("URL", "WILDCARD"):
             continue
         asset = (sa.get("asset_identifier") or "").lower()
@@ -677,12 +721,25 @@ def vet_intigriti_program(program, token, results):
         results["excluded"].append((pid, f"{name}: safe harbor not confirmed", domain_count))
         return
     safe_harbor = roe.get("safeHarbour")
+    roe_text = json.dumps(roe)
     testing = roe.get("testingRequirements", {})
-    rate = testing.get("automatedTooling")
+    raw_rate = testing.get("automatedTooling")
+    if isinstance(raw_rate, (int, float)) and not isinstance(raw_rate, bool):
+        # API returned a clean numeric value (assumed requests/second).
+        rate, rate_status = raw_rate, None
+    else:
+        # automatedTooling is documented as a free-text testing requirement
+        # ("we advise to specify a rate limit"), not a guaranteed number -
+        # it may be a string, a bool flag, or absent. Fall back to the same
+        # regex+Cerebras extraction the other 3 platforms use, against the
+        # full ROE text, instead of trusting/crashing on the raw field.
+        rate, rate_status = check_rate_limit_two_layer(roe_text, name)
+    if rate_status == "review":
+        results["skipped"].append((pid, f"{name}: Cerebras call failed on rate-limit check", domain_count))
+        return
     if rate is None or rate < MIN_RATE_LIMIT:
         results["excluded"].append((pid, f"{name}: rate limit not confirmed >= {MIN_RATE_LIMIT}/s (found: {rate})", domain_count))
         return
-    roe_text = json.dumps(roe)
     banned, snippet = check_automation_ban_two_layer(roe_text, name)
     if banned == "review":
         results["skipped"].append((pid, f"{name}: {snippet}", domain_count))
@@ -1017,6 +1074,11 @@ def merge_scope_file(path, entries_by_program, max_removal_pct=15):
             f"NOT applying. Old scope file left untouched.")
         log(f"  [GUARD] Would-be added: {len(added)}, would-be removed: {len(removed)}")
         return {"applied": False, "added": len(added), "removed": len(removed), "total": len(old_domains)}
+    if (len(new_domains) < MIN_ABSOLUTE_DOMAINS_PER_PLATFORM
+            and len(old_domains) >= MIN_ABSOLUTE_DOMAINS_PER_PLATFORM
+            and not force_apply):
+        log(f"  [GUARD] {path}: new result has only {len(new_domains)} domain(s), below the absolute floor of {MIN_ABSOLUTE_DOMAINS_PER_PLATFORM}. NOT applying.")
+        return {"applied": False, "added": len(added), "removed": len(removed), "total": len(old_domains)}
 
     out_added = new_out_domains - old_out_domains
     out_removed = old_out_domains - new_out_domains
@@ -1280,6 +1342,11 @@ def rebuild_domains_txt(scope_paths, max_removal_pct=15):
             f"NOT applying. Old domains.txt left untouched.")
         log(f"[GUARD] Would-be added: {len(added)}, would-be removed: {len(removed)}")
         return {"applied": False, "added": len(added), "removed": len(removed), "total": len(old_roots)}
+    if (len(new_roots) < MIN_ABSOLUTE_DOMAINS_TOTAL
+            and len(old_roots) >= MIN_ABSOLUTE_DOMAINS_TOTAL
+            and not force_apply):
+        log(f"[GUARD] {DOMAINS_TXT_PATH}: new result has only {len(new_roots)} domain(s) total, below the absolute floor of {MIN_ABSOLUTE_DOMAINS_TOTAL}. NOT applying.")
+        return {"applied": False, "added": len(added), "removed": len(removed), "total": len(old_roots)}
 
     if os.path.exists(DOMAINS_TXT_PATH):
         backup_path = f"{DOMAINS_TXT_PATH}.bak.{datetime.now().strftime('%Y%m%d_%H%M%S')}"
@@ -1304,6 +1371,35 @@ def rebuild_domains_txt(scope_paths, max_removal_pct=15):
 
     log(f"[APPLIED] {DOMAINS_TXT_PATH}: {len(new_roots)} total ({len(added)} added, {len(removed)} removed)")
     return {"applied": True, "added": len(added), "removed": len(removed), "total": len(new_roots)}
+
+_DOMAIN_LINE_RE = re.compile(r"^[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?)+$")
+
+
+def validate_final_output():
+    problems = []
+    if not os.path.exists(DOMAINS_TXT_PATH):
+        problems.append(f"{DOMAINS_TXT_PATH} does not exist")
+        return problems
+    with open(DOMAINS_TXT_PATH) as f:
+        lines = [line.strip() for line in f if line.strip() and not line.strip().startswith("#")]
+    if len(lines) < MIN_ABSOLUTE_DOMAINS_TOTAL:
+        problems.append(f"domains.txt has only {len(lines)} domain(s), below the absolute floor of {MIN_ABSOLUTE_DOMAINS_TOTAL}")
+    malformed = [d for d in lines if not _DOMAIN_LINE_RE.match(d)]
+    if malformed:
+        problems.append(f"{len(malformed)} malformed line(s) in domains.txt, e.g. {malformed[:5]}")
+    dupes = len(lines) - len(set(lines))
+    if dupes:
+        problems.append(f"{dupes} duplicate line(s) in domains.txt")
+    if os.path.exists(MAPPING_PATH):
+        with open(MAPPING_PATH, newline="") as f:
+            reader = csv.DictReader(f)
+            csv_domains = {row["domain"] for row in reader if row.get("domain")}
+        if lines and not csv_domains:
+            problems.append("domain_program_map.csv is empty but domains.txt is not")
+    else:
+        problems.append(f"{MAPPING_PATH} does not exist")
+    return problems
+
 
 def run_vet_pass(programs, vet_fn, results, key_fn, platform_name, max_wait=3900):
     """Run vet_fn over all programs, then retry once any program that was
@@ -1406,6 +1502,15 @@ def main():
     log(f"[CEREBRAS CACHE] saved {len(_CEREBRAS_CACHE)} cached decisions to {CEREBRAS_CACHE_PATH}")
 
     log("\n=== All platforms complete ===")
+
+    problems = validate_final_output()
+    if problems:
+        log("\n=== FINAL OUTPUT VALIDATION FAILED ===")
+        for p in problems:
+            log(f"  [PROBLEM] {p}")
+        log("Failing the job so this doesn't silently reach Recon.")
+        sys.exit(1)
+    log("[VALIDATION] domains.txt and domain_program_map.csv look sane")
 
 # ==========================================================================
 # Cerebras second-layer automation-ban detection
