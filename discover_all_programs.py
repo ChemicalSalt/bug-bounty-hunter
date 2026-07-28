@@ -1068,12 +1068,14 @@ def merge_scope_file(path, entries_by_program, max_removal_pct=15):
     removed = old_domains - new_domains
     removal_pct = (len(removed) / len(old_domains) * 100) if old_domains else 0
     force_apply = os.environ.get("SCOPE_GUARD_OVERRIDE") == "true"
-    if removal_pct > max_removal_pct and not force_apply:
+    removal_guard_triggered = removal_pct > max_removal_pct and not force_apply
+    if removal_guard_triggered:
         log(f"  [GUARD] {path}: would remove {len(removed)}/{len(old_domains)} "
             f"({removal_pct:.1f}%) - exceeds {max_removal_pct}% threshold. "
-            f"NOT applying. Old scope file left untouched.")
-        log(f"  [GUARD] Would-be added: {len(added)}, would-be removed: {len(removed)}")
-        return {"applied": False, "added": len(added), "removed": len(removed), "total": len(old_domains)}
+            f"Keeping previous IN: entries, applying additions only.")
+        log(f"  [GUARD] Would-be removed: {len(removed)} (skipped this run). Adding: {len(added)}.")
+        new_domains = old_domains | added
+        removed = set()
     if (len(new_domains) < MIN_ABSOLUTE_DOMAINS_PER_PLATFORM
             and len(old_domains) >= MIN_ABSOLUTE_DOMAINS_PER_PLATFORM
             and not force_apply):
@@ -1336,12 +1338,14 @@ def rebuild_domains_txt(scope_paths, max_removal_pct=15):
     removed = old_roots - new_roots
     removal_pct = (len(removed) / len(old_roots) * 100) if old_roots else 0
     force_apply = os.environ.get("SCOPE_GUARD_OVERRIDE") == "true"
-    if removal_pct > max_removal_pct and not force_apply:
+    removal_guard_triggered = removal_pct > max_removal_pct and not force_apply
+    if removal_guard_triggered:
         log(f"[GUARD] {DOMAINS_TXT_PATH}: would remove {len(removed)}/{len(old_roots)} "
             f"({removal_pct:.1f}%) - exceeds {max_removal_pct}% threshold. "
-            f"NOT applying. Old domains.txt left untouched.")
-        log(f"[GUARD] Would-be added: {len(added)}, would-be removed: {len(removed)}")
-        return {"applied": False, "added": len(added), "removed": len(removed), "total": len(old_roots)}
+            f"Keeping previous entries, applying additions only.")
+        log(f"[GUARD] Would-be removed: {len(removed)} (skipped this run). Adding: {len(added)}.")
+        new_roots = old_roots | added
+        removed = set()
     if (len(new_roots) < MIN_ABSOLUTE_DOMAINS_TOTAL
             and len(old_roots) >= MIN_ABSOLUTE_DOMAINS_TOTAL
             and not force_apply):
