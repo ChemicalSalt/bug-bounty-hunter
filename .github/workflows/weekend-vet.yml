@@ -12,6 +12,16 @@ on:
   schedule:
     - cron: '30 18 * * 5'   # every Friday 18:30 UTC = Saturday 00:00 IST
 
+# Required so the job can push commits back to main/domains without a PAT.
+permissions:
+  contents: write
+
+# Prevent a manual trigger from racing a scheduled run (or two manual
+# triggers racing each other) on the same branches.
+concurrency:
+  group: weekend-vet
+  cancel-in-progress: false
+
 jobs:
   validate:
     runs-on: ubuntu-latest
