@@ -1,86 +1,62 @@
-gojek-bug-bounty-program	automation ban: [Cerebras-confirmed ban] e strictly forbidden.
-- Avoid tests that could cause de
-goto-financial-public-bounty-program	automation ban: [Cerebras-confirmed ban] e strictly forbidden.
-- Avoid tests that could cause de
-infomaniak-bug-bounty-program	automation ban: [Cerebras-confirmed ban] e strictly forbidden.
-- Avoid tests that could cause de
-alasco-gmbh-bug-bounty-program	automation ban: [Cerebras-confirmed ban] den.
-- Tests that could cause degradation or interrupti
-fdj-united-online-betting-gaming-bug-bounty-program	automation ban: [Cerebras-confirmed ban] perform any social engineering against users or FDJ Uni
-dojo	not BBP (VDP or other)
-doctolib-public-bug-bounty-program	requires ID verification: [Cerebras-confirmed ID requirement] eatures for healthcare professionals
-
-Certai
-vfs-global-bug-bounty-program	automation ban: [Cerebras-confirmed ban] e strictly forbidden.
-- Avoid tests that could cause de
-teamviewer-bounty-program	automation ban: [Cerebras-confirmed ban, no regex match]
-dana-bug-bounty-program	automation ban: [Cerebras-confirmed ban] rivacy of our users. 
-- Avoid tests that could cause de
-expressvpn-bug-bounty-program	automation ban: [Cerebras-confirmed ban] e strictly forbidden.
-- Avoid tests that could cause de
-cyberghost-bug-bounty-program	automation ban: [Cerebras-confirmed ban] e strictly forbidden.
-- Avoid tests that could cause de
-private-internet-access-bug-bounty-program	automation ban: [Cerebras-confirmed ban] e strictly forbidden.
-- Avoid tests that could cause de
-zecible-public-bug-bounty-program	automation ban: [Cerebras-confirmed ban] e strictly forbidden.
-- Avoid tests that could cause de
-komoju-public-bug-bounty-program	automation ban: [Cerebras-confirmed ban] e strictly forbidden.
-- Avoid tests that could cause de
-pine-labs-bug-bounty-program	automation ban: [Cerebras-confirmed ban] e strictly forbidden.
-- Avoid tests that could cause de
-otto-de-bug-bounty	automation ban: [Cerebras-confirmed ban] e strictly forbidden.
-- Avoid tests that could cause de
-moneybox-bug-bounty	automation ban: [Cerebras-confirmed ban] e strictly forbidden.
-- Avoid tests that could cause de
-harman-international-web-applications	automation ban: [Cerebras-confirmed ban] e strictly forbidden.
-- Avoid tests that could cause de
-bookbeat	automation ban: [Cerebras-confirmed ban] e strictly forbidden.
-- Avoid tests that could cause de
-mon-espace-sante-mes	automation ban: [Cerebras-confirmed ban] e strictly forbidden.
-- Avoid tests that could cause de
-dossier-medical-partage-program	automation ban: [Cerebras-confirmed ban] e strictly forbidden.
-- Avoid tests that could cause de
-decathlon	automation ban: [Cerebras-confirmed ban] e strictly forbidden.
-- Avoid tests that could cause de
-coindcx-bug-bounty-program	automation ban: [Cerebras-confirmed ban] e strictly forbidden.
-- Avoid tests that could cause de
-okto-bug-bounty-program	automation ban: [Cerebras-confirmed ban] e strictly forbidden.
-- Avoid tests that could cause de
-bitoasis-bug-bounty-program	automation ban: [Cerebras-confirmed ban] e strictly forbidden.
-- Avoid tests that could cause de
-datadome-bug-bounty	automation ban: [Cerebras-confirmed ban] e strictly forbidden.
-- Avoid tests that could cause de
-louis-vuitton-malletier-public-bug-bounty-program	automation ban: [Cerebras-confirmed ban] e strictly forbidden.
-- Avoid tests that could cause de
-harman-international-public-bug-bounty	automation ban: [Cerebras-confirmed ban] e strictly forbidden.
-- Avoid tests that could cause de
-memento-bug-bounty-program	automation ban: [Cerebras-confirmed ban] e strictly forbidden.
-- Avoid tests that could cause de
-digital-flanders-vulnerability-disclosure-program	not BBP (VDP or other)
-xelians-blackbox-program	automation ban: [Cerebras-confirmed ban] e strictly forbidden.
-- Avoid tests that could cause de
-grw-trading-fze-bug-bounty-program	automation ban: [Cerebras-confirmed ban] e strictly forbidden.
-- Avoid tests that could cause de
-vidaxl-services-open-bug-bounty-program	automation ban: [Cerebras-confirmed ban] e strictly forbidden.
-- Avoid tests that could cause de
-vincisa-public-program	automation ban: [Cerebras-confirmed ban] e strictly forbidden.
-- Avoid tests that could cause de
-ezviz-bug-bounty-program	automation ban: [Cerebras-confirmed ban] of our users.
-
-- Avoid tests that could cause degradati
-swapcard	automation ban: [Cerebras-confirmed ban, no regex match]
-paddle-com-public-bug-bounty-program	automation ban: [Cerebras-confirmed ban] e strictly forbidden.
-- Avoid tests that could cause de
-ovh	automation ban: [Cerebras-confirmed ban] e strictly forbidden.
-- Avoid tests that could cause de
-imou-public-bug-bounty-program	automation ban: [Cerebras-confirmed ban] e strictly forbidden.
-- Avoid tests that could cause de
-maya-public-bug-bounty-program	automation ban: [Cerebras-confirmed ban] e strictly forbidden.
-- Avoid tests that could cause de
-ooredoo-qpsc-bug-bounty-program	automation ban: [Cerebras-confirmed ban] e strictly forbidden.
-- Avoid tests that could cause de
-yes-we-hack	automation ban: [Cerebras-confirmed ban, no regex match]
-qwant	automation ban: [Cerebras-confirmed ban, no regex match]
-sogexia	requires ID verification: [Cerebras-confirmed ID requirement] customer account, if you can't create an acc
-salt-mobile-sa-bug-bounty-program	automation ban: [Cerebras-confirmed ban] e strictly forbidden.
-- Avoid tests that could cause de
+infomaniak-bug-bounty-program	safe harbor not confirmed: no rules text	40
+memento-bug-bounty-program	safe harbor not confirmed: no rules text	2
+bug-bounty-program-blablacar	safe harbor not confirmed: no rules text	60
+superbank-public-bug-bounty-program	safe harbor not confirmed: no rules text	3
+swiss-post-evoting	safe harbor not confirmed: no rules text	0
+gojek-bug-bounty-program	automation ban: [Cerebras-confirmed ban] e strictly forbidden. - Avoid tests that could cause de	10
+goto-financial-public-bounty-program	automation ban: [Cerebras-confirmed ban] e strictly forbidden. - Avoid tests that could cause de	12
+alasco-gmbh-bug-bounty-program	safe harbor not confirmed: no rules text	4
+fdj-united-online-betting-gaming-bug-bounty-program	safe harbor not confirmed: no rules text	32
+dojo	not BBP (VDP or other)	0
+cryptobox-bug-bounty	safe harbor not confirmed: no rules text	0
+doctolib-public-bug-bounty-program	safe harbor not confirmed: no rules text	4
+vfs-global-bug-bounty-program	safe harbor not confirmed: no rules text	26
+teamviewer-bounty-program	safe harbor not confirmed: no rules text	4
+telenor-sweden-public-bug-bounty-program	safe harbor not confirmed: no rules text	23
+mediamarktsaturn-bug-bounty-program	safe harbor not confirmed: no rules text	11
+dana-bug-bounty-program	safe harbor not confirmed: no rules text	2
+expressvpn-bug-bounty-program	safe harbor not confirmed: no rules text	25
+cyberghost-bug-bounty-program	safe harbor not confirmed: no rules text	6
+private-internet-access-bug-bounty-program	safe harbor not confirmed: no rules text	6
+zecible-public-bug-bounty-program	safe harbor not confirmed: no rules text	17
+komoju-public-bug-bounty-program	safe harbor not confirmed: no rules text	2
+programmes-de-primes-aux-bogues-du-gouvernement-du-quebec-cgcd	safe harbor not confirmed: no rules text	2
+cybermalveillance-gouv-fr-sensibilization-prevention-and-support-in-terms-of-cybersecurity	safe harbor not confirmed: no rules text	1
+pine-labs-bug-bounty-program	safe harbor not confirmed: no rules text	20
+otto-de-bug-bounty	safe harbor not confirmed: no rules text	6
+ant-group-security-response-center-bug-bounty-program	safe harbor not confirmed: no rules text	7
+moneybox-bug-bounty	safe harbor not confirmed: no rules text	3
+datadome-bot-bounty	safe harbor not confirmed: no rules text	6
+harman-international-web-applications	automation ban: [Cerebras-confirmed ban] e strictly forbidden. - Avoid tests that could cause de	27
+bookbeat	safe harbor not confirmed: no rules text	4
+mon-espace-sante-mes	safe harbor not confirmed: no rules text	33
+dossier-medical-partage-program	safe harbor not confirmed: no rules text	10
+decathlon	safe harbor not confirmed: no rules text	14
+coindcx-bug-bounty-program	safe harbor not confirmed: no rules text	2
+okto-bug-bounty-program	safe harbor not confirmed: no rules text	0
+bitoasis-bug-bounty-program	safe harbor not confirmed: no rules text	1
+thuringer-aufbaubank-bug-bounty-program	safe harbor not confirmed: no rules text	2
+datadome-bug-bounty	safe harbor not confirmed: no rules text	7
+sante-publique-france-bugbounty-public-program	safe harbor not confirmed: no rules text	8
+louis-vuitton-malletier-public-bug-bounty-program	safe harbor not confirmed: no rules text	1
+harman-international-public-bug-bounty	automation ban: [Cerebras-confirmed ban] e strictly forbidden. - Avoid tests that could cause de	7
+swiss-post	rate limit not confirmed >= 5/s (found: None)	3
+digital-flanders-vulnerability-disclosure-program	not BBP (VDP or other)	0
+xelians-blackbox-program	safe harbor not confirmed: no rules text	2
+grw-trading-fze-bug-bounty-program	safe harbor not confirmed: no rules text	2
+vidaxl-services-open-bug-bounty-program	safe harbor not confirmed: no rules text	39
+vincisa-public-program	safe harbor not confirmed: no rules text	18
+ezviz-bug-bounty-program	safe harbor not confirmed: no rules text	9
+swapcard	safe harbor not confirmed: no rules text	10
+paddle-com-public-bug-bounty-program	safe harbor not confirmed: no rules text	12
+ovh	safe harbor not confirmed: no rules text	3
+imou-public-bug-bounty-program	safe harbor not confirmed: no rules text	6
+outscale	safe harbor not confirmed: no rules text	7
+maya-public-bug-bounty-program	safe harbor not confirmed: no rules text	6
+ooredoo-qpsc-bug-bounty-program	automation ban: [Cerebras-confirmed ban] e strictly forbidden. - Avoid tests that could cause de	2
+yes-we-hack	safe harbor not confirmed: no rules text	4
+qwant	safe harbor not confirmed: no rules text	6
+sogexia	safe harbor not confirmed: no rules text	1
+withings-public-program	safe harbor not confirmed: no rules text	6
+tencent-bug-bounty-program	safe harbor not confirmed: no rules text	0
+salt-mobile-sa-bug-bounty-program	safe harbor not confirmed: no rules text	3
