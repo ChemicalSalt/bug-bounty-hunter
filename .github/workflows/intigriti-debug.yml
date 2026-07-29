@@ -1,0 +1,35 @@
+name: Intigriti Debug Dump
+on:
+  workflow_dispatch:
+
+jobs:
+  dump:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      INTIGRITI_TOKEN: ${{ secrets.INTIGRITI_TOKEN }}
+    steps:
+      - name: Fetch one program list + one program detail
+        run: |
+          curl -s "https://api.intigriti.com/external/researcher/v1/programs?limit=1" \
+            -H "Authorization: Bearer $INTIGRITI_TOKEN" \
+            -H "Accept: application/json" \
+            -o list.json
+          echo "--- LIST ---"
+          cat list.json
+          PID=$(python3 -c "import json;print(json.load(open('list.json'))['records'][0]['id'])")
+          curl -s "https://api.intigriti.com/external/researcher/v1/programs/$PID" \
+            -H "Authorization: Bearer $INTIGRITI_TOKEN" \
+            -H "Accept: application/json" \
+            -o detail.json
+          echo "--- DETAIL ---"
+          cat detail.json
+
+      - name: Upload raw JSON
+        uses: actions/upload-artifact@v4
+        with:
+          name: intigriti-debug-json
+          path: |
+            list.json
+            detail.json
+          retention-days: 7
