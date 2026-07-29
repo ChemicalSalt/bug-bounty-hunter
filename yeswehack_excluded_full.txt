@@ -40,7 +40,7 @@ datadome-bug-bounty	safe harbor not confirmed: no rules text	7
 sante-publique-france-bugbounty-public-program	safe harbor not confirmed: no rules text	8
 louis-vuitton-malletier-public-bug-bounty-program	safe harbor not confirmed: no rules text	1
 harman-international-public-bug-bounty	automation ban: [Cerebras-confirmed ban] e strictly forbidden. - Avoid tests that could cause de	7
-swiss-post	rate limit not confirmed >= 5/s (found: None)	3
+swiss-post	automation ban: [Cerebras-confirmed ban, no regex match]	3
 digital-flanders-vulnerability-disclosure-program	not BBP (VDP or other)	0
 xelians-blackbox-program	safe harbor not confirmed: no rules text	2
 grw-trading-fze-bug-bounty-program	safe harbor not confirmed: no rules text	2

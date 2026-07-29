@@ -1,11 +1,11 @@
 nubank	requires ID verification: [Cerebras-confirmed ID requirement, no regex match]	7
 launchdarkly-mbb-og	rate limit not confirmed >= 5/s (found: None)	5
-matlab-online	rate limit not confirmed >= 5/s (found: None)	1
-rapyd	rate limit not confirmed >= 5/s (found: 0.8333333333333334)	10
+matlab-online	rate limit not confirmed >= 5/s (found: 0.4166666666666667)	1
+rapyd	automation ban: [Cerebras-confirmed ban, no regex match]	10
 openai-safety	rate limit not confirmed >= 5/s (found: None)	2
-etoro-mbb-og	rate limit not confirmed >= 5/s (found: None)	6
+etoro-mbb-og	automation ban: [Cerebras-confirmed ban, no regex match]	6
 optus-mbb-og	rate limit not confirmed >= 5/s (found: None)	9
-moovit-mbb-og	rate limit not confirmed >= 5/s (found: None)	0
+moovit-mbb-og	automation ban: [Cerebras-confirmed ban, no regex match]	0
 fireblocks-mbb-og	rate limit not confirmed >= 5/s (found: None)	3
 luno-og	rate limit not confirmed >= 5/s (found: None)	5
 webdotcom	rate limit not confirmed >= 5/s (found: None)	3
@@ -16,7 +16,7 @@ chime	rate limit not confirmed >= 5/s (found: None)	13
 klaviyo-og	rate limit not confirmed >= 5/s (found: None)	9
 okta	automation ban: [Cerebras-confirmed ban] ion of Okta. Rules of Engagement Employees and relative	4
 onetrust	rate limit not confirmed >= 5/s (found: None)	1
-snapnames	rate limit not confirmed >= 5/s (found: None)	2
+snapnames	requires ID verification: [Cerebras-confirmed ID requirement, no regex match]	2
 bitgo-mobileapps-mbb-og	rate limit not confirmed >= 5/s (found: None)	0
 internetbrands-public	rate limit not confirmed >= 5/s (found: None)	20
 ynab	automation ban: [Cerebras-confirmed ban, no regex match]	3
@@ -32,182 +32,183 @@ viator	no full safe harbor (status: partial)	0
 tripadvisor-bb-og	rate limit not confirmed >= 5/s (found: None)	22
 chipotle-mbb-og	rate limit not confirmed >= 5/s (found: None)	4
 ultramobile-mobile-apps	rate limit not confirmed >= 5/s (found: None)	0
-myfitnesspal-mbb	rate limit not confirmed >= 5/s (found: None)	1
+myfitnesspal-mbb	automation ban: [Cerebras-confirmed ban, no regex match]	1
 aurory-mbb-og2	no full safe harbor (status: partial)	0
-ifood-og	rate limit not confirmed >= 5/s (found: None)	18
+ifood-og	automation ban: [Cerebras-confirmed ban, no regex match]	18
 immutable	rate limit not confirmed >= 5/s (found: None)	7
-bolt-og	rate limit not confirmed >= 5/s (found: None)	2
+bolt-og	automation ban: [Cerebras-confirmed ban, no regex match]	2
 thetradedesk-mbb	rate limit not confirmed >= 5/s (found: None)	38
 motorolamobility-iot	no full safe harbor (status: partial)	0
 mgmmacau-mbb-og	rate limit not confirmed >= 5/s (found: None)	9
 codeorg	rate limit not confirmed >= 5/s (found: None)	2
 bitpanda-og-bb	automation ban: [Cerebras-confirmed ban, no regex match]	4
-pnimedia-bb	rate limit not confirmed >= 5/s (found: None)	0
+pnimedia-bb	automation ban: [Cerebras-confirmed ban, no regex match]	0
 lime	rate limit not confirmed >= 5/s (found: None)	15
 axis-os-public	rate limit not confirmed >= 5/s (found: None)	0
-financialforce	rate limit not confirmed >= 5/s (found: None)	2
-osl-mbb-og1	rate limit not confirmed >= 5/s (found: None)	1
+financialforce	automation ban: [Cerebras-confirmed ban, no regex match]	2
 northwestern-mutual-mbb-og	no full safe harbor (status: partial)	0
-mattermost-mbb-public	rate limit not confirmed >= 5/s (found: None)	3
 glean-technologies-public	no full safe harbor (status: partial)	0
-sophos	rate limit not confirmed >= 5/s (found: None)	3
-cms-bbpublic	rate limit not confirmed >= 5/s (found: None)	7
-tempusex-public-mbb-og	rate limit not confirmed >= 5/s (found: None)	5
-ibotta	rate limit not confirmed >= 5/s (found: None)	8
 planethosterinc	no full safe harbor (status: partial)	0
 ultramobile-retailer-portal	no full safe harbor (status: partial)	0
 newrelic-mbb-og-public	no full safe harbor (status: partial)	0
-sap-private-invite	requires ID verification: [Cerebras-confirmed ID requirement] et the following criteria: 🔏 SAP's Customers	0
-tyler-tech-data-insights	rate limit not confirmed >= 5/s (found: None)	2
 twentyminuten	automation ban: [Cerebras-confirmed ban] lated submissions No aggressive automated scans as thes	7
 refined2	no full safe harbor (status: partial)	0
 keepersecurity	no full safe harbor (status: partial)	0
 moneytreekkog	no full safe harbor (status: partial)	0
-indeed	rate limit not confirmed >= 5/s (found: 1.0)	4
-nemetschek	rate limit not confirmed >= 5/s (found: None)	1
-appsvio	rate limit not confirmed >= 5/s (found: None)	1
-craftcoders	rate limit not confirmed >= 5/s (found: None)	0
-inprowiser	rate limit not confirmed >= 5/s (found: None)	1
-izymes	rate limit not confirmed >= 5/s (found: None)	1
-coindesk-mobile-mbb-og	rate limit not confirmed >= 5/s (found: None)	0
-carrefour	rate limit not confirmed >= 5/s (found: None)	2
-octopus-og	rate limit not confirmed >= 5/s (found: None)	3
 pexels	no full safe harbor (status: partial)	0
 classdojo	automation ban: [Cerebras-confirmed ban] counts and not modify, access, or affect other users' a	14
-automationconsultants	rate limit not confirmed >= 5/s (found: None)	1
-lightspeed-hospitality	rate limit not confirmed >= 5/s (found: None)	3
 binance	no full safe harbor (status: partial)	0
 canva	no full safe harbor (status: partial)	0
-agile-pulse	rate limit not confirmed >= 5/s (found: None)	1
+cisconetworking	no full safe harbor (status: partial)	0
+thousandeyes-og	no full safe harbor (status: partial)	0
+seek-com	automation ban: [Cerebras-confirmed ban] a job ad !! Denial of Service, Rate Limiting, and other	0
+pantheon	no full safe harbor (status: partial)	0
+mastercard	no full safe harbor (status: partial)	0
+eazybi	no full safe harbor (status: partial)	0
+seek	automation ban: [Cerebras-confirmed ban] s Denial of Service, Rate Limiting, and other automated	14
+openai	no full safe harbor (status: partial)	0
+orderlynetwork-mbb-og2	no full safe harbor (status: partial)	0
+JaangaInc-mbb-market	no full safe harbor (status: partial)	0
+etsy	no full safe harbor (status: partial)	0
+irobot	automation ban: [Cerebras-confirmed ban] rabilities. NOTE! [Please Read Fully Before Beginning O	17
+usaa	no full safe harbor (status: partial)	0
+secureflag-mbb-market	no full safe harbor (status: partial)	0
+asana	no full safe harbor (status: partial)	0
+dell-product	no full safe harbor (status: partial)	0
+kiteworks-public	no full safe harbor (status: partial)	0
+freedomofpress	no full safe harbor (status: partial)	0
+kohls	no full safe harbor (status: partial)	0
+balsamiq	no full safe harbor (status: partial)	0
+hotdoc	no full safe harbor (status: partial)	0
+volkswagen-og	automation ban: [Cerebras-confirmed ban] to be created, please use your @bugcrowdninja.com email	1
+projectbalm	no full safe harbor (status: partial)	0
+quizlet	no full safe harbor (status: partial)	0
+kucoin	no full safe harbor (status: partial)	0
+tesla	no full safe harbor (status: partial)	0
+colined	no full safe harbor (status: partial)	0
+odesk	no full safe harbor (status: partial)	0
+barracuda	no full safe harbor (status: partial)	0
+requirement-yogi	no full safe harbor (status: partial)	0
+lastpass	no full safe harbor (status: partial)	0
+intercom	no full safe harbor (status: partial)	0
+codefortynine	no full safe harbor (status: partial)	0
+trm-labs-public-mbb	no full safe harbor (status: partial)	0
+optimizely	no full safe harbor (status: partial)	0
+fiftyfivedegrees	no full safe harbor (status: partial)	0
+arlo	no full safe harbor (status: partial)	0
+redmoon	automation ban: [Cerebras-confirmed ban] ulnerability, report it immediately; do not attempt to 	1
+osl-mbb-og1	automation ban: [Cerebras-confirmed ban, no regex match]	1
+mattermost-mbb-public	rate limit not confirmed >= 5/s (found: None)	3
+sophos	rate limit not confirmed >= 5/s (found: None)	3
+cms-bbpublic	rate limit not confirmed >= 5/s (found: None)	7
+tempusex-public-mbb-og	rate limit not confirmed >= 5/s (found: None)	5
+ibotta	rate limit not confirmed >= 5/s (found: None)	8
+sap-private-invite	requires ID verification: [Cerebras-confirmed ID requirement] et the following criteria: 🔏 SAP's Customers	0
+tyler-tech-data-insights	automation ban: [Cerebras-confirmed ban, no regex match]	2
+indeed	automation ban: [Cerebras-confirmed ban, no regex match]	4
+nemetschek	automation ban: [Cerebras-confirmed ban, no regex match]	1
+appsvio	automation ban: [Cerebras-confirmed ban, no regex match]	1
+craftcoders	rate limit not confirmed >= 5/s (found: None)	0
+inprowiser	automation ban: [Cerebras-confirmed ban, no regex match]	1
+izymes	automation ban: [Cerebras-confirmed ban, no regex match]	1
+coindesk-mobile-mbb-og	rate limit not confirmed >= 5/s (found: None)	0
+carrefour	rate limit not confirmed >= 5/s (found: None)	2
+octopus-og	automation ban: [Cerebras-confirmed ban, no regex match]	3
+automationconsultants	automation ban: [Cerebras-confirmed ban, no regex match]	1
+lightspeed-hospitality	automation ban: [Cerebras-confirmed ban, no regex match]	3
+agile-pulse	automation ban: [Cerebras-confirmed ban, no regex match]	1
 hpe-networking-product-public	rate limit not confirmed >= 5/s (found: None)	1
 blofin-crypto-mbb-og	rate limit not confirmed >= 5/s (found: None)	3
-rv-softwares	rate limit not confirmed >= 5/s (found: None)	1
-stagil	rate limit not confirmed >= 5/s (found: None)	1
-cisconetworking	no full safe harbor (status: partial)	0
-gliffy	rate limit not confirmed >= 5/s (found: None)	1
-tamedia	rate limit not confirmed >= 5/s (found: None)	1
-thousandeyes-og	no full safe harbor (status: partial)	0
+rv-softwares	automation ban: [Cerebras-confirmed ban, no regex match]	1
+stagil	automation ban: [Cerebras-confirmed ban, no regex match]	1
+gliffy	automation ban: [Cerebras-confirmed ban, no regex match]	1
+tamedia	automation ban: [Cerebras-confirmed ban, no regex match]	1
 atlassian	rate limit not confirmed >= 5/s (found: None)	14
 comcastvdp	rate limit not confirmed >= 5/s (found: None)	3
 bitdefenderbox2	rate limit not confirmed >= 5/s (found: None)	0
-bullish	rate limit not confirmed >= 5/s (found: None)	2
-seek-com	automation ban: [Cerebras-confirmed ban] a job ad !! Denial of Service, Rate Limiting, and other	0
+bullish	automation ban: [Cerebras-confirmed ban, no regex match]	2
 tidal-bugbounty	rate limit not confirmed >= 5/s (found: None)	7
-pantheon	no full safe harbor (status: partial)	0
-devacrobats-market	rate limit not confirmed >= 5/s (found: None)	1
+devacrobats-market	automation ban: [Cerebras-confirmed ban, no regex match]	1
 entain-glf-mbb-og	rate limit not confirmed >= 5/s (found: None)	5
 volkswagen-vwfs-mbb-og	rate limit not confirmed >= 5/s (found: None)	20
-mastercard	no full safe harbor (status: partial)	0
 blockopensource	rate limit not confirmed >= 5/s (found: None)	1
 sky-plc-mbb-og	rate limit not confirmed >= 5/s (found: None)	0
 coindesk-mbb-og	rate limit not confirmed >= 5/s (found: None)	1
-statuspage	rate limit not confirmed >= 5/s (found: None)	2
+statuspage	automation ban: [Cerebras-confirmed ban, no regex match]	2
 wise	rate limit not confirmed >= 5/s (found: None)	6
-we-weave	rate limit not confirmed >= 5/s (found: None)	1
-eazybi	no full safe harbor (status: partial)	0
-seek	automation ban: [Cerebras-confirmed ban] s Denial of Service, Rate Limiting, and other automated	14
+we-weave	automation ban: [Cerebras-confirmed ban, no regex match]	1
 orderlynetwork-mbb-og	rate limit not confirmed >= 5/s (found: None)	0
 personalcapital	rate limit not confirmed >= 5/s (found: None)	0
 unity	rate limit not confirmed >= 5/s (found: None)	9
-opus-guard-market	rate limit not confirmed >= 5/s (found: None)	1
-appliger	rate limit not confirmed >= 5/s (found: None)	1
+opus-guard-market	automation ban: [Cerebras-confirmed ban, no regex match]	1
+appliger	automation ban: [Cerebras-confirmed ban, no regex match]	1
 clickhouse	rate limit not confirmed >= 5/s (found: None)	2
 aiven-mbb-og	rate limit not confirmed >= 5/s (found: None)	6
-openai	no full safe harbor (status: partial)	0
 opensea	rate limit not confirmed >= 5/s (found: None)	5
 legacy-blockchain-mbb-og	rate limit not confirmed >= 5/s (found: None)	2
 sky-plc-mbb-og2	rate limit not confirmed >= 5/s (found: None)	0
 fivetran-mbb-og	rate limit not confirmed >= 5/s (found: None)	1
-jora	rate limit not confirmed >= 5/s (found: None)	2
-orderlynetwork-mbb-og2	no full safe harbor (status: partial)	0
-quirk-consulting	rate limit not confirmed >= 5/s (found: None)	1
-lightspeed-retail	rate limit not confirmed >= 5/s (found: None)	4
-JaangaInc-mbb-market	no full safe harbor (status: partial)	0
+jora	automation ban: [Cerebras-confirmed ban, no regex match]	2
+quirk-consulting	automation ban: [Cerebras-confirmed ban, no regex match]	1
+lightspeed-retail	automation ban: [Cerebras-confirmed ban, no regex match]	4
 smartchain-mbb-og	rate limit not confirmed >= 5/s (found: None)	3
-etsy	no full safe harbor (status: partial)	0
-j-tricks	rate limit not confirmed >= 5/s (found: None)	1
+j-tricks	automation ban: [Cerebras-confirmed ban, no regex match]	1
 simplisafe	rate limit not confirmed >= 5/s (found: None)	12
 CCData-mbb-og	rate limit not confirmed >= 5/s (found: None)	2
-irobot	automation ban: [Cerebras-confirmed ban] rabilities. NOTE! [Please Read Fully Before Beginning O	17
-usaa	no full safe harbor (status: partial)	0
 bugcrowd	rate limit not confirmed >= 5/s (found: None)	7
-bullish-exchange	rate limit not confirmed >= 5/s (found: None)	2
-secureflag-mbb-market	no full safe harbor (status: partial)	0
+bullish-exchange	automation ban: [Cerebras-confirmed ban, no regex match]	2
 square	rate limit not confirmed >= 5/s (found: None)	3
-stiltsoft	rate limit not confirmed >= 5/s (found: None)	1
-asana	no full safe harbor (status: partial)	0
+stiltsoft	automation ban: [Cerebras-confirmed ban, no regex match]	1
 felix-health-mbb-og	rate limit not confirmed >= 5/s (found: None)	2
-cloudinary	rate limit not confirmed >= 5/s (found: None)	5
+cloudinary	automation ban: [Cerebras-confirmed ban, no regex match]	5
 soundcloud	rate limit not confirmed >= 5/s (found: None)	8
-entain-public-mbb-og	rate limit not confirmed >= 5/s (found: None)	7
+entain-public-mbb-og	automation ban: [Cerebras-confirmed ban, no regex match]	7
 recorded-future-mbb-og	rate limit not confirmed >= 5/s (found: None)	18
-dell-product	no full safe harbor (status: partial)	0
 monash-mbb	rate limit not confirmed >= 5/s (found: None)	39
-kiteworks-public	no full safe harbor (status: partial)	0
 fireblocks-mbb-og2	rate limit not confirmed >= 5/s (found: None)	1
-agilislt	rate limit not confirmed >= 5/s (found: None)	1
+agilislt	automation ban: [Cerebras-confirmed ban, no regex match]	1
 pinterest	rate limit not confirmed >= 5/s (found: None)	7
 quintoandar	rate limit not confirmed >= 5/s (found: None)	6
-freedomofpress	no full safe harbor (status: partial)	0
-plugin-people	rate limit not confirmed >= 5/s (found: None)	1
-kohls	no full safe harbor (status: partial)	0
+auth0-okta	automation ban: [Cerebras-confirmed ban, no regex match]	15
+plugin-people	automation ban: [Cerebras-confirmed ban, no regex match]	1
 imperva-mbb	rate limit not confirmed >= 5/s (found: None)	4
-balsamiq	no full safe harbor (status: partial)	0
-easyagile	rate limit not confirmed >= 5/s (found: None)	1
+easyagile	automation ban: [Cerebras-confirmed ban, no regex match]	1
 linktree-mbb-og	rate limit not confirmed >= 5/s (found: 0.0)	14
 bitdefender	automation ban: [Cerebras-confirmed ban, no regex match]	3
-kantega	rate limit not confirmed >= 5/s (found: None)	1
-brokenbuild	rate limit not confirmed >= 5/s (found: None)	1
-hotdoc	no full safe harbor (status: partial)	0
+kantega	automation ban: [Cerebras-confirmed ban, no regex match]	1
+brokenbuild	automation ban: [Cerebras-confirmed ban, no regex match]	1
 afterpay	rate limit not confirmed >= 5/s (found: None)	12
 navan	rate limit not confirmed >= 5/s (found: None)	1
-volkswagen-og	automation ban: [Cerebras-confirmed ban] to be created, please use your @bugcrowdninja.com email	1
-projectbalm	no full safe harbor (status: partial)	0
 skroutz	rate limit not confirmed >= 5/s (found: None)	1
 vox	rate limit not confirmed >= 5/s (found: None)	3
 bitgo-mbb-og-public	rate limit not confirmed >= 5/s (found: None)	5
-programmer-hat-market	rate limit not confirmed >= 5/s (found: None)	1
-epam-mbb-og	rate limit not confirmed >= 5/s (found: None)	12
+programmer-hat-market	automation ban: [Cerebras-confirmed ban, no regex match]	1
+epam-mbb-og	automation ban: [Cerebras-confirmed ban, no regex match]	12
 majidalfuttaim-loyalty	rate limit not confirmed >= 5/s (found: None)	1
 hypixel-studios-mbb-og	rate limit not confirmed >= 5/s (found: None)	5
 xfinity-home	rate limit not confirmed >= 5/s (found: None)	0
 comcast-mbb	rate limit not confirmed >= 5/s (found: None)	0
 originenergy-og1	automation ban: [Cerebras-confirmed ban, no regex match]	21
-glassdoor-ogbb	rate limit not confirmed >= 5/s (found: None)	1
-rea-mbb-og	rate limit not confirmed >= 5/s (found: None)	26
-quizlet	no full safe harbor (status: partial)	0
+glassdoor-ogbb	automation ban: [Cerebras-confirmed ban, no regex match]	1
+rea-mbb-og	automation ban: [Cerebras-confirmed ban, no regex match]	26
 consensus-mbb-og	rate limit not confirmed >= 5/s (found: None)	1
-kucoin	no full safe harbor (status: partial)	0
-tesla	no full safe harbor (status: partial)	0
-colined	no full safe harbor (status: partial)	0
-opsgenie	rate limit not confirmed >= 5/s (found: None)	3
-odesk	no full safe harbor (status: partial)	0
+opsgenie	automation ban: [Cerebras-confirmed ban, no regex match]	3
 neohrms	rate limit not confirmed >= 5/s (found: None)	17
-codeclou	rate limit not confirmed >= 5/s (found: None)	1
-elements	rate limit not confirmed >= 5/s (found: None)	1
+codeclou	automation ban: [Cerebras-confirmed ban, no regex match]	1
+elements	automation ban: [Cerebras-confirmed ban, no regex match]	1
 zola-mbb-og	rate limit not confirmed >= 5/s (found: None)	0
-barracuda	no full safe harbor (status: partial)	0
-deviniti	rate limit not confirmed >= 5/s (found: None)	1
-marvelutionbv	rate limit not confirmed >= 5/s (found: None)	1
-dutch-beginners-market	rate limit not confirmed >= 5/s (found: None)	1
-elementor	rate limit not confirmed >= 5/s (found: None)	8
+deviniti	automation ban: [Cerebras-confirmed ban, no regex match]	1
+marvelutionbv	automation ban: [Cerebras-confirmed ban, no regex match]	1
+dutch-beginners-market	automation ban: [Cerebras-confirmed ban, no regex match]	1
+elementor	automation ban: [Cerebras-confirmed ban, no regex match]	8
 sky-plc-mbb-og1	rate limit not confirmed >= 5/s (found: None)	0
 directly	rate limit not confirmed >= 5/s (found: None)	0
-requirement-yogi	no full safe harbor (status: partial)	0
-lastpass	no full safe harbor (status: partial)	0
 cashapp	rate limit not confirmed >= 5/s (found: None)	2
-intercom	no full safe harbor (status: partial)	0
 opera	rate limit not confirmed >= 5/s (found: None)	54
-codefortynine	no full safe harbor (status: partial)	0
-celix-solutions-market	rate limit not confirmed >= 5/s (found: None)	1
+celix-solutions-market	automation ban: [Cerebras-confirmed ban, no regex match]	1
 latitude-financial-service-bugbounty	rate limit not confirmed >= 5/s (found: None)	25
 prosus-og	rate limit not confirmed >= 5/s (found: None)	10
-trm-labs-public-mbb	no full safe harbor (status: partial)	0
 maffashion	rate limit not confirmed >= 5/s (found: None)	11
 mallofemirates	rate limit not confirmed >= 5/s (found: None)	2
-optimizely	no full safe harbor (status: partial)	0
-fiftyfivedegrees	no full safe harbor (status: partial)	0
-arlo	no full safe harbor (status: partial)	0
-redmoon	automation ban: [Cerebras-confirmed ban] ulnerability, report it immediately; do not attempt to 	1
-skyscanner	rate limit not confirmed >= 5/s (found: None)	1
+skyscanner	automation ban: [Cerebras-confirmed ban, no regex match]	1
 acorns	rate limit not confirmed >= 5/s (found: None)	6

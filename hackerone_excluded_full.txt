@@ -1,4 +1,4 @@
-security	automation ban: [Cerebras-confirmed ban] -- ## DoS Testing Policy ### 🚀 Rules Overview - Single 	23
+security	automation ban: [Cerebras-confirmed ban, no regex match]	23
 phabricator	safe harbor not confirmed	0
 rails	not BBP (VDP or other)	0
 django	safe harbor not confirmed	0
@@ -37,7 +37,7 @@ coinmate	rate limit not confirmed >= 5/s (found: None)	0
 algolia	not open (submission_state=paused)	4
 informatica	not BBP (VDP or other)	2
 snapchat	safe harbor not confirmed	31
-yelp	rate limit not confirmed >= 5/s (found: None)	3
+yelp	automation ban: [Cerebras-confirmed ban, no regex match]	3
 scopely	not open (submission_state=paused)	3
 mobilevikings	not open (submission_state=paused)	0
 imgur	not open (submission_state=paused)	0
@@ -127,7 +127,7 @@ deptofdefense	not BBP (VDP or other)	0
 xiaomi	safe harbor not confirmed	43
 disclosure-assistance	not BBP (VDP or other)	0
 lyst	safe harbor not confirmed	5
-enjin	rate limit not confirmed >= 5/s (found: None)	2
+enjin	automation ban: [Cerebras-confirmed ban, no regex match]	2
 alvosec	not open (submission_state=paused)	5
 sony	not BBP (VDP or other)	0
 nintendo	safe harbor not confirmed	0
@@ -169,6 +169,7 @@ smule	not open (submission_state=paused)	1
 bitmex	not open (submission_state=paused)	3
 ed	not open (submission_state=paused)	3
 jamieweb	not open (submission_state=paused)	5
+flutteruki	automation ban: [Cerebras-confirmed ban, no regex match]	39
 databricks	rate limit not confirmed >= 5/s (found: None)	3
 cosmos	not open (submission_state=paused)	0
 coalition	not BBP (VDP or other)	3
@@ -346,7 +347,7 @@ glovo	not open (submission_state=paused)	0
 global-payments	not BBP (VDP or other)	5
 dib-vdp	not BBP (VDP or other)	718
 mtb	not BBP (VDP or other)	4
-compass-bbp	rate limit not confirmed >= 5/s (found: None)	1
+compass-bbp	automation ban: [Cerebras-confirmed ban, no regex match]	1
 trendyol	safe harbor not confirmed	4
 fastify	not open (submission_state=paused)	0
 vodafone	not BBP (VDP or other)	66
@@ -360,7 +361,7 @@ nominet	not BBP (VDP or other)	3
 zurich-insurance	not BBP (VDP or other)	39
 latamairlines	not BBP (VDP or other)	39
 us-department-of-state	not BBP (VDP or other)	23
-zooplus	rate limit not confirmed >= 5/s (found: None)	4
+zooplus	automation ban: [Cerebras-confirmed ban, no regex match]	4
 krisp	safe harbor not confirmed	12
 servicenow-disclosure	not BBP (VDP or other)	3
 tesco	not BBP (VDP or other)	14
@@ -449,7 +450,6 @@ pornbox	safe harbor not confirmed	4
 abn_amro_vdp	not BBP (VDP or other)	19
 superbet	safe harbor not confirmed	22
 okg	safe harbor not confirmed	2
-redox_bbp	rate limit not confirmed >= 5/s (found: None)	9
 tron_dao	safe harbor not confirmed	0
 stripchat	safe harbor not confirmed	2
 mozilla	rate limit not confirmed >= 5/s (found: None)	21
@@ -458,7 +458,7 @@ truist_financial	not BBP (VDP or other)	15
 eero	safe harbor not confirmed	2
 eufy_security	safe harbor not confirmed	0
 brightspeed	not BBP (VDP or other)	5
-six-group	rate limit not confirmed >= 5/s (found: None)	8
+six-group	automation ban: [Cerebras-confirmed ban, no regex match]	8
 ring	safe harbor not confirmed	4
 toolsforhumanity	rate limit not confirmed >= 5/s (found: None)	9
 alshaya	not BBP (VDP or other)	160
@@ -473,7 +473,7 @@ inditex	rate limit not confirmed >= 5/s (found: None)	0
 trip_com	rate limit not confirmed >= 5/s (found: None)	13
 anthropic	rate limit not confirmed >= 5/s (found: None)	6
 transunion	not BBP (VDP or other)	135
-bybit_fintech	rate limit not confirmed >= 5/s (found: None)	7
+bybit_fintech	automation ban: [Cerebras-confirmed ban, no regex match]	7
 vectra_ai_vdp	not BBP (VDP or other)	8
 3cx	rate limit not confirmed >= 5/s (found: None)	1
 aeromexico_vdp	not BBP (VDP or other)	13
@@ -495,7 +495,7 @@ nimiq	not open (submission_state=paused)	0
 tomtom	not BBP (VDP or other)	3
 ion	not BBP (VDP or other)	1443
 wallet_on_telegram	rate limit not confirmed >= 5/s (found: None)	6
-klarna	rate limit not confirmed >= 5/s (found: None)	8
+klarna	automation ban: [Cerebras-confirmed ban, no regex match]	8
 agoda-public	safe harbor not confirmed	1
 mintel	not BBP (VDP or other)	26
 hpe_vdp	not BBP (VDP or other)	203
@@ -503,7 +503,7 @@ finnair_vdp	not BBP (VDP or other)	0
 6sense-vdp	not BBP (VDP or other)	2
 peloton	not BBP (VDP or other)	5
 lpl_financial-vdp	not BBP (VDP or other)	2
-bumba_bbp	rate limit not confirmed >= 5/s (found: None)	1
+bumba_bbp	automation ban: [Cerebras-confirmed ban, no regex match]	1
 circle-bbp	safe harbor not confirmed	8
 varonis	safe harbor not confirmed	3
 aws_vdp	not BBP (VDP or other)	5
@@ -513,19 +513,19 @@ starbucks_china	safe harbor not confirmed	1
 starbucks_japan	safe harbor not confirmed	5
 bill_vdp	not BBP (VDP or other)	5
 supabase	not BBP (VDP or other)	9
-nba-public	rate limit not confirmed >= 5/s (found: 3.0)	303
+nba-public	automation ban: [Cerebras-confirmed ban, no regex match]	303
 pepsico_vdp	not BBP (VDP or other)	169
 recreation_gov_vdp	not BBP (VDP or other)	5
 qinetiq	not BBP (VDP or other)	15
-syfe_bbp	rate limit not confirmed >= 5/s (found: None)	7
+syfe_bbp	automation ban: [Cerebras-confirmed ban, no regex match]	7
 verily_life_sciences	automation ban: [Cerebras-confirmed ban, no regex match]	4
 adevinta_vdp	not BBP (VDP or other)	23
 hubspot	safe harbor not confirmed	9
-oppo_bbp	rate limit not confirmed >= 5/s (found: None)	28
+oppo_bbp	rate limit not confirmed >= 5/s (found: 0.8333333333333334)	28
 kaseya	not BBP (VDP or other)	36
 penn_entertainment	not BBP (VDP or other)	8
 vf-corporation-vdp	not BBP (VDP or other)	2
-1password	automation ban: [Cerebras-confirmed ban, no regex match]	1
+1password	rate limit not confirmed >= 5/s (found: 0.75)	1
 bcny	rate limit not confirmed >= 5/s (found: None)	4
 kraken-tech	not BBP (VDP or other)	0
 hemi_labs_vdp	not open (submission_state=paused)	6
@@ -564,7 +564,7 @@ mufg-vdp	not BBP (VDP or other)	2
 vueling_vdp	not BBP (VDP or other)	1
 henkel_vdp	not BBP (VDP or other)	253
 mueller_water_products_vdp	not BBP (VDP or other)	0
-doordash	rate limit not confirmed >= 5/s (found: None)	1
+doordash	automation ban: [Cerebras-confirmed ban, no regex match]	1
 twilio	safe harbor not confirmed	13
 bose_vdp	not BBP (VDP or other)	3
 anduril_industries	rate limit not confirmed >= 5/s (found: None)	6

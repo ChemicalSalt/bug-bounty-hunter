@@ -7,7 +7,7 @@
 0acb1a74-c545-4941-ae57-7ca5fad9d449	Arm: safe harbor not confirmed	0
 0b7bb6fd-9e64-435f-b944-ded6d6eec842	Atolls Vulnerability Disclosure Program (VDP): safe harbor not confirmed	0
 0bcf5043-a086-4bfe-9542-4dc58c575b41	Wireless Logic: not public (confidentialityLevel=Application)	0
-0caa10ae-b946-433c-9bdf-080a7588456d	House of HR: not public (confidentialityLevel=Registered)	0
+0caa10ae-b946-433c-9bdf-080a7588456d	House of HR: not open (status=Suspended)	0
 0d0034de-b53e-47b8-9a9d-41c302c49b5a	Torfs: rate limit not confirmed >= 5/s (found: 1)	6
 0d585f25-b705-4141-a961-66d6ade8942e	SimScale: rate limit not confirmed >= 5/s (found: 2)	0
 0d6d1230-beb5-489c-b306-cf9c2e06730f	De Volkskrant: automation ban: [Cerebras-confirmed ban, no regex match]	6
@@ -37,6 +37,7 @@
 3219ed72-e563-458d-aafd-9ce8ca4e3087	VRT: automation ban: [Cerebras-confirmed ban, no regex match]	6
 36b43674-b66e-44a8-a8ea-b30a115cb2a5	Coolblue: not public (confidentialityLevel=Registered)	0
 3d1d5732-13a0-4eef-9bd2-efd874a2f2ac	Uitgeverij Deviant Bug Bounty: not public (confidentialityLevel=Application)	0
+3d6dfea5-b7f6-4bca-98a3-a1c6b8a4c7dd	QC VDP: automation ban: [Cerebras-confirmed ban, no regex match]	0
 3f6b3170-afd4-411c-84fc-24113a562ecf	KU Leuven Vulnerability Disclosure Program (VDP): rate limit not confirmed >= 5/s (found: 0)	0
 3f79ce72-f3f5-4ec4-9b4b-b8328d577e78	Qualified Responsible Disclosure Program: rate limit not confirmed >= 5/s (found: None)	3
 406fd572-83b2-49de-9200-594c484d5bb9	Het Parool: automation ban: [Cerebras-confirmed ban, no regex match]	6
@@ -152,7 +153,6 @@ e8b2e8ca-1fb2-4c17-933f-2a1f5cfb7da7	Driessen Vulnerability Disclosure Program: 
 ea1c246f-7818-4703-b208-9e86e1bd8554	Wolt: not open (status=Suspended)	0
 eb340a46-b5b8-4165-b8d8-bc032493e8a6	Ubisoft Responsible Disclosure Program: rate limit not confirmed >= 5/s (found: 2)	0
 ecc515cc-c0c1-4a72-966a-ba2baef4d35f	Orbia Responsible Disclosure: rate limit not confirmed >= 5/s (found: 2)	0
-ed04d1ef-1aa3-49dd-92f1-06f50f9756b9	TrueLayer: not open (status=Suspended)	0
 ee2612e7-e188-492f-9bb2-ba48651523de	Intergamma: not open (status=Suspended)	0
 ef919950-9ced-48c3-b1f4-2379c43c8ec5	Wärtsilä Vulnerability Disclosure Program: rate limit not confirmed >= 5/s (found: None)	0
 efa92aaa-d683-4cf9-8834-a03cf864cc80	Trouw: automation ban: [Cerebras-confirmed ban, no regex match]	6
