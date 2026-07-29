@@ -180,7 +180,7 @@ def cerebras_check_safe_harbor(text, program_name):
         "messages": [{"role": "user", "content": prompt}],
         "temperature": 0,
         "reasoning_effort": "low",
-        "max_tokens": 700,
+        "max_tokens": 1200,
     }).encode()
     req = urllib.request.Request(
         CEREBRAS_URL,
@@ -239,6 +239,32 @@ def cerebras_check_safe_harbor(text, program_name):
     return None
 
 
+def _chunk_text(text, max_len=6000):
+    """Split text into chunks up to max_len chars, breaking on paragraph
+    boundaries where possible so a real clause is never sliced in half."""
+    if len(text) <= max_len:
+        return [text]
+    paras = text.split("\n\n")
+    chunks = []
+    current = ""
+    for p in paras:
+        candidate = (current + "\n\n" + p) if current else p
+        if len(candidate) > max_len and current:
+            chunks.append(current)
+            current = p
+        else:
+            current = candidate
+    if current:
+        chunks.append(current)
+    final = []
+    for c in chunks:
+        if len(c) <= max_len:
+            final.append(c)
+        else:
+            for i in range(0, len(c), max_len):
+                final.append(c[i:i + max_len])
+    return final
+
 def check_safe_harbor_two_layer(text, program_name):
     found, snippet = check_safe_harbor(text)
     if found:
@@ -250,11 +276,16 @@ def check_safe_harbor_two_layer(text, program_name):
         return "review", f"[Regex matched but Cerebras did not confirm — needs manual review] {snippet[:80]}"
     if not text:
         return False, None
-    result = cerebras_check_safe_harbor(text[:8000], program_name)
-    if result is None:
+    any_review = False
+    for chunk in _chunk_text(text):
+        result = cerebras_check_safe_harbor(chunk, program_name)
+        if result is None:
+            any_review = True
+            continue
+        if result:
+            return True, "[Cerebras-confirmed safe harbor, no regex match]"
+    if any_review:
         return "review", "[Cerebras call failed on full-text check — needs manual review]"
-    if result:
-        return True, "[Cerebras-confirmed safe harbor, no regex match]"
     return False, None
 
 
@@ -300,7 +331,7 @@ def cerebras_check_id_verification(snippet, program_name):
         "messages": [{"role": "user", "content": prompt}],
         "temperature": 0,
         "reasoning_effort": "low",
-        "max_tokens": 700,
+        "max_tokens": 1200,
     }).encode()
     req = urllib.request.Request(
         CEREBRAS_URL,
@@ -380,11 +411,16 @@ def check_id_verification_two_layer(text, program_name):
         return False, None
     if not text:
         return False, None
-    result = cerebras_check_id_verification(text[:8000], program_name)
-    if result is None:
+    any_review = False
+    for chunk in _chunk_text(text):
+        result = cerebras_check_id_verification(chunk, program_name)
+        if result is None:
+            any_review = True
+            continue
+        if result:
+            return True, "[Cerebras-confirmed ID requirement, no regex match]"
+    if any_review:
         return "review", "[Cerebras call failed on full-text check — needs manual review]"
-    if result:
-        return True, "[Cerebras-confirmed ID requirement, no regex match]"
     return False, None
 
 
@@ -436,7 +472,7 @@ def cerebras_check_rate_limit(text, program_name):
         "messages": [{"role": "user", "content": prompt}],
         "temperature": 0,
         "reasoning_effort": "low",
-        "max_tokens": 700,
+        "max_tokens": 1200,
     }).encode()
     req = urllib.request.Request(
         CEREBRAS_URL,
@@ -524,10 +560,21 @@ def check_rate_limit_two_layer(text, program_name):
         return rate, None
     if not text:
         return None, None
-    result = cerebras_check_rate_limit(text, program_name)
-    if result == "error":
+    lowest_rate = None
+    any_error = False
+    for chunk in _chunk_text(text):
+        result = cerebras_check_rate_limit(chunk, program_name)
+        if result == "error":
+            any_error = True
+            continue
+        if result is not None:
+            if lowest_rate is None or result < lowest_rate:
+                lowest_rate = result
+    if lowest_rate is not None:
+        return lowest_rate, None
+    if any_error:
         return None, "review"
-    return result, None
+    return None, None
 def clean_html(text):
     return re.sub(r"<[^<]+?>", " ", text or "")
 
@@ -875,7 +922,7 @@ def vet_yeswehack_program(program, results):
         results["skipped"].append((slug, f"safe harbor unresolved: {sh_snippet[:80]}", domain_count))
         return
     if not sh_ok:
-        results["excluded"].append((slug, f"safe harbor not confirmed: {(sh_snippet or "no rules text")[:80]}", domain_count))
+        results["excluded"].append((slug, f"safe harbor not confirmed: {(sh_snippet or "no safe-harbor language found in full policy text")[:80]}", domain_count))
         return
     banned, snippet = check_automation_ban_two_layer(rules, slug)
     if banned == "review":
@@ -983,10 +1030,19 @@ def vet_bugcrowd_program(program, results):
         return
     brief = full.get("data", {}).get("brief", {})
     sh_status = (brief.get("safeHarborStatus") or {}).get("status")
+    desc = clean_html(brief.get("description", ""))
+    overview = clean_html(brief.get("targetsOverview", ""))
+    text = desc + overview
     if sh_status is None:
-        results["skipped"].append((slug, "safe harbor status unknown - needs review", 0))
-        return
-    if sh_status != "full":
+        sh_result, sh_note = check_safe_harbor_two_layer(text, slug)
+        if sh_result == "review":
+            results["skipped"].append((slug, sh_note or "safe harbor status unknown - needs review", 0))
+            return
+        if not sh_result:
+            results["excluded"].append((slug, "no safe harbor confirmed in policy text (status unset)", 0))
+            return
+        # sh_result is True: confirmed via text check, fall through
+    elif sh_status != "full":
         results["excluded"].append((slug, f"no full safe harbor (status: {sh_status})", 0))
         return
     safe_harbor = True
@@ -1009,13 +1065,6 @@ def vet_bugcrowd_program(program, results):
         else:
             out_domains.extend(target_domains)
     domain_count = len(set(domains))
-    safe_harbor_status = (brief.get("safeHarborStatus") or {}).get("status")
-    if safe_harbor_status != "full":
-        results["excluded"].append((slug, f"safe harbor not confirmed (status={safe_harbor_status})", domain_count))
-        return
-    desc = clean_html(brief.get("description", ""))
-    overview = clean_html(brief.get("targetsOverview", ""))
-    text = desc + overview
     banned, snippet = check_automation_ban_two_layer(text, slug)
     if banned == "review":
         results["skipped"].append((slug, snippet, domain_count))
@@ -1552,7 +1601,7 @@ def _cerebras_pace():
     _CEREBRAS_LAST_CALL_TS[0] = time.time()
 
 def cerebras_check_ban(snippet, program_name):
-    cache_key = hashlib.sha256(snippet.encode()).hexdigest()
+    cache_key = hashlib.sha256(("autoban:v2:" + snippet).encode()).hexdigest()
     if cache_key in _CEREBRAS_CACHE:
         cached = _CEREBRAS_CACHE[cache_key]
         log_cerebras_call(program_name, snippet, cached["is_ban"], cached["reason"] + " [CACHED]", error=None)
@@ -1600,6 +1649,12 @@ def cerebras_check_ban(snippet, program_name):
         "NOT A BAN (false): 'Any report generated by automatic tool without "
         "a POC.' (short form of a submission/report-quality rule, not a "
         "tool-use ban)\n\n"
+        "NOT A BAN (false): '## DoS Testing Policy ... No automated tools or "
+        "high-volume attacks' - even though this says 'no automated tools,' "
+        "it appears under a DoS Testing Policy heading, so it restricts DoS-style "
+        "automation as part of the DoS sub-policy, not general scanning. A section "
+        "header naming a specific narrow context (DoS, CSRF, account creation) scopes "
+        "everything under it to that context only - it does not become a blanket ban.\n\n"
         "Also answer false if the mention of automation is in an unrelated "
         "context (e.g. CSRF, DoS-only sub-policies, or automated account "
         "creation) rather than about testing/scanning tools.\n\n"
@@ -1610,7 +1665,7 @@ def cerebras_check_ban(snippet, program_name):
         "messages": [{"role": "user", "content": prompt}],
         "temperature": 0,
         "reasoning_effort": "low",
-        "max_tokens": 700,
+        "max_tokens": 1200,
     }).encode()
     req = urllib.request.Request(
         CEREBRAS_URL,
@@ -1715,12 +1770,18 @@ def check_automation_ban_two_layer(text, program_name):
     if not text:
         return False, None
     # Regex found no explicit ban language — send full policy to Cerebras
-    # for a real read instead of guessing off loose keywords.
-    result = cerebras_check_ban(text[:8000], program_name)
-    if result is None:
+    # for a real read instead of guessing off loose keywords, chunked so a
+    # ban clause past the old 8000-char cutoff can't be missed.
+    any_review = False
+    for chunk in _chunk_text(text):
+        result = cerebras_check_ban(chunk, program_name)
+        if result is None:
+            any_review = True
+            continue
+        if result:
+            return True, "[Cerebras-confirmed ban, no regex match]"
+    if any_review:
         return "review", "[Cerebras call failed on full-text check — needs manual review]"
-    if result:
-        return True, "[Cerebras-confirmed ban, no regex match]"
     return False, None
 
 if __name__ == "__main__":
