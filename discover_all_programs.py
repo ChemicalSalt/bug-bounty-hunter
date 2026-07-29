@@ -1086,7 +1086,7 @@ def vet_bugcrowd_program(program, results):
         return
     results["included"].append({
         "slug": slug,
-        "safe_harbor": safe_harbor_status,
+        "safe_harbor": safe_harbor,
         "rate_limit": rate,
         "domains": sorted(set(domains)),
         "out_domains": sorted(set(out_domains)),
