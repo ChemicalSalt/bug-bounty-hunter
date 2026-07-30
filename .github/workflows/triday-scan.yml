@@ -350,7 +350,7 @@ jobs:
 
   finalize_main:
     needs: [prepare, daily_main]
-    if: always() && needs.daily_main.result != 'cancelled'
+    if: always()
     runs-on: ${{ github.event.inputs.runner == 'self-hosted' && fromJson('["self-hosted","linux","x64"]') || 'ubuntu-latest' }}
     steps:
       - name: Checkout domains branch
@@ -543,7 +543,7 @@ jobs:
 
   finalize_403:
     needs: [prepare, bypass_403]
-    if: always() && needs.bypass_403.result != 'cancelled'
+    if: always()
     runs-on: ${{ github.event.inputs.runner == 'self-hosted' && fromJson('["self-hosted","linux","x64"]') || 'ubuntu-latest' }}
     steps:
       - name: Checkout domains branch
@@ -725,7 +725,7 @@ jobs:
 
   finalize_takeover:
     needs: [prepare, takeover]
-    if: always() && needs.takeover.result != 'cancelled'
+    if: always()
     runs-on: ${{ github.event.inputs.runner == 'self-hosted' && fromJson('["self-hosted","linux","x64"]') || 'ubuntu-latest' }}
     steps:
       - name: Checkout domains branch
@@ -867,7 +867,7 @@ jobs:
 
   finalize_subzy:
     needs: [prepare, subzy_takeover]
-    if: always() && needs.subzy_takeover.result != 'cancelled'
+    if: always()
     runs-on: ${{ github.event.inputs.runner == 'self-hosted' && fromJson('["self-hosted","linux","x64"]') || 'ubuntu-latest' }}
     steps:
       - name: Checkout domains branch
