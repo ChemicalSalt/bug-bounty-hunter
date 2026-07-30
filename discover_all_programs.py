@@ -239,6 +239,8 @@ def cerebras_check_safe_harbor(text, program_name):
     return None
 
 
+MAX_FULLTEXT_FALLBACK_CHUNKS = 5
+
 def _chunk_text(text, max_len=7500):
     """Split text into chunks up to max_len chars, breaking on paragraph
     boundaries where possible so a real clause is never sliced in half."""
@@ -277,7 +279,7 @@ def check_safe_harbor_two_layer(text, program_name):
     if not text:
         return False, None
     any_review = False
-    for chunk in _chunk_text(text):
+    for chunk in _chunk_text(text)[:MAX_FULLTEXT_FALLBACK_CHUNKS]:
         result = cerebras_check_safe_harbor(chunk, program_name)
         if result is None:
             any_review = True
@@ -412,7 +414,7 @@ def check_id_verification_two_layer(text, program_name):
     if not text:
         return False, None
     any_review = False
-    for chunk in _chunk_text(text):
+    for chunk in _chunk_text(text)[:MAX_FULLTEXT_FALLBACK_CHUNKS]:
         result = cerebras_check_id_verification(chunk, program_name)
         if result is None:
             any_review = True
@@ -562,7 +564,7 @@ def check_rate_limit_two_layer(text, program_name):
         return None, None
     lowest_rate = None
     any_error = False
-    for chunk in _chunk_text(text):
+    for chunk in _chunk_text(text)[:MAX_FULLTEXT_FALLBACK_CHUNKS]:
         result = cerebras_check_rate_limit(chunk, program_name)
         if result == "error":
             any_error = True
@@ -1466,8 +1468,11 @@ def run_vet_pass(programs, vet_fn, results, key_fn, platform_name, max_wait=3900
     retry = [p for p in programs
              if any(key_fn(p) == s[0] and "Cerebras call failed" in s[1] for s in results["skipped"])]
     if retry:
-        wait = max(0, _CEREBRAS_QUOTA_EXHAUSTED_UNTIL - time.time())
-        wait = min(wait, max_wait) if wait > 0 else 90  # no known quota deadline -> short retry is fine
+        remaining = _CEREBRAS_QUOTA_EXHAUSTED_UNTIL - time.time()
+        if remaining > max_wait:
+            log(f"[{platform_name}] {len(retry)} program(s) skipped — Cerebras quota resets in {int(remaining)}s, not retrying this run")
+            return
+        wait = remaining if remaining > 0 else 90  # no known quota deadline -> short retry is fine
         log(f"[{platform_name}] {len(retry)} program(s) skipped due to Cerebras failure — retrying once after {int(wait)}s cooldown")
         time.sleep(wait)
         for p in retry:
@@ -1773,7 +1778,7 @@ def check_automation_ban_two_layer(text, program_name):
     # for a real read instead of guessing off loose keywords, chunked so a
     # ban clause past the old 8000-char cutoff can't be missed.
     any_review = False
-    for chunk in _chunk_text(text):
+    for chunk in _chunk_text(text)[:MAX_FULLTEXT_FALLBACK_CHUNKS]:
         result = cerebras_check_ban(chunk, program_name)
         if result is None:
             any_review = True
