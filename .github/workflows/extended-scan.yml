@@ -364,7 +364,7 @@ jobs:
 
   finalize_progress:
     needs: [prepare, weekend_combined, weekend_custom_batched, weekend_js_secrets_batched]
-    if: always() && needs.weekend_combined.result != 'cancelled'
+    if: always()
     runs-on: ${{ github.event.inputs.runner == 'github' && 'ubuntu-latest' || fromJson('["self-hosted","linux","x64"]') }}
     steps:
       - name: Checkout domains branch
