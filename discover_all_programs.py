@@ -180,7 +180,7 @@ def cerebras_check_safe_harbor(text, program_name):
         "messages": [{"role": "user", "content": prompt}],
         "temperature": 0,
         "reasoning_effort": "low",
-        "max_tokens": 1200,
+        "max_tokens": 700,
     }).encode()
     req = urllib.request.Request(
         CEREBRAS_URL,
@@ -239,7 +239,7 @@ def cerebras_check_safe_harbor(text, program_name):
     return None
 
 
-def _chunk_text(text, max_len=6000):
+def _chunk_text(text, max_len=7500):
     """Split text into chunks up to max_len chars, breaking on paragraph
     boundaries where possible so a real clause is never sliced in half."""
     if len(text) <= max_len:
@@ -331,7 +331,7 @@ def cerebras_check_id_verification(snippet, program_name):
         "messages": [{"role": "user", "content": prompt}],
         "temperature": 0,
         "reasoning_effort": "low",
-        "max_tokens": 1200,
+        "max_tokens": 700,
     }).encode()
     req = urllib.request.Request(
         CEREBRAS_URL,
@@ -472,7 +472,7 @@ def cerebras_check_rate_limit(text, program_name):
         "messages": [{"role": "user", "content": prompt}],
         "temperature": 0,
         "reasoning_effort": "low",
-        "max_tokens": 1200,
+        "max_tokens": 700,
     }).encode()
     req = urllib.request.Request(
         CEREBRAS_URL,
