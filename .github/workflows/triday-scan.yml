@@ -179,7 +179,7 @@ jobs:
     needs: prepare
     if: needs.prepare.outputs.has_hosts == 'true' && needs.prepare.outputs.batches_main != '[]'
     runs-on: ${{ github.event.inputs.runner == 'self-hosted' && fromJson('["self-hosted","linux","x64"]') || 'ubuntu-latest' }}
-    timeout-minutes: 350
+    timeout-minutes: 420
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     strategy:
@@ -265,7 +265,7 @@ jobs:
           TEMPLATE_PATHS="$CVE_PATHS,$TEMPLATES_DIR/http/misconfiguration,$TEMPLATES_DIR/http/exposed-panels"
 
           set +e
-          timeout 18000 nuclei -l input.txt \
+          timeout 20700 nuclei -l input.txt \
             -t "$TEMPLATE_PATHS" \
             -itags cve,cors,panel,admin \
             -etags ssl,tls,http-missing-headers,tech,info,dns,helpers,passive \
@@ -401,7 +401,7 @@ jobs:
     needs: [prepare, finalize_main]
     if: always() && !cancelled() && needs.prepare.outputs.has_403 == 'true' && needs.prepare.outputs.batches_403 != '[]'
     runs-on: ${{ github.event.inputs.runner == 'self-hosted' && fromJson('["self-hosted","linux","x64"]') || 'ubuntu-latest' }}
-    timeout-minutes: 350
+    timeout-minutes: 420
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     strategy:
@@ -468,7 +468,7 @@ jobs:
           touch results.txt
           if [ ! -s input_403.txt ]; then echo "No targets"; exit 0; fi
           set +e
-          timeout 6000 nuclei -l input_403.txt \
+          timeout 20700 nuclei -l input_403.txt \
             -t "$TEMPLATES_DIR/http/misconfiguration" \
             -itags 403 \
             -etags ssl,tls,http-missing-headers,tech,info,dns,helpers,passive \
@@ -587,7 +587,7 @@ jobs:
     needs: [prepare, finalize_403]
     if: always() && !cancelled() && needs.prepare.outputs.has_404 == 'true' && needs.prepare.outputs.batches_404 != '[]'
     runs-on: ${{ github.event.inputs.runner == 'self-hosted' && fromJson('["self-hosted","linux","x64"]') || 'ubuntu-latest' }}
-    timeout-minutes: 350
+    timeout-minutes: 420
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     strategy:
@@ -650,7 +650,7 @@ jobs:
           touch results.txt
           if [ ! -s input_404.txt ]; then echo "No targets"; exit 0; fi
           set +e
-          timeout 6000 nuclei -l input_404.txt \
+          timeout 20700 nuclei -l input_404.txt \
             -t "$TEMPLATES_DIR/http/takeovers" \
             -itags takeover,subdomain-takeover \
             -etags ssl,tls,http-missing-headers,tech,info,dns,helpers,passive \
@@ -769,7 +769,7 @@ jobs:
     needs: [prepare, finalize_takeover]
     if: always() && !cancelled() && needs.prepare.outputs.has_hosts == 'true' && needs.prepare.outputs.batches_subzy != '[]'
     runs-on: ${{ github.event.inputs.runner == 'self-hosted' && fromJson('["self-hosted","linux","x64"]') || 'ubuntu-latest' }}
-    timeout-minutes: 60
+    timeout-minutes: 420
     strategy:
       fail-fast: false
       max-parallel: 20
@@ -808,7 +808,7 @@ jobs:
           touch subzy_results.txt
           if [ -s input_subzy.txt ]; then
             set +e
-            timeout 3000 subzy run --targets input_subzy.txt --hide_fails --verify_ssl --concurrency 5 -o subzy_results.txt
+            timeout 20700 subzy run --targets input_subzy.txt --hide_fails --verify_ssl --concurrency 5 -o subzy_results.txt
             SUBZY_EXIT=$?
             if [ "$SUBZY_EXIT" -eq 124 ]; then
               echo "::error::Subzy timed out - batch will NOT be marked done"
