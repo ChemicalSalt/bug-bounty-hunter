@@ -672,10 +672,13 @@ def vet_hackerone_program(handle, auth, results):
     if a.get("offers_bounties") is not True:
         results["excluded"].append((handle, "not BBP (VDP or other)", domain_count))
         return
-    if a.get("gold_standard_safe_harbor") is not True:
-        results["excluded"].append((handle, "safe harbor not confirmed", domain_count))
+    sh_ok, sh_snippet = check_safe_harbor_two_layer(policy, handle)
+    if sh_ok == "review":
+        results["skipped"].append((handle, sh_snippet, domain_count))
         return
-    safe_harbor = a.get("gold_standard_safe_harbor")
+    if not sh_ok:
+        results["excluded"].append((handle, f"safe harbor not confirmed: {(sh_snippet or 'no safe-harbor language found in full policy text')[:80]}", domain_count))
+        return
     banned, snippet = check_automation_ban_two_layer(policy, handle)
     if banned == "review":
         results["skipped"].append((handle, snippet, domain_count))
@@ -693,13 +696,13 @@ def vet_hackerone_program(handle, auth, results):
     if rate_status == "review":
         results["skipped"].append((handle, "Cerebras call failed on rate-limit check", domain_count))
         return
-    if rate is None or rate < MIN_RATE_LIMIT:
-        results["excluded"].append((handle, f"rate limit not confirmed >= {MIN_RATE_LIMIT}/s (found: {rate})", domain_count))
+    if rate is not None and rate < MIN_RATE_LIMIT:
+        results["excluded"].append((handle, f"rate limit below {MIN_RATE_LIMIT}/s (found: {rate})", domain_count))
         return
     results["included"].append({
         "handle": handle,
         "offers_bounties": a.get("offers_bounties"),
-        "safe_harbor": safe_harbor,
+        "safe_harbor": True,
         "domains": domains,
         "out_domains": out_domains,
     })
@@ -766,11 +769,14 @@ def vet_intigriti_program(program, token, results):
         domains.append(endpoint)
     domain_count = len(domains)
     roe = data.get("rulesOfEngagement", {}).get("content", {})
-    if roe.get("safeHarbour") is not True:
-        results["excluded"].append((pid, f"{name}: safe harbor not confirmed", domain_count))
-        return
-    safe_harbor = roe.get("safeHarbour")
     roe_text = json.dumps(roe)
+    sh_ok, sh_snippet = check_safe_harbor_two_layer(roe_text, name)
+    if sh_ok == "review":
+        results["skipped"].append((pid, f"{name}: {sh_snippet}", domain_count))
+        return
+    if not sh_ok:
+        results["excluded"].append((pid, f"{name}: safe harbor not confirmed: {(sh_snippet or 'no safe-harbor language found')[:80]}", domain_count))
+        return
     testing = roe.get("testingRequirements", {})
     raw_rate = testing.get("automatedTooling")
     if isinstance(raw_rate, (int, float)) and not isinstance(raw_rate, bool):
@@ -786,8 +792,8 @@ def vet_intigriti_program(program, token, results):
     if rate_status == "review":
         results["skipped"].append((pid, f"{name}: Cerebras call failed on rate-limit check", domain_count))
         return
-    if rate is None or rate < MIN_RATE_LIMIT:
-        results["excluded"].append((pid, f"{name}: rate limit not confirmed >= {MIN_RATE_LIMIT}/s (found: {rate})", domain_count))
+    if rate is not None and rate < MIN_RATE_LIMIT:
+        results["excluded"].append((pid, f"{name}: rate limit below {MIN_RATE_LIMIT}/s (found: {rate})", domain_count))
         return
     banned, snippet = check_automation_ban_two_layer(roe_text, name)
     if banned == "review":
@@ -803,7 +809,7 @@ def vet_intigriti_program(program, token, results):
     # id_req == "review" or False -> proceed; unresolved ID status alone should not drop a program.
     results["included"].append({
         "handle": pid,
-        "safe_harbor": safe_harbor,
+        "safe_harbor": True,
         "rate_limit": rate,
         "domains": domains,
         "out_domains": out_domains,
@@ -942,8 +948,8 @@ def vet_yeswehack_program(program, results):
     if rate_status == "review":
         results["skipped"].append((slug, "Cerebras call failed on rate-limit check", domain_count))
         return
-    if rate is None or rate < MIN_RATE_LIMIT:
-        results["excluded"].append((slug, f"rate limit not confirmed >= {MIN_RATE_LIMIT}/s (found: {rate})", domain_count))
+    if rate is not None and rate < MIN_RATE_LIMIT:
+        results["excluded"].append((slug, f"rate limit below {MIN_RATE_LIMIT}/s (found: {rate})", domain_count))
         return
     results["included"].append({
         "slug": slug,
@@ -1083,12 +1089,12 @@ def vet_bugcrowd_program(program, results):
     if rate_status == "review":
         results["skipped"].append((slug, "Cerebras call failed on rate-limit check", domain_count))
         return
-    if rate is None or rate < MIN_RATE_LIMIT:
-        results["excluded"].append((slug, f"rate limit not confirmed >= {MIN_RATE_LIMIT}/s (found: {rate})", domain_count))
+    if rate is not None and rate < MIN_RATE_LIMIT:
+        results["excluded"].append((slug, f"rate limit below {MIN_RATE_LIMIT}/s (found: {rate})", domain_count))
         return
     results["included"].append({
         "slug": slug,
-        "safe_harbor": safe_harbor,
+        "safe_harbor": True,
         "rate_limit": rate,
         "domains": sorted(set(domains)),
         "out_domains": sorted(set(out_domains)),
