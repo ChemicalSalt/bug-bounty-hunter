@@ -267,7 +267,7 @@ jobs:
           SCAN_START=$(date +%s)
           set +e
 
-          timeout 20100 nuclei -l input.txt \
+          timeout 20700 nuclei -l input.txt \
             -t "$TEMPLATE_PATHS" \
             -itags jwt,graphql,swagger,api-docs,openapi,git,env-file,default-login,jenkins,grafana,kibana,aws-s3,s3,springboot,actuator \
             -etags ssl,tls,http-missing-headers,tech,info,dns,helpers,passive,js \
@@ -475,7 +475,7 @@ jobs:
     needs: [prepare, weekend_custom_batched]
     if: always() && !cancelled() && needs.prepare.outputs.has_hosts == 'true' && needs.prepare.outputs.batches_jssecrets != '[]'
     runs-on: ${{ github.event.inputs.runner == 'github' && 'ubuntu-latest' || fromJson('["self-hosted","linux","x64"]') }}
-    timeout-minutes: 350
+    timeout-minutes: 420
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     strategy:
@@ -617,7 +617,7 @@ jobs:
           SCAN_START=$(date +%s)
           set +e
 
-          timeout 20100 nuclei -l "$INPUT_FILE" \
+          timeout 20700 nuclei -l "$INPUT_FILE" \
             -t "$TEMPLATES_DIR/http/exposures" \
             -itags token,secret,api-key,generic-tokens \
             -etags ssl,tls,http-missing-headers,tech,info,dns,helpers,passive \
@@ -804,7 +804,7 @@ jobs:
           SCAN_START=$(date +%s)
           set +e
 
-          timeout 20100 nuclei -l input.txt \
+          timeout 20700 nuclei -l input.txt \
             -t custom-templates \
             -severity medium,high,critical \
             -H "User-Agent: Mozilla/5.0 BugBounty/42 (YWH) Chemical Oxidizer CS_YWH/BB" \
