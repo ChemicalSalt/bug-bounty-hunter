@@ -61,18 +61,14 @@ jobs:
             else
               cat live_hosts.txt >> combined_full.txt
             fi
-          fi
+
 
           export HACKERONE_TOKEN="${{ secrets.HACKERONE_TOKEN }}"
           export INTIGRITI_TOKEN="${{ secrets.INTIGRITI_TOKEN }}"
           export MAPPING_CSV_PATH="checker/domain_program_map.csv"
           export EXCLUDED_OUTPUT_PATH="excluded_domains.txt"
-          export HACKERONE_SCOPE_OUTPUT_PATH="hackerone_scope.txt"
-          export INTIGRITI_SCOPE_OUTPUT_PATH="intigriti_scope.txt"
-          export YESWEHACK_SCOPE_OUTPUT_PATH="yeswehack_scope.txt"
-          export BUGCROWD_SCOPE_OUTPUT_PATH="bugcrowd_scope.txt"
           pip install tldextract --break-system-packages
-          python3 checker/check_program_status.py
+          python3 checker/check_program_open.py
 
           if [ -s excluded_domains.txt ]; then
             > exclude_grep.txt
@@ -85,12 +81,6 @@ jobs:
             for f in combined_full.txt live_hosts_403.txt live_hosts_404.txt; do
               grep -vEf exclude_grep.txt "$f" > "${f}.filtered" || cp "$f" "${f}.filtered"
               mv "${f}.filtered" "$f"
-            done
-          fi
-
-          if [ -f checker/filter_to_scope.py ]; then
-            for f in combined_full.txt live_hosts_403.txt live_hosts_404.txt; do
-              SCOPE_FILTER_INPUT="$f" SCOPE_FILTER_OUTPUT="$f" python3 checker/filter_to_scope.py
             done
           fi
 

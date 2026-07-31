@@ -23,13 +23,18 @@ SCOPE_FILES = [
 
 
 def pattern_to_regex(pattern):
+    # Strip a scheme prefix from the raw scope entry itself, matching what
+    # bare_host() does to the host being tested - otherwise IN: entries
+    # like "https://portal.3cx.com" can never match anything.
+    pattern = re.sub(r"^https?://", "", pattern, flags=re.IGNORECASE)
     escaped = re.escape(pattern)
     escaped = escaped.replace(r"\*", ".*")
     return re.compile(f"^{escaped}$", re.IGNORECASE)
 
 
 def load_patterns():
-    patterns = []
+    in_patterns = []
+    out_patterns = []
     for path in SCOPE_FILES:
         if not os.path.exists(path):
             continue
@@ -39,11 +44,14 @@ def load_patterns():
                 if not line:
                     continue
                 if line.startswith("IN:"):
-                    line = line[3:]
-                if not line:
-                    continue
-                patterns.append(pattern_to_regex(line))
-    return patterns
+                    rest = line[3:]
+                    if rest:
+                        in_patterns.append(pattern_to_regex(rest))
+                elif line.startswith("OUT:"):
+                    rest = line[4:]
+                    if rest:
+                        out_patterns.append(pattern_to_regex(rest))
+    return in_patterns, out_patterns
 
 
 def bare_host(host):
@@ -56,9 +64,9 @@ def main():
         print(f"[SCOPE FILTER] {INPUT_PATH} not found, nothing to filter")
         return
 
-    patterns = load_patterns()
-    if not patterns:
-        print("[SCOPE FILTER] No scope patterns loaded (scope files missing/empty) - failing closed, writing empty output")
+    in_patterns, out_patterns = load_patterns()
+    if not in_patterns:
+        print("[SCOPE FILTER] No IN scope patterns loaded (scope files missing/empty) - failing closed, writing empty output")
         tmp_path = f"{OUTPUT_PATH}.tmp"
         with open(tmp_path, "w") as f:
             pass
@@ -69,13 +77,17 @@ def main():
         hosts = [h.strip() for h in f if h.strip()]
 
     kept = []
-    dropped = 0
+    dropped_not_in_scope = 0
+    dropped_out_scope = 0
     for host in hosts:
         h = bare_host(host)
-        if any(p.match(h) for p in patterns):
-            kept.append(host)
-        else:
-            dropped += 1
+        if not any(p.match(h) for p in in_patterns):
+            dropped_not_in_scope += 1
+            continue
+        if any(p.match(h) for p in out_patterns):
+            dropped_out_scope += 1
+            continue
+        kept.append(host)
 
     tmp_path = f"{OUTPUT_PATH}.tmp"
     with open(tmp_path, "w") as f:
@@ -83,7 +95,9 @@ def main():
             f.write(h + "\n")
     os.replace(tmp_path, OUTPUT_PATH)
 
-    print(f"[SCOPE FILTER] {len(hosts)} hosts checked, {len(kept)} kept, {dropped} dropped (not in declared scope)")
+    print(f"[SCOPE FILTER] {len(hosts)} hosts checked, {len(kept)} kept, "
+          f"{dropped_not_in_scope} dropped (not in declared scope), "
+          f"{dropped_out_scope} dropped (explicit OUT-of-scope match)")
 
 
 if __name__ == "__main__":
