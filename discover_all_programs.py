@@ -672,7 +672,10 @@ def vet_hackerone_program(handle, auth, results):
     if a.get("offers_bounties") is not True:
         results["excluded"].append((handle, "not BBP (VDP or other)", domain_count))
         return
-    sh_ok, sh_snippet = check_safe_harbor_two_layer(policy, handle)
+    if a.get("gold_standard_safe_harbor") is True:
+        sh_ok, sh_snippet = True, "[HackerOne gold-standard safe harbor flag]"
+    else:
+        sh_ok, sh_snippet = check_safe_harbor_two_layer(policy, handle)
     if sh_ok == "review":
         results["skipped"].append((handle, sh_snippet, domain_count))
         return
@@ -770,7 +773,10 @@ def vet_intigriti_program(program, token, results):
     domain_count = len(domains)
     roe = data.get("rulesOfEngagement", {}).get("content", {})
     roe_text = json.dumps(roe)
-    sh_ok, sh_snippet = check_safe_harbor_two_layer(roe_text, name)
+    if roe.get("safeHarbour") is True:
+        sh_ok, sh_snippet = True, "[Intigriti safeHarbour flag]"
+    else:
+        sh_ok, sh_snippet = check_safe_harbor_two_layer(roe_text, name)
     if sh_ok == "review":
         results["skipped"].append((pid, f"{name}: {sh_snippet}", domain_count))
         return
