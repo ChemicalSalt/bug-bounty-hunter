@@ -5,6 +5,12 @@ import sys
 import tldextract
 
 MAPPING_PATH = "domain_program_map.csv"
+SCOPE_FILES = [
+    "hackerone_scope.txt",
+    "intigriti_scope.txt",
+    "yeswehack_scope.txt",
+    "bugcrowd_scope.txt",
+]
 FILES_TO_FILTER = [
     "live_hosts.txt",
     "live_hosts_403.txt",
@@ -36,6 +42,31 @@ def load_scoped_roots(path):
         pass
     return scoped
 
+def glob_to_regex(pattern):
+    # Convert a scope glob pattern (e.g. "*.3cx.com") into an anchored,
+    # case-insensitive regex. "*" -> ".*", everything else literal.
+    import re as _re
+    parts = pattern.split("*")
+    escaped = ".*".join(_re.escape(p) for p in parts)
+    return f"^{escaped}$"
+
+def load_out_of_scope_pattern():
+    patterns = []
+    for path in SCOPE_FILES:
+        try:
+            with open(path) as f:
+                for line in f:
+                    line = line.strip()
+                    if line.startswith("OUT:"):
+                        raw = line[len("OUT:"):].strip()
+                        if raw:
+                            patterns.append(glob_to_regex(raw))
+        except FileNotFoundError:
+            continue
+    if not patterns:
+        return None
+    return re.compile("|".join(patterns), re.I)
+
 def main():
     scoped_roots = load_scoped_roots(MAPPING_PATH)
     print(f"[FILTER] Loaded {len(scoped_roots)} scoped root domains from {MAPPING_PATH}")
@@ -43,19 +74,32 @@ def main():
         print(f"[FILTER] ERROR: 0 scoped root domains loaded from {MAPPING_PATH} — "
               f"refusing to filter (would wipe all host files). Aborting without writing.")
         sys.exit(1)
+    out_pattern = load_out_of_scope_pattern()
+    out_count = out_pattern.pattern.count("|") + 1 if out_pattern else 0
+    print(f"[FILTER] Loaded {out_count} OUT-of-scope patterns from scope files")
     for fname in FILES_TO_FILTER:
         try:
             with open(fname) as f:
                 hosts = [h.strip() for h in f if h.strip()]
         except FileNotFoundError:
             continue
-        kept = [h for h in hosts if root_of(h) in scoped_roots]
-        dropped = len(hosts) - len(kept)
+        kept = []
+        dropped_no_root = 0
+        dropped_out_scope = 0
+        for h in hosts:
+            if root_of(h) not in scoped_roots:
+                dropped_no_root += 1
+                continue
+            if out_pattern and out_pattern.search(h):
+                dropped_out_scope += 1
+                continue
+            kept.append(h)
         tmp_fname = f"{fname}.tmp"
         with open(tmp_fname, "w") as f:
             f.write("\n".join(kept) + ("\n" if kept else ""))
         os.replace(tmp_fname, fname)
-        print(f"[FILTER] {fname}: kept {len(kept)}, dropped {dropped} (no scope match)")
+        print(f"[FILTER] {fname}: kept {len(kept)}, dropped {dropped_no_root} (no scope match), "
+              f"dropped {dropped_out_scope} (explicit OUT-of-scope match)")
 
 if __name__ == "__main__":
     main()
