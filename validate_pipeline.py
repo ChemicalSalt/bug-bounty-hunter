@@ -109,6 +109,9 @@ def check_file(path, is_root_domain_file):
     return (len(problems) == 0), problems
 
 
+EXPECTED_PLATFORMS = ["hackerone", "intigriti", "yeswehack", "bugcrowd"]
+
+
 def check_skip_rate(csv_path="discovery_stats.csv", expected_run_id=None, only_platform=None):
     problems = []
     if expected_run_id is None:
@@ -124,6 +127,11 @@ def check_skip_rate(csv_path="discovery_stats.csv", expected_run_id=None, only_p
     if not latest:
         return False, [f"{csv_path} has no data rows - cannot verify run health, failing closed"]
     ok = True
+    expected = [only_platform] if only_platform else EXPECTED_PLATFORMS
+    missing = [p for p in expected if p not in latest]
+    if missing:
+        problems.append(f"missing platform(s) with no row at all in {csv_path}: {missing} - cannot verify run health for these, failing closed")
+        ok = False
     for platform, row in latest.items():
         if only_platform is not None and platform != only_platform:
             continue
