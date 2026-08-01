@@ -1524,15 +1524,28 @@ def extract_root_domain(asset):
     if "[" in asset and "]" in asset:
         asset = re.sub(r"\[.*?\]", "", asset)
     if "*" in asset:
+        # The clean subdomain-wildcard case ("*.example.com") was already
+        # handled by the lstrip above. If "*" is still present here, check
+        # WHERE it landed: a wildcard deeper in the subdomain (e.g.
+        # "api*.hubapi.com", "a.*.b.example.com") still has an unambiguous
+        # root domain. A wildcard inside the actual registrable domain or
+        # suffix label (e.g. "paypal-*.com") has no single correct root to
+        # recover — guessing would fabricate a domain never actually
+        # declared in scope, so bail on that case only.
+        placeholder = "wildcardplaceholder"
+        probe = asset.replace("*", placeholder)
+        ext_probe = tldextract.extract(probe)
+        if placeholder in ext_probe.domain or placeholder in ext_probe.suffix:
+            return None
         asset = asset.replace("*", "")
-        asset = asset.strip(".-")
-        # Removing "*" from a pattern like "paypal-*.com" can leave a
-        # dangling hyphen on a label ("paypal-.com") that .strip() alone
-        # won't catch since it's not at the string's edge. Clean each
-        # dot-separated label individually.
-        asset = ".".join(part.strip("-") for part in asset.split("."))
     ext = tldextract.extract(asset)
     if not ext.domain or not ext.suffix:
+        return None
+    # tldextract doesn't validate that a label is a legal hostname
+    # component (no leading/trailing hyphen, no double hyphen at the
+    # edges). Reject anything that isn't, rather than returning a
+    # domain that was never actually valid.
+    if not re.match(r"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$", ext.domain):
         return None
     return f"{ext.domain}.{ext.suffix}"
 
