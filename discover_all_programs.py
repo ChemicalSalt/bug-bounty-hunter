@@ -426,19 +426,22 @@ def check_id_verification_two_layer(text, program_name):
 
 def check_rate_limit(text):
     if not text:
-        return None
+        return None, None
     m = RATE_LIMIT_PATTERN.search(text)
     if not m:
-        return None
+        return None, None
     value = float(m.group("value"))
     unit = (m.group("unit") or "s").lower()  # no unit group -> matched bare "rps" -> per-second
     if unit in ("minute", "min", "m"):
-        return value / 60
-    if unit in ("hour", "hr", "h"):
-        return value / 3600
-    if unit in ("day", "d"):
-        return value / 86400
-    return value
+        value = value / 60
+    elif unit in ("hour", "hr", "h"):
+        value = value / 3600
+    elif unit in ("day", "d"):
+        value = value / 86400
+    start = max(0, m.start() - 100)
+    end = min(len(text), m.end() + 100)
+    snippet = re.sub(r"\s+", " ", text[start:end]).strip()
+    return value, snippet
 
 
 def mistral_check_rate_limit(text, program_name):
@@ -554,9 +557,14 @@ def mistral_check_rate_limit(text, program_name):
 
 
 def check_rate_limit_two_layer(text, program_name):
-    rate = check_rate_limit(text)
+    rate, snippet = check_rate_limit(text)
     if rate is not None:
-        return rate, None
+        result = mistral_check_rate_limit(snippet, program_name)
+        if result == "error":
+            return None, "review"
+        if result is not None:
+            return min(rate, result), None
+        return rate, "review"
     if not text:
         return None, None
     lowest_rate = None
