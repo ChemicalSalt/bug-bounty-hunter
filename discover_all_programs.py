@@ -271,7 +271,7 @@ def check_safe_harbor_two_layer(text, program_name):
     if found:
         result = mistral_check_safe_harbor(snippet, program_name)
         if result is None:
-            return "review", f"[Mistral call failed — needs manual review] {snippet[:80]}"
+            return "review", f"[Mistral call failed — queued for retry] {snippet[:80]}"
         if result:
             return True, f"[Mistral-confirmed safe harbor] {snippet[:80]}"
         return False, f"[Mistral did not confirm safe harbor] {snippet[:80]}"
@@ -286,7 +286,7 @@ def check_safe_harbor_two_layer(text, program_name):
         if result:
             return True, "[Mistral-confirmed safe harbor, no regex match]"
     if any_review:
-        return "review", "[Mistral call failed on full-text check — needs manual review]"
+        return "review", "[Mistral call failed on full-text check — queued for retry]"
     return False, None
 
 
@@ -410,7 +410,7 @@ def check_id_verification_two_layer(text, program_name):
     if matched:
         result = mistral_check_id_verification(snippet, program_name)
         if result is None:
-            return "review", f"[Mistral call failed — needs manual review] {snippet[:80]}"
+            return "review", f"[Mistral call failed — queued for retry] {snippet[:80]}"
         if result:
             return True, f"[Mistral-confirmed ID requirement] {snippet[:80]}"
         return False, None
@@ -425,7 +425,7 @@ def check_id_verification_two_layer(text, program_name):
         if result:
             return True, "[Mistral-confirmed ID requirement, no regex match]"
     if any_review:
-        return "review", "[Mistral call failed on full-text check — needs manual review]"
+        return "review", "[Mistral call failed on full-text check — queued for retry]"
     return False, None
 
 
@@ -1940,7 +1940,7 @@ def check_automation_ban_two_layer(text, program_name):
     if banned:
         result = mistral_check_ban(snippet, program_name)
         if result is None:
-            return "review", f"[Mistral call failed — needs manual review] {snippet[:80]}"
+            return "review", f"[Mistral call failed — queued for retry] {snippet[:80]}"
         if result:
             return True, f"[Mistral-confirmed ban] {snippet[:80]}"
         return False, None
@@ -1958,7 +1958,7 @@ def check_automation_ban_two_layer(text, program_name):
         if result:
             return True, "[Mistral-confirmed ban, no regex match]"
     if any_review:
-        return "review", "[Mistral call failed on full-text check — needs manual review]"
+        return "review", "[Mistral call failed on full-text check — queued for retry]"
     return False, None
 
 if __name__ == "__main__":
