@@ -1526,6 +1526,11 @@ def extract_root_domain(asset):
     if "*" in asset:
         asset = asset.replace("*", "")
         asset = asset.strip(".-")
+        # Removing "*" from a pattern like "paypal-*.com" can leave a
+        # dangling hyphen on a label ("paypal-.com") that .strip() alone
+        # won't catch since it's not at the string's edge. Clean each
+        # dot-separated label individually.
+        asset = ".".join(part.strip("-") for part in asset.split("."))
     ext = tldextract.extract(asset)
     if not ext.domain or not ext.suffix:
         return None
