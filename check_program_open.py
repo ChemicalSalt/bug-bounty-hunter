@@ -138,7 +138,7 @@ def main():
             programs = h1_programs if platform == "hackerone" else intigriti_programs
             matches = find_match(programs, keyword, platform)
             if len(matches) != 1:
-                print(f"[NO MATCH]  {platform}/{keyword} -> {len(matches)} programs matched ({len(domains)} domain(s)) - EXCLUDING, needs manual review")
+                print(f"[NO MATCH]  {platform}/{keyword} -> {len(matches)} programs matched ({len(domains)} domain(s)) - EXCLUDING")
                 no_match.append((platform, keyword, domains))
                 excluded_domains.extend(domains)
                 continue
