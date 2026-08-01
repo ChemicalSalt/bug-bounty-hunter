@@ -46,12 +46,22 @@ jobs:
       - env:
           DOMAINS_TXT_PATH: ${{ github.workspace }}/domains-branch/domains.txt
         run: python3 validate_pipeline.py --platform hackerone
-      - name: Commit main
+      - name: Commit mistral cache and stats (always, even on validation failure)
+        if: always()
+        run: |
+          git config --global user.email "bugbountybot@github.com"
+          git config --global user.name "BugBountyBot"
+          for f in mistral_ban_cache.json discovery_stats.csv; do
+            git add -f "$f" 2>/dev/null || echo "::warning::Skipped staging $f"
+          done
+          git diff --staged --quiet || git commit -m "Weekend vet (hackerone) - cache/stats $(date +'%Y-%m-%d')"
+          git push origin main || (git pull --rebase origin main && git push origin main) || { echo "::error::Push to main failed"; exit 1; }
+      - name: Commit scope/domain output (only if discover+validate succeeded)
         if: success()
         run: |
           git config --global user.email "bugbountybot@github.com"
           git config --global user.name "BugBountyBot"
-          for f in domain_program_map.csv excluded_domains.txt mistral_ban_cache.json discovery_stats.csv \
+          for f in domain_program_map.csv excluded_domains.txt \
             hackerone_scope.txt hackerone_scope_diff.log hackerone_excluded_full.txt hackerone_skipped_full.txt; do
             git add -f "$f" 2>/dev/null || echo "::warning::Skipped staging $f"
           done
@@ -98,12 +108,22 @@ jobs:
       - env:
           DOMAINS_TXT_PATH: ${{ github.workspace }}/domains-branch/domains.txt
         run: python3 validate_pipeline.py --platform intigriti
-      - name: Commit main
+      - name: Commit mistral cache and stats (always, even on validation failure)
+        if: always()
+        run: |
+          git config --global user.email "bugbountybot@github.com"
+          git config --global user.name "BugBountyBot"
+          for f in mistral_ban_cache.json discovery_stats.csv; do
+            git add -f "$f" 2>/dev/null || echo "::warning::Skipped staging $f"
+          done
+          git diff --staged --quiet || git commit -m "Weekend vet (intigriti) - cache/stats $(date +'%Y-%m-%d')"
+          git push origin main || (git pull --rebase origin main && git push origin main) || { echo "::error::Push to main failed"; exit 1; }
+      - name: Commit scope/domain output (only if discover+validate succeeded)
         if: success()
         run: |
           git config --global user.email "bugbountybot@github.com"
           git config --global user.name "BugBountyBot"
-          for f in domain_program_map.csv excluded_domains.txt mistral_ban_cache.json discovery_stats.csv \
+          for f in domain_program_map.csv excluded_domains.txt \
             intigriti_scope.txt intigriti_scope_diff.log intigriti_excluded_full.txt intigriti_skipped_full.txt; do
             git add -f "$f" 2>/dev/null || echo "::warning::Skipped staging $f"
           done
@@ -150,12 +170,22 @@ jobs:
       - env:
           DOMAINS_TXT_PATH: ${{ github.workspace }}/domains-branch/domains.txt
         run: python3 validate_pipeline.py --platform yeswehack
-      - name: Commit main
+      - name: Commit mistral cache and stats (always, even on validation failure)
+        if: always()
+        run: |
+          git config --global user.email "bugbountybot@github.com"
+          git config --global user.name "BugBountyBot"
+          for f in mistral_ban_cache.json discovery_stats.csv; do
+            git add -f "$f" 2>/dev/null || echo "::warning::Skipped staging $f"
+          done
+          git diff --staged --quiet || git commit -m "Weekend vet (yeswehack) - cache/stats $(date +'%Y-%m-%d')"
+          git push origin main || (git pull --rebase origin main && git push origin main) || { echo "::error::Push to main failed"; exit 1; }
+      - name: Commit scope/domain output (only if discover+validate succeeded)
         if: success()
         run: |
           git config --global user.email "bugbountybot@github.com"
           git config --global user.name "BugBountyBot"
-          for f in domain_program_map.csv excluded_domains.txt mistral_ban_cache.json discovery_stats.csv \
+          for f in domain_program_map.csv excluded_domains.txt \
             yeswehack_scope.txt yeswehack_scope_diff.log yeswehack_excluded_full.txt yeswehack_skipped_full.txt yeswehack_unmatched.log; do
             git add -f "$f" 2>/dev/null || echo "::warning::Skipped staging $f"
           done
@@ -202,12 +232,22 @@ jobs:
       - env:
           DOMAINS_TXT_PATH: ${{ github.workspace }}/domains-branch/domains.txt
         run: python3 validate_pipeline.py --platform bugcrowd
-      - name: Commit main
+      - name: Commit mistral cache and stats (always, even on validation failure)
+        if: always()
+        run: |
+          git config --global user.email "bugbountybot@github.com"
+          git config --global user.name "BugBountyBot"
+          for f in mistral_ban_cache.json discovery_stats.csv; do
+            git add -f "$f" 2>/dev/null || echo "::warning::Skipped staging $f"
+          done
+          git diff --staged --quiet || git commit -m "Weekend vet (bugcrowd) - cache/stats $(date +'%Y-%m-%d')"
+          git push origin main || (git pull --rebase origin main && git push origin main) || { echo "::error::Push to main failed"; exit 1; }
+      - name: Commit scope/domain output (only if discover+validate succeeded)
         if: success()
         run: |
           git config --global user.email "bugbountybot@github.com"
           git config --global user.name "BugBountyBot"
-          for f in domain_program_map.csv excluded_domains.txt mistral_ban_cache.json discovery_stats.csv \
+          for f in domain_program_map.csv excluded_domains.txt \
             bugcrowd_scope.txt bugcrowd_scope_diff.log bugcrowd_excluded_full.txt bugcrowd_skipped_full.txt; do
             git add -f "$f" 2>/dev/null || echo "::warning::Skipped staging $f"
           done
