@@ -33,12 +33,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: main
-          fetch-depth: 1
+          fetch-depth: 0
       - uses: actions/checkout@v4
         with:
           ref: domains
           path: domains-branch
-          fetch-depth: 1
+          fetch-depth: 0
       - run: pip install tldextract --break-system-packages
       - env:
           DOMAINS_TXT_PATH: ${{ github.workspace }}/domains-branch/domains.txt
@@ -85,12 +85,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: main
-          fetch-depth: 1
+          fetch-depth: 0
       - uses: actions/checkout@v4
         with:
           ref: domains
           path: domains-branch
-          fetch-depth: 1
+          fetch-depth: 0
       - run: pip install tldextract --break-system-packages
       - env:
           DOMAINS_TXT_PATH: ${{ github.workspace }}/domains-branch/domains.txt
@@ -137,12 +137,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: main
-          fetch-depth: 1
+          fetch-depth: 0
       - uses: actions/checkout@v4
         with:
           ref: domains
           path: domains-branch
-          fetch-depth: 1
+          fetch-depth: 0
       - run: pip install tldextract --break-system-packages
       - env:
           DOMAINS_TXT_PATH: ${{ github.workspace }}/domains-branch/domains.txt
@@ -189,12 +189,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: main
-          fetch-depth: 1
+          fetch-depth: 0
       - uses: actions/checkout@v4
         with:
           ref: domains
           path: domains-branch
-          fetch-depth: 1
+          fetch-depth: 0
       - run: pip install tldextract --break-system-packages
       - env:
           DOMAINS_TXT_PATH: ${{ github.workspace }}/domains-branch/domains.txt
