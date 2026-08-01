@@ -9,6 +9,7 @@ Exits non-zero (fails the CI job) if any check fails.
 import os
 import sys
 import subprocess
+import argparse
 
 try:
     import tldextract
@@ -108,7 +109,7 @@ def check_file(path, is_root_domain_file):
     return (len(problems) == 0), problems
 
 
-def check_skip_rate(csv_path="discovery_stats.csv", expected_run_id=None):
+def check_skip_rate(csv_path="discovery_stats.csv", expected_run_id=None, only_platform=None):
     problems = []
     if expected_run_id is None:
         expected_run_id = os.environ.get("GITHUB_RUN_ID", "local")
@@ -124,6 +125,8 @@ def check_skip_rate(csv_path="discovery_stats.csv", expected_run_id=None):
         return False, [f"{csv_path} has no data rows - cannot verify run health, failing closed"]
     ok = True
     for platform, row in latest.items():
+        if only_platform is not None and platform != only_platform:
+            continue
         row_run_id = row.get("run_id")
         if row_run_id != expected_run_id:
             problems.append(f"{platform}: latest row is from run_id={row_run_id!r}, expected {expected_run_id!r} - stale data, this platform did not report for the current run")
@@ -157,6 +160,10 @@ def check_skip_rate(csv_path="discovery_stats.csv", expected_run_id=None):
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--platform", choices=["hackerone", "intigriti", "yeswehack", "bugcrowd"], default=None,
+                         help="Validate only one platform instead of all four")
+    args = parser.parse_args()
     overall_ok = True
     print("=== Pipeline validation ===")
     for path in ROOT_DOMAIN_FILES:
@@ -175,7 +182,7 @@ def main():
             print(f"    - {p}")
         if not ok:
             overall_ok = False
-    ok, problems = check_skip_rate()
+    ok, problems = check_skip_rate(only_platform=args.platform)
     status = "OK" if ok else "FAIL"
     print(f"[{status}] discovery_stats.csv skip-rate check")
     for p in problems:
