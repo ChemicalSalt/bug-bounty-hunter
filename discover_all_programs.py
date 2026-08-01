@@ -881,18 +881,124 @@ def extract_ywh_domains(scope_entries, slug="unknown"):
 _YWH_OOS_DOMAIN_RE = re.compile(r"(?:\*\.)?\b[a-zA-Z0-9][a-zA-Z0-9*\-]*(?:\.[a-zA-Z0-9*][a-zA-Z0-9*\-]*){1,}\b")
 
 
+def mistral_check_out_of_scope_negation(entry_text, domain, program_name):
+    if not entry_text:
+        return None
+    cache_key = hashlib.sha256(("oosneg:" + domain + ":" + entry_text[:8000]).encode()).hexdigest()
+    if cache_key in _MISTRAL_CACHE:
+        cached = _MISTRAL_CACHE[cache_key]
+        log_mistral_call(program_name, entry_text[:200], cached.get("is_out"), cached["reason"] + " [CACHED]", error=None)
+        return cached.get("is_out")
+    if not MISTRAL_API_KEY:
+        return "error"
+    global _MISTRAL_QUOTA_EXHAUSTED_UNTIL
+    if time.time() < _MISTRAL_QUOTA_EXHAUSTED_UNTIL:
+        return "error"
+    _mistral_pace()
+    prompt = (
+        "You are reviewing an out-of-scope policy statement from a bug "
+        "bounty program. Answer ONLY with valid JSON, no other text, in "
+        'this exact format: {"is_out_of_scope": true or false, "reason": "one short sentence"}.\n\n'
+        f"Question: Based on this text, is the domain '{domain}' genuinely "
+        "out of scope? Watch carefully for negation phrasing that reverses "
+        "the meaning (e.g. 'Testing any system OTHER THAN X is prohibited' "
+        f"means X IS in scope, not out of scope). Text:\n{entry_text[:2000]}"
+    )
+    body = json.dumps({
+        "model": "mistral-large-latest",
+        "messages": [{"role": "user", "content": prompt}],
+        "temperature": 0,
+        "max_tokens": 300,
+    }).encode()
+    req = urllib.request.Request(
+        MISTRAL_URL,
+        data=body,
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {MISTRAL_API_KEY}",
+            "User-Agent": "bug-bounty-hunter-vet/1.0",
+        },
+        method="POST",
+    )
+    last_err = None
+    for attempt in range(3):
+        try:
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                data = json.loads(resp.read().decode())
+            content = data["choices"][0]["message"]["content"].strip().strip("`")
+            if content.startswith("json"):
+                content = content[4:].strip()
+            im = re.search(r'"is_out_of_scope"\s*:\s*(true|false)', content, re.IGNORECASE)
+            reasonm = re.search(r'"reason"\s*:\s*"(.*?)"\s*}', content, re.DOTALL)
+            reason = reasonm.group(1) if reasonm else content[:150]
+            if not im:
+                log_mistral_call(program_name, entry_text[:200], None, reason, error=None)
+                _MISTRAL_CACHE[cache_key] = {"is_out": None, "reason": reason}
+                return None
+            is_out = im.group(1).lower() == "true"
+            log_mistral_call(program_name, entry_text[:200], is_out, reason, error=None)
+            _MISTRAL_CACHE[cache_key] = {"is_out": is_out, "reason": reason}
+            return is_out
+        except urllib.error.HTTPError as e:
+            last_err = e
+            if e.code == 429:
+                try:
+                    body = e.read().decode()
+                except Exception:
+                    body = "<could not read body>"
+                retry_after = e.headers.get("Retry-After") if e.headers else None
+                with open(os.path.join(OUTPUT_DIR, "mistral_429_debug.log"), "a") as df:
+                    df.write(f"--- {program_name} ---\n")
+                    df.write(f"retry_after: {retry_after}\n")
+                    df.write(f"body: {body}\n\n")
+                try:
+                    ra_val = float(retry_after) if retry_after is not None else None
+                except (TypeError, ValueError):
+                    ra_val = None
+                if ra_val is not None and ra_val > 300:
+                    _MISTRAL_QUOTA_EXHAUSTED_UNTIL = time.time() + ra_val
+                    break
+            if e.code in (503, 429) and attempt < 2:
+                wait = 5 * (attempt + 1)
+                if e.code == 429:
+                    try:
+                        ra = e.headers.get("Retry-After") if e.headers else None
+                        if ra is not None:
+                            wait = max(wait, min(int(float(ra)) + 1, 90))
+                    except (TypeError, ValueError):
+                        pass
+                time.sleep(wait)
+                continue
+            break
+        except Exception as e:
+            last_err = e
+            if attempt < 2:
+                time.sleep(5 * (attempt + 1))
+                continue
+            break
+    log_mistral_call(program_name, entry_text[:200], None, None, error=str(last_err))
+    return "error"
+
+
 def extract_ywh_out_of_scope_domains(out_of_scope_entries, slug="unknown"):
     # YesWeHack's out_of_scope field is free-text prose, not structured
-    # scope entries like `scopes` - so this is a best-effort regex sweep,
-    # not an exact parse. Deliberately generous: a false positive here
-    # only over-excludes (safe), a false negative under-excludes (unsafe).
+    # scope entries like `scopes` - so regex extracts candidate domains,
+    # then each candidate is confirmed against its source sentence via AI
+    # to catch negation phrasing (e.g. "Testing any system OTHER THAN X"
+    # means X is IN scope, not out). Fail-safe: on AI error/no-verdict,
+    # keep the domain excluded - over-excluding is safe, under-excluding
+    # is not.
     out_domains = []
     for entry in out_of_scope_entries or []:
         if not isinstance(entry, str):
             continue
         text = re.sub(r"https?://", "", entry)
-        for m in _YWH_OOS_DOMAIN_RE.findall(text):
-            out_domains.append(m.strip(".").lower())
+        candidates = sorted(set(m.strip(".").lower() for m in _YWH_OOS_DOMAIN_RE.findall(text)))
+        for domain in candidates:
+            result = mistral_check_out_of_scope_negation(entry, domain, slug)
+            if result is False:
+                continue  # negation detected: domain is actually in-scope
+            out_domains.append(domain)  # True, None, or "error" -> keep excluded (fail-safe)
     return sorted(set(out_domains))
 
 
