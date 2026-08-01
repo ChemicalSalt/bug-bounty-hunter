@@ -302,6 +302,7 @@ def check_id_verification_required(text):
     return False, None
 
 def mistral_check_id_verification(snippet, program_name):
+    global _MISTRAL_CALLS_SINCE_SAVE
     cache_key = hashlib.sha256(("idcheck:" + snippet).encode()).hexdigest()
     if cache_key in _MISTRAL_CACHE:
         cached = _MISTRAL_CACHE[cache_key]
@@ -359,6 +360,10 @@ def mistral_check_id_verification(snippet, program_name):
             reason = rm.group(1) if rm else text[:150]
             log_mistral_call(program_name, snippet, is_ban, reason, error=None)
             _MISTRAL_CACHE[cache_key] = {"is_ban": is_ban, "reason": reason}
+            _MISTRAL_CALLS_SINCE_SAVE += 1
+            if _MISTRAL_CALLS_SINCE_SAVE >= 50:
+                save_mistral_cache(_MISTRAL_CACHE)
+                _MISTRAL_CALLS_SINCE_SAVE = 0
             return is_ban
         except urllib.error.HTTPError as e:
             last_err = e
@@ -445,6 +450,7 @@ def check_rate_limit(text):
 
 
 def mistral_check_rate_limit(text, program_name):
+    global _MISTRAL_CALLS_SINCE_SAVE
     if not text:
         return None
     cache_key = hashlib.sha256(("ratecheck:" + text[:8000]).encode()).hexdigest()
@@ -501,6 +507,10 @@ def mistral_check_rate_limit(text, program_name):
             if not rm or rm.group(1) == "null":
                 log_mistral_call(program_name, text[:200], False, reason, error=None)
                 _MISTRAL_CACHE[cache_key] = {"rate": None, "reason": reason}
+                _MISTRAL_CALLS_SINCE_SAVE += 1
+                if _MISTRAL_CALLS_SINCE_SAVE >= 50:
+                    save_mistral_cache(_MISTRAL_CACHE)
+                    _MISTRAL_CALLS_SINCE_SAVE = 0
                 return None
             value = float(rm.group(1))
             unit = um.group(1).lower() if um else "second"
@@ -514,6 +524,10 @@ def mistral_check_rate_limit(text, program_name):
                 rate = value
             log_mistral_call(program_name, text[:200], True, reason, error=None)
             _MISTRAL_CACHE[cache_key] = {"rate": rate, "reason": reason}
+            _MISTRAL_CALLS_SINCE_SAVE += 1
+            if _MISTRAL_CALLS_SINCE_SAVE >= 50:
+                save_mistral_cache(_MISTRAL_CACHE)
+                _MISTRAL_CALLS_SINCE_SAVE = 0
             return rate
         except urllib.error.HTTPError as e:
             last_err = e
@@ -882,6 +896,7 @@ _YWH_OOS_DOMAIN_RE = re.compile(r"(?:\*\.)?\b[a-zA-Z0-9][a-zA-Z0-9*\-]*(?:\.[a-z
 
 
 def mistral_check_out_of_scope_negation(entry_text, domain, program_name):
+    global _MISTRAL_CALLS_SINCE_SAVE
     if not entry_text:
         return None
     cache_key = hashlib.sha256(("oosneg:" + domain + ":" + entry_text[:8000]).encode()).hexdigest()
@@ -934,10 +949,18 @@ def mistral_check_out_of_scope_negation(entry_text, domain, program_name):
             if not im:
                 log_mistral_call(program_name, entry_text[:200], None, reason, error=None)
                 _MISTRAL_CACHE[cache_key] = {"is_out": None, "reason": reason}
+                _MISTRAL_CALLS_SINCE_SAVE += 1
+                if _MISTRAL_CALLS_SINCE_SAVE >= 50:
+                    save_mistral_cache(_MISTRAL_CACHE)
+                    _MISTRAL_CALLS_SINCE_SAVE = 0
                 return None
             is_out = im.group(1).lower() == "true"
             log_mistral_call(program_name, entry_text[:200], is_out, reason, error=None)
             _MISTRAL_CACHE[cache_key] = {"is_out": is_out, "reason": reason}
+            _MISTRAL_CALLS_SINCE_SAVE += 1
+            if _MISTRAL_CALLS_SINCE_SAVE >= 50:
+                save_mistral_cache(_MISTRAL_CACHE)
+                _MISTRAL_CALLS_SINCE_SAVE = 0
             return is_out
         except urllib.error.HTTPError as e:
             last_err = e
