@@ -1062,7 +1062,8 @@ def vet_yeswehack_program(program, results):
         results["skipped"].append((slug, f"safe harbor unresolved: {sh_snippet[:80]}", domain_count))
         return
     if not sh_ok:
-        results["excluded"].append((slug, f"safe harbor not confirmed: {(sh_snippet or "no safe-harbor language found in full policy text")[:80]}", domain_count))
+        sh_display = sh_snippet or "no safe-harbor language found in full policy text"
+        results["excluded"].append((slug, f"safe harbor not confirmed: {sh_display[:80]}", domain_count))
         return
     banned, snippet = check_automation_ban_two_layer(rules, slug)
     if banned == "review":
