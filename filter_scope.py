@@ -52,9 +52,11 @@ def glob_to_regex(pattern):
 
 def load_out_of_scope_pattern():
     patterns = []
+    files_found = 0
     for path in SCOPE_FILES:
         try:
             with open(path) as f:
+                files_found += 1
                 for line in f:
                     line = line.strip()
                     if line.startswith("OUT:"):
@@ -63,6 +65,10 @@ def load_out_of_scope_pattern():
                             patterns.append(glob_to_regex(raw))
         except FileNotFoundError:
             continue
+    if files_found == 0:
+        print(f"[FILTER] ERROR: 0 of {len(SCOPE_FILES)} scope files found ({SCOPE_FILES}) — "
+              f"cannot verify OUT-of-scope patterns, refusing to filter. Aborting without writing.")
+        sys.exit(1)
     if not patterns:
         return None
     return re.compile("|".join(patterns), re.I)
