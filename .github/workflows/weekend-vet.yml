@@ -1,107 +1,220 @@
 name: Weekend Vet
 # ─────────────────────────────────────────────────────────────────────────────
 # SCHEDULE: every Saturday, 00:00 IST (Friday 18:30 UTC)
-# Runs discover_all_programs.py — full discovery + ban-detection (regex + Mistral)
-# across HackerOne, Intigriti, Bugcrowd, YesWeHack. Updates per-platform scope
-# files and domain_program_map.csv, then commits results to main.
-#
-# Manual trigger: workflow_dispatch with no inputs = runs everything
+# Runs discover_all_programs.py per platform, sequentially (not parallel,
+# to avoid contending Mistral's 4 req/min rate limit across jobs).
 # ─────────────────────────────────────────────────────────────────────────────
 on:
   workflow_dispatch:
   schedule:
-    - cron: '30 18 * * 5'   # every Friday 18:30 UTC = Saturday 00:00 IST
+    - cron: '30 18 * * 5'
 
-# Required so the job can push commits back to main/domains without a PAT.
 permissions:
   contents: write
 
-# Prevent a manual trigger from racing a scheduled run (or two manual
-# triggers racing each other) on the same branches.
 concurrency:
   group: weekend-vet
   cancel-in-progress: false
 
+env:
+  HACKERONE_TOKEN: ${{ secrets.HACKERONE_TOKEN }}
+  INTIGRITI_TOKEN: ${{ secrets.INTIGRITI_TOKEN }}
+  MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+  VALIDATE_MAX_EXCLUDED_RATE_PCT: "99.5"
+  OUTPUT_DIR: ${{ github.workspace }}
+  MAPPING_CSV_PATH: ${{ github.workspace }}/domain_program_map.csv
+  EXCLUDED_OUTPUT_PATH: ${{ github.workspace }}/excluded_domains.txt
+
 jobs:
-  validate:
+  vet_hackerone:
     runs-on: ubuntu-latest
-    timeout-minutes: 350
-    env:
-      HACKERONE_TOKEN: ${{ secrets.HACKERONE_TOKEN }}
-      INTIGRITI_TOKEN: ${{ secrets.INTIGRITI_TOKEN }}
-      MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
-      VALIDATE_MAX_EXCLUDED_RATE_PCT: "99.5"
-      OUTPUT_DIR: ${{ github.workspace }}
-      MAPPING_CSV_PATH: ${{ github.workspace }}/domain_program_map.csv
-      EXCLUDED_OUTPUT_PATH: ${{ github.workspace }}/excluded_domains.txt
+    timeout-minutes: 345
     steps:
-      - name: Checkout main (script + CSV)
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           ref: main
           fetch-depth: 1
-
-      - name: Checkout domains branch
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           ref: domains
           path: domains-branch
           fetch-depth: 1
-
-      - name: Install tldextract
-        run: |
-          pip install tldextract --break-system-packages
-
-      - name: Run weekly validation
-        env:
+      - run: pip install tldextract --break-system-packages
+      - env:
           DOMAINS_TXT_PATH: ${{ github.workspace }}/domains-branch/domains.txt
-        run: |
-          python3 discover_all_programs.py
-
-      - name: Validate pipeline output
-        env:
+        run: python3 discover_all_programs.py --platform hackerone
+      - env:
           DOMAINS_TXT_PATH: ${{ github.workspace }}/domains-branch/domains.txt
-        run: |
-          python3 validate_pipeline.py
-
-      - name: Commit updated CSV and scope files
+        run: python3 validate_pipeline.py --platform hackerone
+      - name: Commit main
         run: |
           git config --global user.email "bugbountybot@github.com"
           git config --global user.name "BugBountyBot"
-          for f in domain_program_map.csv \
-            hackerone_scope.txt intigriti_scope.txt yeswehack_scope.txt bugcrowd_scope.txt \
-            hackerone_scope_diff.log intigriti_scope_diff.log yeswehack_scope_diff.log bugcrowd_scope_diff.log \
-            excluded_domains.txt \
-            mistral_ban_cache.json \
-            discovery_stats.csv \
-            hackerone_excluded_full.txt intigriti_excluded_full.txt yeswehack_excluded_full.txt bugcrowd_excluded_full.txt \
-            hackerone_skipped_full.txt intigriti_skipped_full.txt yeswehack_skipped_full.txt bugcrowd_skipped_full.txt \
-            yeswehack_unmatched.log; do
-            git add -f "$f" 2>/dev/null || echo "::warning::Skipped staging $f (not found)"
+          for f in domain_program_map.csv excluded_domains.txt mistral_ban_cache.json discovery_stats.csv \
+            hackerone_scope.txt hackerone_scope_diff.log hackerone_excluded_full.txt hackerone_skipped_full.txt; do
+            git add -f "$f" 2>/dev/null || echo "::warning::Skipped staging $f"
           done
-          git diff --staged --quiet || git commit -m "Weekly program validation $(date +'%Y-%m-%d')"
-          git push origin main || (git pull --rebase origin main && git push origin main) || {
-            echo "::error::Push to main failed after rebase retry"
-            exit 1
-          }
-
-      - name: Commit updated domains.txt to domains branch
+          git diff --staged --quiet || git commit -m "Weekend vet (hackerone) $(date +'%Y-%m-%d')"
+          git push origin main || (git pull --rebase origin main && git push origin main) || { echo "::error::Push to main failed"; exit 1; }
+      - name: Commit domains branch
         run: |
           cd domains-branch
           git config --global user.email "bugbountybot@github.com"
           git config --global user.name "BugBountyBot"
           git add -f domains.txt domains_diff.log 2>/dev/null || true
-          git diff --staged --quiet || git commit -m "Weekly validation: rebuild domains.txt (added/removed) $(date +'%Y-%m-%d')"
-          git push origin domains || (git pull --rebase origin domains && git push origin domains) || {
-            echo "::error::Push to domains branch failed after rebase retry"
-            exit 1
-          }
-
-      - name: Upload validation logs
-        if: always()
+          git diff --staged --quiet || git commit -m "Weekend vet (hackerone): rebuild domains.txt $(date +'%Y-%m-%d')"
+          git push origin domains || (git pull --rebase origin domains && git push origin domains) || { echo "::error::Push to domains failed"; exit 1; }
+      - if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: weekend-vet-logs
+          name: weekend-vet-logs-hackerone
+          path: |
+            mistral_review_log.txt
+            mistral_429_debug.log
+            mistral_parse_fail_debug.log
+          retention-days: 30
+
+  vet_intigriti:
+    needs: vet_hackerone
+    runs-on: ubuntu-latest
+    timeout-minutes: 345
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+      - uses: actions/checkout@v4
+        with:
+          ref: domains
+          path: domains-branch
+          fetch-depth: 1
+      - run: pip install tldextract --break-system-packages
+      - env:
+          DOMAINS_TXT_PATH: ${{ github.workspace }}/domains-branch/domains.txt
+        run: python3 discover_all_programs.py --platform intigriti
+      - env:
+          DOMAINS_TXT_PATH: ${{ github.workspace }}/domains-branch/domains.txt
+        run: python3 validate_pipeline.py --platform intigriti
+      - name: Commit main
+        run: |
+          git config --global user.email "bugbountybot@github.com"
+          git config --global user.name "BugBountyBot"
+          for f in domain_program_map.csv excluded_domains.txt mistral_ban_cache.json discovery_stats.csv \
+            intigriti_scope.txt intigriti_scope_diff.log intigriti_excluded_full.txt intigriti_skipped_full.txt; do
+            git add -f "$f" 2>/dev/null || echo "::warning::Skipped staging $f"
+          done
+          git diff --staged --quiet || git commit -m "Weekend vet (intigriti) $(date +'%Y-%m-%d')"
+          git push origin main || (git pull --rebase origin main && git push origin main) || { echo "::error::Push to main failed"; exit 1; }
+      - name: Commit domains branch
+        run: |
+          cd domains-branch
+          git config --global user.email "bugbountybot@github.com"
+          git config --global user.name "BugBountyBot"
+          git add -f domains.txt domains_diff.log 2>/dev/null || true
+          git diff --staged --quiet || git commit -m "Weekend vet (intigriti): rebuild domains.txt $(date +'%Y-%m-%d')"
+          git push origin domains || (git pull --rebase origin domains && git push origin domains) || { echo "::error::Push to domains failed"; exit 1; }
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: weekend-vet-logs-intigriti
+          path: |
+            mistral_review_log.txt
+            mistral_429_debug.log
+            mistral_parse_fail_debug.log
+          retention-days: 30
+
+  vet_yeswehack:
+    needs: vet_intigriti
+    runs-on: ubuntu-latest
+    timeout-minutes: 345
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+      - uses: actions/checkout@v4
+        with:
+          ref: domains
+          path: domains-branch
+          fetch-depth: 1
+      - run: pip install tldextract --break-system-packages
+      - env:
+          DOMAINS_TXT_PATH: ${{ github.workspace }}/domains-branch/domains.txt
+        run: python3 discover_all_programs.py --platform yeswehack
+      - env:
+          DOMAINS_TXT_PATH: ${{ github.workspace }}/domains-branch/domains.txt
+        run: python3 validate_pipeline.py --platform yeswehack
+      - name: Commit main
+        run: |
+          git config --global user.email "bugbountybot@github.com"
+          git config --global user.name "BugBountyBot"
+          for f in domain_program_map.csv excluded_domains.txt mistral_ban_cache.json discovery_stats.csv \
+            yeswehack_scope.txt yeswehack_scope_diff.log yeswehack_excluded_full.txt yeswehack_skipped_full.txt yeswehack_unmatched.log; do
+            git add -f "$f" 2>/dev/null || echo "::warning::Skipped staging $f"
+          done
+          git diff --staged --quiet || git commit -m "Weekend vet (yeswehack) $(date +'%Y-%m-%d')"
+          git push origin main || (git pull --rebase origin main && git push origin main) || { echo "::error::Push to main failed"; exit 1; }
+      - name: Commit domains branch
+        run: |
+          cd domains-branch
+          git config --global user.email "bugbountybot@github.com"
+          git config --global user.name "BugBountyBot"
+          git add -f domains.txt domains_diff.log 2>/dev/null || true
+          git diff --staged --quiet || git commit -m "Weekend vet (yeswehack): rebuild domains.txt $(date +'%Y-%m-%d')"
+          git push origin domains || (git pull --rebase origin domains && git push origin domains) || { echo "::error::Push to domains failed"; exit 1; }
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: weekend-vet-logs-yeswehack
+          path: |
+            mistral_review_log.txt
+            mistral_429_debug.log
+            mistral_parse_fail_debug.log
+          retention-days: 30
+
+  vet_bugcrowd:
+    needs: vet_yeswehack
+    runs-on: ubuntu-latest
+    timeout-minutes: 345
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+      - uses: actions/checkout@v4
+        with:
+          ref: domains
+          path: domains-branch
+          fetch-depth: 1
+      - run: pip install tldextract --break-system-packages
+      - env:
+          DOMAINS_TXT_PATH: ${{ github.workspace }}/domains-branch/domains.txt
+        run: python3 discover_all_programs.py --platform bugcrowd
+      - env:
+          DOMAINS_TXT_PATH: ${{ github.workspace }}/domains-branch/domains.txt
+        run: python3 validate_pipeline.py --platform bugcrowd
+      - name: Commit main
+        run: |
+          git config --global user.email "bugbountybot@github.com"
+          git config --global user.name "BugBountyBot"
+          for f in domain_program_map.csv excluded_domains.txt mistral_ban_cache.json discovery_stats.csv \
+            bugcrowd_scope.txt bugcrowd_scope_diff.log bugcrowd_excluded_full.txt bugcrowd_skipped_full.txt; do
+            git add -f "$f" 2>/dev/null || echo "::warning::Skipped staging $f"
+          done
+          git diff --staged --quiet || git commit -m "Weekend vet (bugcrowd) $(date +'%Y-%m-%d')"
+          git push origin main || (git pull --rebase origin main && git push origin main) || { echo "::error::Push to main failed"; exit 1; }
+      - name: Commit domains branch
+        run: |
+          cd domains-branch
+          git config --global user.email "bugbountybot@github.com"
+          git config --global user.name "BugBountyBot"
+          git add -f domains.txt domains_diff.log 2>/dev/null || true
+          git diff --staged --quiet || git commit -m "Weekend vet (bugcrowd): rebuild domains.txt $(date +'%Y-%m-%d')"
+          git push origin domains || (git pull --rebase origin domains && git push origin domains) || { echo "::error::Push to domains failed"; exit 1; }
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: weekend-vet-logs-bugcrowd
           path: |
             mistral_review_log.txt
             mistral_429_debug.log
