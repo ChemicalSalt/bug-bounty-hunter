@@ -727,8 +727,10 @@ def vet_hackerone_program(handle, auth, results):
     if id_req is True:
         results["excluded"].append((handle, f"requires ID verification: {id_snippet[:80]}", domain_count))
         return
-    # id_req == "review" (Mistral couldn't answer) or False -> proceed;
-    # per policy, unresolved ID-verification status alone should not drop a program.
+    if id_req == "review":
+        results["skipped"].append((handle, id_snippet, domain_count))
+        return
+    # id_req is False (confirmed not required) -> proceed
     rate, rate_status = check_rate_limit_two_layer(policy, handle)
     if rate_status == "review":
         results["skipped"].append((handle, "Mistral call failed on rate-limit check", domain_count))
@@ -846,7 +848,10 @@ def vet_intigriti_program(program, token, results):
     if id_req is True:
         results["excluded"].append((pid, f"{name}: requires ID verification: {id_snippet[:80]}", domain_count))
         return
-    # id_req == "review" or False -> proceed; unresolved ID status alone should not drop a program.
+    if id_req == "review":
+        results["skipped"].append((pid, f"{name}: {id_snippet}", domain_count))
+        return
+    # id_req is False (confirmed not required) -> proceed
     results["included"].append({
         "handle": pid,
         "safe_harbor": True,
@@ -1099,7 +1104,10 @@ def vet_yeswehack_program(program, results):
     if id_req is True:
         results["excluded"].append((slug, f"requires ID verification: {id_snippet[:80]}", domain_count))
         return
-    # id_req == "review" or False -> proceed; unresolved ID status alone should not drop a program.
+    if id_req == "review":
+        results["skipped"].append((slug, id_snippet, domain_count))
+        return
+    # id_req is False (confirmed not required) -> proceed
     rate, rate_status = check_rate_limit_two_layer(rules, slug)
     if rate_status == "review":
         results["skipped"].append((slug, "Mistral call failed on rate-limit check", domain_count))
@@ -1240,7 +1248,10 @@ def vet_bugcrowd_program(program, results):
     if id_req is True:
         results["excluded"].append((slug, f"requires ID verification: {id_snippet[:80]}", domain_count))
         return
-    # id_req == "review" or False -> proceed; unresolved ID status alone should not drop a program.
+    if id_req == "review":
+        results["skipped"].append((slug, id_snippet, domain_count))
+        return
+    # id_req is False (confirmed not required) -> proceed
     rate, rate_status = check_rate_limit_two_layer(text, slug)
     if rate_status == "review":
         results["skipped"].append((slug, "Mistral call failed on rate-limit check", domain_count))
