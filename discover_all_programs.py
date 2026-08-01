@@ -450,7 +450,7 @@ def mistral_check_rate_limit(text, program_name):
     cache_key = hashlib.sha256(("ratecheck:" + text[:8000]).encode()).hexdigest()
     if cache_key in _MISTRAL_CACHE:
         cached = _MISTRAL_CACHE[cache_key]
-        log_mistral_call(program_name, text[:200], cached.get("is_ban"), cached["reason"] + " [CACHED]", error=None)
+        log_mistral_call(program_name, text[:200], cached.get("rate"), cached["reason"] + " [CACHED]", error=None)
         return cached.get("rate")
     if not MISTRAL_API_KEY:
         return "error"
