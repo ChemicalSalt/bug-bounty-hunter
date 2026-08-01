@@ -261,7 +261,6 @@ def main():
     excluded_domains = []
     no_match = []
     ambiguous = []
-    manual_review_needed = []  # platforms/programs where safety fields can't be verified via API
     hackerone_scope_lines = []
     hackerone_out_lines = []
     intigriti_scope_lines = []
@@ -360,14 +359,14 @@ def main():
         matches = find_match(programs, keyword, platform)
 
         if len(matches) == 0:
-            print(f"[NO MATCH]  {platform}/{keyword} -> 0 programs found for {len(domains)} domain(s) - EXCLUDING (program may be removed/renamed, needs manual review)")
+            print(f"[NO MATCH]  {platform}/{keyword} -> 0 programs found for {len(domains)} domain(s) - EXCLUDING (program may be removed/renamed)")
             no_match.append((platform, keyword, domains))
             excluded_domains.extend(domains)
             continue
 
         if len(matches) > 1:
             names = [m["name"] for m in matches]
-            print(f"[AMBIGUOUS] {platform}/{keyword} -> {len(matches)} programs matched: {names} - EXCLUDING (needs manual review)")
+            print(f"[AMBIGUOUS] {platform}/{keyword} -> {len(matches)} programs matched: {names} - EXCLUDING")
             ambiguous.append((platform, keyword, matches, domains))
             excluded_domains.extend(domains)
             continue
@@ -381,7 +380,7 @@ def main():
             hard_safe_harbor = m.get("gold_standard_safe_harbor") is True
             eligible = is_open and is_bbp and is_public and hard_safe_harbor
             print(f"[{'OPEN  ' if is_open else 'BLOCKED'}]  {platform}/{keyword} -> '{m['name']}' status={m['status']} bbp={is_bbp} public={is_public} safe_harbor={hard_safe_harbor} eligible={eligible} ({len(domains)} domain(s))")
-            print(f"    [MANUAL REVIEW NEEDED] HackerOne API does not expose automated-tooling-allowed or ID-verification-required - verify policy text manually if scanning this program")
+            print(f"    [NOTE] HackerOne API does not expose automated-tooling-allowed - covered by text-based check below")
             if not eligible:
                 excluded_domains.extend(domains)
             else:
@@ -435,7 +434,7 @@ def main():
                 print(f"    [EXCLUDED] No automatedTooling rate limit specified - cannot confirm automated scanning is permitted")
             elif rate_limit_val < FLAT_RATE_LIMIT:
                 print(f"    [EXCLUDED] Program's automatedTooling rate ({rate_limit_val}) is stricter than our flat {FLAT_RATE_LIMIT} rps")
-            print(f"    [MANUAL REVIEW NEEDED] Intigriti API does not expose ID-verification-required or public/private status - verify manually if uncertain")
+            print(f"    [NOTE] Intigriti API does not expose ID-verification-required - covered by text-based check below")
             if not eligible:
                 excluded_domains.extend(domains)
             else:
@@ -465,9 +464,6 @@ def main():
         print(f"    - {d}")
     print(f"\n  No API match found: {len(no_match)} groups")
     print(f"  Ambiguous matches: {len(ambiguous)} groups")
-    print(f"  Manual review needed (unverifiable safety fields): {len(manual_review_needed)} program(s)")
-    for platform, keyword in manual_review_needed:
-        print(f"    - {platform}/{keyword}")
 
     exclude_tmp_path = f"{EXCLUDE_OUTPUT_PATH}.tmp"
     with open(exclude_tmp_path, "w") as f:
