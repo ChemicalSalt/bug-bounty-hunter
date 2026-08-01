@@ -47,7 +47,7 @@ jobs:
           DOMAINS_TXT_PATH: ${{ github.workspace }}/domains-branch/domains.txt
         run: python3 validate_pipeline.py --platform hackerone
       - name: Commit main
-        if: always()
+        if: success()
         run: |
           git config --global user.email "bugbountybot@github.com"
           git config --global user.name "BugBountyBot"
@@ -58,7 +58,7 @@ jobs:
           git diff --staged --quiet || git commit -m "Weekend vet (hackerone) $(date +'%Y-%m-%d')"
           git push origin main || (git pull --rebase origin main && git push origin main) || { echo "::error::Push to main failed"; exit 1; }
       - name: Commit domains branch
-        if: always()
+        if: success()
         run: |
           cd domains-branch
           git config --global user.email "bugbountybot@github.com"
@@ -99,7 +99,7 @@ jobs:
           DOMAINS_TXT_PATH: ${{ github.workspace }}/domains-branch/domains.txt
         run: python3 validate_pipeline.py --platform intigriti
       - name: Commit main
-        if: always()
+        if: success()
         run: |
           git config --global user.email "bugbountybot@github.com"
           git config --global user.name "BugBountyBot"
@@ -110,7 +110,7 @@ jobs:
           git diff --staged --quiet || git commit -m "Weekend vet (intigriti) $(date +'%Y-%m-%d')"
           git push origin main || (git pull --rebase origin main && git push origin main) || { echo "::error::Push to main failed"; exit 1; }
       - name: Commit domains branch
-        if: always()
+        if: success()
         run: |
           cd domains-branch
           git config --global user.email "bugbountybot@github.com"
@@ -151,7 +151,7 @@ jobs:
           DOMAINS_TXT_PATH: ${{ github.workspace }}/domains-branch/domains.txt
         run: python3 validate_pipeline.py --platform yeswehack
       - name: Commit main
-        if: always()
+        if: success()
         run: |
           git config --global user.email "bugbountybot@github.com"
           git config --global user.name "BugBountyBot"
@@ -162,7 +162,7 @@ jobs:
           git diff --staged --quiet || git commit -m "Weekend vet (yeswehack) $(date +'%Y-%m-%d')"
           git push origin main || (git pull --rebase origin main && git push origin main) || { echo "::error::Push to main failed"; exit 1; }
       - name: Commit domains branch
-        if: always()
+        if: success()
         run: |
           cd domains-branch
           git config --global user.email "bugbountybot@github.com"
@@ -203,7 +203,7 @@ jobs:
           DOMAINS_TXT_PATH: ${{ github.workspace }}/domains-branch/domains.txt
         run: python3 validate_pipeline.py --platform bugcrowd
       - name: Commit main
-        if: always()
+        if: success()
         run: |
           git config --global user.email "bugbountybot@github.com"
           git config --global user.name "BugBountyBot"
@@ -214,7 +214,7 @@ jobs:
           git diff --staged --quiet || git commit -m "Weekend vet (bugcrowd) $(date +'%Y-%m-%d')"
           git push origin main || (git pull --rebase origin main && git push origin main) || { echo "::error::Push to main failed"; exit 1; }
       - name: Commit domains branch
-        if: always()
+        if: success()
         run: |
           cd domains-branch
           git config --global user.email "bugbountybot@github.com"
