@@ -643,6 +643,21 @@ def fetch_hackerone_structured_scopes(handle, headers):
     return scopes, None
 
 
+def clean_asset_identifier(raw):
+    """HackerOne's asset_identifier field can come back as markdown link
+    syntax, e.g. '[www.example.com](https://www.example.com)', instead of
+    a plain domain. Extract the real domain from the URL portion when this
+    happens; otherwise return the value unchanged."""
+    if not raw:
+        return raw
+    m = re.match(r'^\[([^\]]+)\]\((https?://[^)]+)\)$', raw.strip())
+    if m:
+        url_part = m.group(2)
+        domain = re.sub(r'^https?://', '', url_part).split('/')[0]
+        return domain
+    return raw
+
+
 def vet_hackerone_program(handle, auth, results):
     headers = {"Authorization": f"Basic {auth}", "Accept": "application/json"}
     data, err = fetch_json(f"https://api.hackerone.com/v1/hackers/programs/{handle}", headers)
@@ -663,7 +678,7 @@ def vet_hackerone_program(handle, auth, results):
     for sa in scope_attrs:
         if sa.get("asset_type") not in ("URL", "WILDCARD"):
             continue
-        asset = (sa.get("asset_identifier") or "").lower()
+        asset = clean_asset_identifier(sa.get("asset_identifier") or "").lower()
         if not asset:
             continue
         if sa.get("eligible_for_submission"):
