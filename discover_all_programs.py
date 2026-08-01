@@ -274,7 +274,7 @@ def check_safe_harbor_two_layer(text, program_name):
             return "review", f"[Mistral call failed — needs manual review] {snippet[:80]}"
         if result:
             return True, f"[Mistral-confirmed safe harbor] {snippet[:80]}"
-        return "review", f"[Regex matched but Mistral did not confirm — needs manual review] {snippet[:80]}"
+        return False, f"[Mistral did not confirm safe harbor] {snippet[:80]}"
     if not text:
         return False, None
     any_review = False
