@@ -53,7 +53,7 @@ jobs:
           python3 checker/check_program_status.py
           touch excluded_domains.txt hackerone_scope.txt intigriti_scope.txt yeswehack_scope.txt bugcrowd_scope.txt
 
-      - name: Use pre-vetted scope from monthly validation (trust Cerebras+regex ban-detection, not this run's regen)
+      - name: Use pre-vetted scope from monthly validation (trust Mistral+regex ban-detection, not this run's regen)
         run: |
           for f in hackerone_scope.txt intigriti_scope.txt yeswehack_scope.txt bugcrowd_scope.txt; do
             if [ -s "checker/$f" ]; then

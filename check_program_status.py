@@ -1,7 +1,7 @@
 import os
 #!/usr/bin/env python3
 import csv, json, urllib.request, urllib.error, re, os, sys, base64, time
-from discover_all_programs import extract_ywh_domains, extract_ywh_out_of_scope_domains, check_automation_ban_two_layer, check_rate_limit_two_layer, check_safe_harbor_two_layer, check_id_verification_two_layer, CEREBRAS_API_KEY
+from discover_all_programs import extract_ywh_domains, extract_ywh_out_of_scope_domains, check_automation_ban_two_layer, check_rate_limit_two_layer, check_safe_harbor_two_layer, check_id_verification_two_layer, MISTRAL_API_KEY
 
 HOME = os.path.expanduser("~")
 MAPPING_PATH = os.environ.get("MAPPING_CSV_PATH") or os.path.join(HOME, "bug-bounty-hunter", "domain_program_map.csv")
@@ -16,7 +16,7 @@ def strip_html(text):
 
 def automation_ban_check(text, program_name):
     """Returns True (banned/excluded), False (confirmed ok), or 'review' mapped to excluded."""
-    if not CEREBRAS_API_KEY:
+    if not MISTRAL_API_KEY:
         return "no_key"
     result, reason = check_automation_ban_two_layer(text, program_name)
     return result

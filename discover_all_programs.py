@@ -24,7 +24,7 @@ import urllib.request
 import tldextract
 
 HOME = os.path.expanduser("~")
-CEREBRAS_API_KEY = os.environ.get("CEREBRAS_API_KEY")
+MISTRAL_API_KEY = os.environ.get("MISTRAL_API_KEY")
 OUTPUT_DIR = os.environ.get("OUTPUT_DIR") or os.path.join(HOME, "bug-bounty-hunter")
 MAPPING_PATH = os.environ.get("MAPPING_CSV_PATH") or os.path.join(HOME, "bug-bounty-hunter", "domain_program_map.csv")
 EXCLUDED_OUTPUT_PATH = os.environ.get("EXCLUDED_OUTPUT_PATH") or os.path.join(HOME, "bug-bounty-hunter", "excluded_domains.txt")
@@ -146,20 +146,20 @@ def check_safe_harbor(text):
     return False, None
 
 
-def cerebras_check_safe_harbor(text, program_name):
+def mistral_check_safe_harbor(text, program_name):
     if not text:
         return None
     cache_key = hashlib.sha256(("safeharbor:" + text[:8000]).encode()).hexdigest()
-    if cache_key in _CEREBRAS_CACHE:
-        cached = _CEREBRAS_CACHE[cache_key]
-        log_cerebras_call(program_name, text[:200], cached.get("has_safe_harbor"), cached["reason"] + " [CACHED]", error=None)
+    if cache_key in _MISTRAL_CACHE:
+        cached = _MISTRAL_CACHE[cache_key]
+        log_mistral_call(program_name, text[:200], cached.get("has_safe_harbor"), cached["reason"] + " [CACHED]", error=None)
         return cached.get("has_safe_harbor")
-    if not CEREBRAS_API_KEY:
+    if not MISTRAL_API_KEY:
         return None
-    global _CEREBRAS_QUOTA_EXHAUSTED_UNTIL, _CEREBRAS_CALLS_SINCE_SAVE
-    if time.time() < _CEREBRAS_QUOTA_EXHAUSTED_UNTIL:
+    global _MISTRAL_QUOTA_EXHAUSTED_UNTIL, _MISTRAL_CALLS_SINCE_SAVE
+    if time.time() < _MISTRAL_QUOTA_EXHAUSTED_UNTIL:
         return None
-    _cerebras_pace()
+    _mistral_pace()
     prompt = (
         "You are reviewing policy text from a bug bounty program. Answer "
         "ONLY with valid JSON, no other text, in this exact format: "
@@ -176,19 +176,18 @@ def cerebras_check_safe_harbor(text, program_name):
         f"Text:\n{text[:8000]}"
     )
     body = json.dumps({
-        "model": "gpt-oss-120b",
+        "model": "mistral-large-latest",
         "messages": [{"role": "user", "content": prompt}],
         "temperature": 0,
-        "reasoning_effort": "low",
         "max_tokens": 700,
     }).encode()
     req = urllib.request.Request(
-        CEREBRAS_URL,
+        MISTRAL_URL,
         data=body,
         headers={
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {CEREBRAS_API_KEY}",
-            "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) Python-urllib-client",
+            "Authorization": f"Bearer {MISTRAL_API_KEY}",
+            "User-Agent": "bug-bounty-hunter-vet/1.0",
         },
         method="POST",
     )
@@ -207,12 +206,12 @@ def cerebras_check_safe_harbor(text, program_name):
             has_sh = m.group(1).lower() == "true"
             rm = re.search(r'"reason"\s*:\s*"(.*?)"\s*}', text_resp, re.DOTALL)
             reason = rm.group(1) if rm else text_resp[:150]
-            log_cerebras_call(program_name, text[:200], has_sh, reason, error=None)
-            _CEREBRAS_CACHE[cache_key] = {"has_safe_harbor": has_sh, "reason": reason}
-            _CEREBRAS_CALLS_SINCE_SAVE += 1
-            if _CEREBRAS_CALLS_SINCE_SAVE >= 50:
-                save_cerebras_cache(_CEREBRAS_CACHE)
-                _CEREBRAS_CALLS_SINCE_SAVE = 0
+            log_mistral_call(program_name, text[:200], has_sh, reason, error=None)
+            _MISTRAL_CACHE[cache_key] = {"has_safe_harbor": has_sh, "reason": reason}
+            _MISTRAL_CALLS_SINCE_SAVE += 1
+            if _MISTRAL_CALLS_SINCE_SAVE >= 50:
+                save_mistral_cache(_MISTRAL_CACHE)
+                _MISTRAL_CALLS_SINCE_SAVE = 0
             return has_sh
         except urllib.error.HTTPError as e:
             last_err = e
@@ -223,7 +222,7 @@ def cerebras_check_safe_harbor(text, program_name):
                 except (TypeError, ValueError):
                     ra_val = None
                 if ra_val is not None and ra_val > 300:
-                    _CEREBRAS_QUOTA_EXHAUSTED_UNTIL = time.time() + ra_val
+                    _MISTRAL_QUOTA_EXHAUSTED_UNTIL = time.time() + ra_val
                     break
             if e.code in (503, 429) and attempt < 2:
                 time.sleep(5 * (attempt + 1))
@@ -235,7 +234,7 @@ def cerebras_check_safe_harbor(text, program_name):
                 time.sleep(5 * (attempt + 1))
                 continue
             break
-    log_cerebras_call(program_name, text[:200], None, None, error=str(last_err))
+    log_mistral_call(program_name, text[:200], None, None, error=str(last_err))
     return None
 
 
@@ -270,24 +269,24 @@ def _chunk_text(text, max_len=7500):
 def check_safe_harbor_two_layer(text, program_name):
     found, snippet = check_safe_harbor(text)
     if found:
-        result = cerebras_check_safe_harbor(snippet, program_name)
+        result = mistral_check_safe_harbor(snippet, program_name)
         if result is None:
-            return "review", f"[Cerebras call failed — needs manual review] {snippet[:80]}"
+            return "review", f"[Mistral call failed — needs manual review] {snippet[:80]}"
         if result:
-            return True, f"[Cerebras-confirmed safe harbor] {snippet[:80]}"
-        return "review", f"[Regex matched but Cerebras did not confirm — needs manual review] {snippet[:80]}"
+            return True, f"[Mistral-confirmed safe harbor] {snippet[:80]}"
+        return "review", f"[Regex matched but Mistral did not confirm — needs manual review] {snippet[:80]}"
     if not text:
         return False, None
     any_review = False
     for chunk in _chunk_text(text)[:MAX_FULLTEXT_FALLBACK_CHUNKS]:
-        result = cerebras_check_safe_harbor(chunk, program_name)
+        result = mistral_check_safe_harbor(chunk, program_name)
         if result is None:
             any_review = True
             continue
         if result:
-            return True, "[Cerebras-confirmed safe harbor, no regex match]"
+            return True, "[Mistral-confirmed safe harbor, no regex match]"
     if any_review:
-        return "review", "[Cerebras call failed on full-text check — needs manual review]"
+        return "review", "[Mistral call failed on full-text check — needs manual review]"
     return False, None
 
 
@@ -302,18 +301,18 @@ def check_id_verification_required(text):
         return True, cleaned
     return False, None
 
-def cerebras_check_id_verification(snippet, program_name):
+def mistral_check_id_verification(snippet, program_name):
     cache_key = hashlib.sha256(("idcheck:" + snippet).encode()).hexdigest()
-    if cache_key in _CEREBRAS_CACHE:
-        cached = _CEREBRAS_CACHE[cache_key]
-        log_cerebras_call(program_name, snippet, cached["is_ban"], cached["reason"] + " [CACHED]", error=None)
+    if cache_key in _MISTRAL_CACHE:
+        cached = _MISTRAL_CACHE[cache_key]
+        log_mistral_call(program_name, snippet, cached["is_ban"], cached["reason"] + " [CACHED]", error=None)
         return cached["is_ban"]
-    if not CEREBRAS_API_KEY:
+    if not MISTRAL_API_KEY:
         return None
-    global _CEREBRAS_QUOTA_EXHAUSTED_UNTIL
-    if time.time() < _CEREBRAS_QUOTA_EXHAUSTED_UNTIL:
+    global _MISTRAL_QUOTA_EXHAUSTED_UNTIL
+    if time.time() < _MISTRAL_QUOTA_EXHAUSTED_UNTIL:
         return None
-    _cerebras_pace()
+    _mistral_pace()
     prompt = (
         "You are reviewing policy text from a bug bounty program. Answer "
         "ONLY with valid JSON, no other text, in this exact format: "
@@ -329,19 +328,18 @@ def cerebras_check_id_verification(snippet, program_name):
         f"Text:\n{snippet}"
     )
     body = json.dumps({
-        "model": "gpt-oss-120b",
+        "model": "mistral-large-latest",
         "messages": [{"role": "user", "content": prompt}],
         "temperature": 0,
-        "reasoning_effort": "low",
         "max_tokens": 700,
     }).encode()
     req = urllib.request.Request(
-        CEREBRAS_URL,
+        MISTRAL_URL,
         data=body,
         headers={
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {CEREBRAS_API_KEY}",
-            "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) Python-urllib-client",
+            "Authorization": f"Bearer {MISTRAL_API_KEY}",
+            "User-Agent": "bug-bounty-hunter-vet/1.0",
         },
         method="POST",
     )
@@ -359,8 +357,8 @@ def cerebras_check_id_verification(snippet, program_name):
             is_ban = m.group(1).lower() == "true"
             rm = re.search(r'"reason"\s*:\s*"(.*?)"\s*}', text, re.DOTALL)
             reason = rm.group(1) if rm else text[:150]
-            log_cerebras_call(program_name, snippet, is_ban, reason, error=None)
-            _CEREBRAS_CACHE[cache_key] = {"is_ban": is_ban, "reason": reason}
+            log_mistral_call(program_name, snippet, is_ban, reason, error=None)
+            _MISTRAL_CACHE[cache_key] = {"is_ban": is_ban, "reason": reason}
             return is_ban
         except urllib.error.HTTPError as e:
             last_err = e
@@ -370,7 +368,7 @@ def cerebras_check_id_verification(snippet, program_name):
                 except Exception:
                     body = "<could not read body>"
                 retry_after = e.headers.get("Retry-After") if e.headers else None
-                with open(os.path.join(OUTPUT_DIR, "cerebras_429_debug.log"), "a") as df:
+                with open(os.path.join(OUTPUT_DIR, "mistral_429_debug.log"), "a") as df:
                     df.write(f"--- {program_name} ---\n")
                     df.write(f"retry_after: {retry_after}\n")
                     df.write(f"body: {body}\n\n")
@@ -379,7 +377,7 @@ def cerebras_check_id_verification(snippet, program_name):
                 except (TypeError, ValueError):
                     ra_val = None
                 if ra_val is not None and ra_val > 300:
-                    _CEREBRAS_QUOTA_EXHAUSTED_UNTIL = time.time() + ra_val
+                    _MISTRAL_QUOTA_EXHAUSTED_UNTIL = time.time() + ra_val
                     break
             if e.code in (503, 429) and attempt < 2:
                 wait = 5 * (attempt + 1)
@@ -399,30 +397,30 @@ def cerebras_check_id_verification(snippet, program_name):
                 time.sleep(5 * (attempt + 1))
                 continue
             break
-    log_cerebras_call(program_name, snippet, None, None, error=str(last_err))
+    log_mistral_call(program_name, snippet, None, None, error=str(last_err))
     return None
 
 def check_id_verification_two_layer(text, program_name):
     matched, snippet = check_id_verification_required(text)
     if matched:
-        result = cerebras_check_id_verification(snippet, program_name)
+        result = mistral_check_id_verification(snippet, program_name)
         if result is None:
-            return "review", f"[Cerebras call failed — needs manual review] {snippet[:80]}"
+            return "review", f"[Mistral call failed — needs manual review] {snippet[:80]}"
         if result:
-            return True, f"[Cerebras-confirmed ID requirement] {snippet[:80]}"
+            return True, f"[Mistral-confirmed ID requirement] {snippet[:80]}"
         return False, None
     if not text:
         return False, None
     any_review = False
     for chunk in _chunk_text(text)[:MAX_FULLTEXT_FALLBACK_CHUNKS]:
-        result = cerebras_check_id_verification(chunk, program_name)
+        result = mistral_check_id_verification(chunk, program_name)
         if result is None:
             any_review = True
             continue
         if result:
-            return True, "[Cerebras-confirmed ID requirement, no regex match]"
+            return True, "[Mistral-confirmed ID requirement, no regex match]"
     if any_review:
-        return "review", "[Cerebras call failed on full-text check — needs manual review]"
+        return "review", "[Mistral call failed on full-text check — needs manual review]"
     return False, None
 
 
@@ -443,20 +441,20 @@ def check_rate_limit(text):
     return value
 
 
-def cerebras_check_rate_limit(text, program_name):
+def mistral_check_rate_limit(text, program_name):
     if not text:
         return None
     cache_key = hashlib.sha256(("ratecheck:" + text[:8000]).encode()).hexdigest()
-    if cache_key in _CEREBRAS_CACHE:
-        cached = _CEREBRAS_CACHE[cache_key]
-        log_cerebras_call(program_name, text[:200], cached.get("is_ban"), cached["reason"] + " [CACHED]", error=None)
+    if cache_key in _MISTRAL_CACHE:
+        cached = _MISTRAL_CACHE[cache_key]
+        log_mistral_call(program_name, text[:200], cached.get("is_ban"), cached["reason"] + " [CACHED]", error=None)
         return cached.get("rate")
-    if not CEREBRAS_API_KEY:
+    if not MISTRAL_API_KEY:
         return "error"
-    global _CEREBRAS_QUOTA_EXHAUSTED_UNTIL
-    if time.time() < _CEREBRAS_QUOTA_EXHAUSTED_UNTIL:
+    global _MISTRAL_QUOTA_EXHAUSTED_UNTIL
+    if time.time() < _MISTRAL_QUOTA_EXHAUSTED_UNTIL:
         return "error"
-    _cerebras_pace()
+    _mistral_pace()
     prompt = (
         "You are reviewing policy text from a bug bounty program. Answer "
         "ONLY with valid JSON, no other text, in this exact format: "
@@ -470,19 +468,18 @@ def cerebras_check_rate_limit(text, program_name):
         f"Text:\n{text[:8000]}"
     )
     body = json.dumps({
-        "model": "gpt-oss-120b",
+        "model": "mistral-large-latest",
         "messages": [{"role": "user", "content": prompt}],
         "temperature": 0,
-        "reasoning_effort": "low",
         "max_tokens": 700,
     }).encode()
     req = urllib.request.Request(
-        CEREBRAS_URL,
+        MISTRAL_URL,
         data=body,
         headers={
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {CEREBRAS_API_KEY}",
-            "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) Python-urllib-client",
+            "Authorization": f"Bearer {MISTRAL_API_KEY}",
+            "User-Agent": "bug-bounty-hunter-vet/1.0",
         },
         method="POST",
     )
@@ -499,8 +496,8 @@ def cerebras_check_rate_limit(text, program_name):
             reasonm = re.search(r'"reason"\s*:\s*"(.*?)"\s*}', content, re.DOTALL)
             reason = reasonm.group(1) if reasonm else content[:150]
             if not rm or rm.group(1) == "null":
-                log_cerebras_call(program_name, text[:200], False, reason, error=None)
-                _CEREBRAS_CACHE[cache_key] = {"rate": None, "reason": reason}
+                log_mistral_call(program_name, text[:200], False, reason, error=None)
+                _MISTRAL_CACHE[cache_key] = {"rate": None, "reason": reason}
                 return None
             value = float(rm.group(1))
             unit = um.group(1).lower() if um else "second"
@@ -512,8 +509,8 @@ def cerebras_check_rate_limit(text, program_name):
                 rate = value / 86400
             else:
                 rate = value
-            log_cerebras_call(program_name, text[:200], True, reason, error=None)
-            _CEREBRAS_CACHE[cache_key] = {"rate": rate, "reason": reason}
+            log_mistral_call(program_name, text[:200], True, reason, error=None)
+            _MISTRAL_CACHE[cache_key] = {"rate": rate, "reason": reason}
             return rate
         except urllib.error.HTTPError as e:
             last_err = e
@@ -523,7 +520,7 @@ def cerebras_check_rate_limit(text, program_name):
                 except Exception:
                     body = "<could not read body>"
                 retry_after = e.headers.get("Retry-After") if e.headers else None
-                with open(os.path.join(OUTPUT_DIR, "cerebras_429_debug.log"), "a") as df:
+                with open(os.path.join(OUTPUT_DIR, "mistral_429_debug.log"), "a") as df:
                     df.write(f"--- {program_name} ---\n")
                     df.write(f"retry_after: {retry_after}\n")
                     df.write(f"body: {body}\n\n")
@@ -532,7 +529,7 @@ def cerebras_check_rate_limit(text, program_name):
                 except (TypeError, ValueError):
                     ra_val = None
                 if ra_val is not None and ra_val > 300:
-                    _CEREBRAS_QUOTA_EXHAUSTED_UNTIL = time.time() + ra_val
+                    _MISTRAL_QUOTA_EXHAUSTED_UNTIL = time.time() + ra_val
                     break
             if e.code in (503, 429) and attempt < 2:
                 wait = 5 * (attempt + 1)
@@ -552,7 +549,7 @@ def cerebras_check_rate_limit(text, program_name):
                 time.sleep(5 * (attempt + 1))
                 continue
             break
-    log_cerebras_call(program_name, text[:200], None, None, error=str(last_err))
+    log_mistral_call(program_name, text[:200], None, None, error=str(last_err))
     return "error"
 
 
@@ -565,7 +562,7 @@ def check_rate_limit_two_layer(text, program_name):
     lowest_rate = None
     any_error = False
     for chunk in _chunk_text(text)[:MAX_FULLTEXT_FALLBACK_CHUNKS]:
-        result = cerebras_check_rate_limit(chunk, program_name)
+        result = mistral_check_rate_limit(chunk, program_name)
         if result == "error":
             any_error = True
             continue
@@ -693,11 +690,11 @@ def vet_hackerone_program(handle, auth, results):
     if id_req is True:
         results["excluded"].append((handle, f"requires ID verification: {id_snippet[:80]}", domain_count))
         return
-    # id_req == "review" (Cerebras couldn't answer) or False -> proceed;
+    # id_req == "review" (Mistral couldn't answer) or False -> proceed;
     # per policy, unresolved ID-verification status alone should not drop a program.
     rate, rate_status = check_rate_limit_two_layer(policy, handle)
     if rate_status == "review":
-        results["skipped"].append((handle, "Cerebras call failed on rate-limit check", domain_count))
+        results["skipped"].append((handle, "Mistral call failed on rate-limit check", domain_count))
         return
     if rate is not None and rate < MIN_RATE_LIMIT:
         results["excluded"].append((handle, f"rate limit below {MIN_RATE_LIMIT}/s (found: {rate})", domain_count))
@@ -792,11 +789,11 @@ def vet_intigriti_program(program, token, results):
         # automatedTooling is documented as a free-text testing requirement
         # ("we advise to specify a rate limit"), not a guaranteed number -
         # it may be a string, a bool flag, or absent. Fall back to the same
-        # regex+Cerebras extraction the other 3 platforms use, against the
+        # regex+Mistral extraction the other 3 platforms use, against the
         # full ROE text, instead of trusting/crashing on the raw field.
         rate, rate_status = check_rate_limit_two_layer(roe_text, name)
     if rate_status == "review":
-        results["skipped"].append((pid, f"{name}: Cerebras call failed on rate-limit check", domain_count))
+        results["skipped"].append((pid, f"{name}: Mistral call failed on rate-limit check", domain_count))
         return
     if rate is not None and rate < MIN_RATE_LIMIT:
         results["excluded"].append((pid, f"{name}: rate limit below {MIN_RATE_LIMIT}/s (found: {rate})", domain_count))
@@ -952,7 +949,7 @@ def vet_yeswehack_program(program, results):
     # id_req == "review" or False -> proceed; unresolved ID status alone should not drop a program.
     rate, rate_status = check_rate_limit_two_layer(rules, slug)
     if rate_status == "review":
-        results["skipped"].append((slug, "Cerebras call failed on rate-limit check", domain_count))
+        results["skipped"].append((slug, "Mistral call failed on rate-limit check", domain_count))
         return
     if rate is not None and rate < MIN_RATE_LIMIT:
         results["excluded"].append((slug, f"rate limit below {MIN_RATE_LIMIT}/s (found: {rate})", domain_count))
@@ -1093,7 +1090,7 @@ def vet_bugcrowd_program(program, results):
     # id_req == "review" or False -> proceed; unresolved ID status alone should not drop a program.
     rate, rate_status = check_rate_limit_two_layer(text, slug)
     if rate_status == "review":
-        results["skipped"].append((slug, "Cerebras call failed on rate-limit check", domain_count))
+        results["skipped"].append((slug, "Mistral call failed on rate-limit check", domain_count))
         return
     if rate is not None and rate < MIN_RATE_LIMIT:
         results["excluded"].append((slug, f"rate limit below {MIN_RATE_LIMIT}/s (found: {rate})", domain_count))
@@ -1470,22 +1467,22 @@ def validate_final_output():
 
 def run_vet_pass(programs, vet_fn, results, key_fn, platform_name, max_wait=3900):
     """Run vet_fn over all programs, then retry once any program that was
-    skipped specifically due to a Cerebras API failure — since that's
+    skipped specifically due to a Mistral API failure — since that's
     usually quota exhaustion, wait for the actual quota reset time
-    (_CEREBRAS_QUOTA_EXHAUSTED_UNTIL) rather than a fixed short cooldown,
+    (_MISTRAL_QUOTA_EXHAUSTED_UNTIL) rather than a fixed short cooldown,
     capped at max_wait seconds so a single bad quota reading can't hang
     the job indefinitely."""
     for p in programs:
         vet_fn(p)
     retry = [p for p in programs
-             if any(key_fn(p) == s[0] and "Cerebras call failed" in s[1] for s in results["skipped"])]
+             if any(key_fn(p) == s[0] and "Mistral call failed" in s[1] for s in results["skipped"])]
     if retry:
-        remaining = _CEREBRAS_QUOTA_EXHAUSTED_UNTIL - time.time()
+        remaining = _MISTRAL_QUOTA_EXHAUSTED_UNTIL - time.time()
         if remaining > max_wait:
-            log(f"[{platform_name}] {len(retry)} program(s) skipped — Cerebras quota resets in {int(remaining)}s, not retrying this run")
+            log(f"[{platform_name}] {len(retry)} program(s) skipped — Mistral quota resets in {int(remaining)}s, not retrying this run")
             return
         wait = remaining if remaining > 0 else 90  # no known quota deadline -> short retry is fine
-        log(f"[{platform_name}] {len(retry)} program(s) skipped due to Cerebras failure — retrying once after {int(wait)}s cooldown")
+        log(f"[{platform_name}] {len(retry)} program(s) skipped due to Mistral failure — retrying once after {int(wait)}s cooldown")
         time.sleep(wait)
         for p in retry:
             results["skipped"] = [s for s in results["skipped"] if s[0] != key_fn(p)]
@@ -1568,8 +1565,8 @@ def main():
     r = rebuild_domains_txt(scope_paths)
     log(f"[domains.txt] rebuild result: {r}")
 
-    save_cerebras_cache(_CEREBRAS_CACHE)
-    log(f"[CEREBRAS CACHE] saved {len(_CEREBRAS_CACHE)} cached decisions to {CEREBRAS_CACHE_PATH}")
+    save_mistral_cache(_MISTRAL_CACHE)
+    log(f"[MISTRAL CACHE] saved {len(_MISTRAL_CACHE)} cached decisions to {MISTRAL_CACHE_PATH}")
 
     log("\n=== All platforms complete ===")
 
@@ -1583,52 +1580,52 @@ def main():
     log("[VALIDATION] domains.txt and domain_program_map.csv look sane")
 
 # ==========================================================================
-# Cerebras second-layer automation-ban detection
+# Mistral second-layer automation-ban detection
 # ==========================================================================
 
-CEREBRAS_URL = "https://api.cerebras.ai/v1/chat/completions"
-CEREBRAS_LOG_PATH = os.path.join(OUTPUT_DIR, "cerebras_review_log.txt")
-CEREBRAS_CACHE_PATH = os.path.join(OUTPUT_DIR, "cerebras_ban_cache.json")
+MISTRAL_URL = "https://api.mistral.ai/v1/chat/completions"
+MISTRAL_LOG_PATH = os.path.join(OUTPUT_DIR, "mistral_review_log.txt")
+MISTRAL_CACHE_PATH = os.path.join(OUTPUT_DIR, "mistral_ban_cache.json")
 
-def load_cerebras_cache():
-    if os.path.exists(CEREBRAS_CACHE_PATH):
+def load_mistral_cache():
+    if os.path.exists(MISTRAL_CACHE_PATH):
         try:
-            with open(CEREBRAS_CACHE_PATH) as f:
+            with open(MISTRAL_CACHE_PATH) as f:
                 return json.load(f)
         except (json.JSONDecodeError, OSError):
             return {}
     return {}
 
-def save_cerebras_cache(cache):
-    tmp_path = f"{CEREBRAS_CACHE_PATH}.tmp"
+def save_mistral_cache(cache):
+    tmp_path = f"{MISTRAL_CACHE_PATH}.tmp"
     with open(tmp_path, "w") as f:
         json.dump(cache, f, indent=2, sort_keys=True)
-    os.replace(tmp_path, CEREBRAS_CACHE_PATH)
+    os.replace(tmp_path, MISTRAL_CACHE_PATH)
 
-_CEREBRAS_CACHE = load_cerebras_cache()
-_CEREBRAS_QUOTA_EXHAUSTED_UNTIL = 0
-_CEREBRAS_CALLS_SINCE_SAVE = 0
-_CEREBRAS_LAST_CALL_TS = [0.0]
-CEREBRAS_MIN_INTERVAL_S = 12.5  # stay under 5 req/min free-tier cap with margin
+_MISTRAL_CACHE = load_mistral_cache()
+_MISTRAL_QUOTA_EXHAUSTED_UNTIL = 0
+_MISTRAL_CALLS_SINCE_SAVE = 0
+_MISTRAL_LAST_CALL_TS = [0.0]
+MISTRAL_MIN_INTERVAL_S = 16  # stay under 4 req/min free-tier cap with margin
 
-def _cerebras_pace():
-    elapsed = time.time() - _CEREBRAS_LAST_CALL_TS[0]
-    if elapsed < CEREBRAS_MIN_INTERVAL_S:
-        time.sleep(CEREBRAS_MIN_INTERVAL_S - elapsed)
-    _CEREBRAS_LAST_CALL_TS[0] = time.time()
+def _mistral_pace():
+    elapsed = time.time() - _MISTRAL_LAST_CALL_TS[0]
+    if elapsed < MISTRAL_MIN_INTERVAL_S:
+        time.sleep(MISTRAL_MIN_INTERVAL_S - elapsed)
+    _MISTRAL_LAST_CALL_TS[0] = time.time()
 
-def cerebras_check_ban(snippet, program_name):
+def mistral_check_ban(snippet, program_name):
     cache_key = hashlib.sha256(("autoban:v2:" + snippet).encode()).hexdigest()
-    if cache_key in _CEREBRAS_CACHE:
-        cached = _CEREBRAS_CACHE[cache_key]
-        log_cerebras_call(program_name, snippet, cached["is_ban"], cached["reason"] + " [CACHED]", error=None)
+    if cache_key in _MISTRAL_CACHE:
+        cached = _MISTRAL_CACHE[cache_key]
+        log_mistral_call(program_name, snippet, cached["is_ban"], cached["reason"] + " [CACHED]", error=None)
         return cached["is_ban"]
-    if not CEREBRAS_API_KEY:
+    if not MISTRAL_API_KEY:
         return None
-    global _CEREBRAS_QUOTA_EXHAUSTED_UNTIL, _CEREBRAS_CALLS_SINCE_SAVE
-    if time.time() < _CEREBRAS_QUOTA_EXHAUSTED_UNTIL:
+    global _MISTRAL_QUOTA_EXHAUSTED_UNTIL, _MISTRAL_CALLS_SINCE_SAVE
+    if time.time() < _MISTRAL_QUOTA_EXHAUSTED_UNTIL:
         return None
-    _cerebras_pace()
+    _mistral_pace()
     prompt = (
         "You are reviewing a single snippet from a bug bounty program's "
         "policy text. Answer ONLY with valid JSON, no other text, in this "
@@ -1678,19 +1675,18 @@ def cerebras_check_ban(snippet, program_name):
         f"Snippet:\n{snippet}"
     )
     body = json.dumps({
-        "model": "gpt-oss-120b",
+        "model": "mistral-large-latest",
         "messages": [{"role": "user", "content": prompt}],
         "temperature": 0,
-        "reasoning_effort": "low",
         "max_tokens": 1200,
     }).encode()
     req = urllib.request.Request(
-        CEREBRAS_URL,
+        MISTRAL_URL,
         data=body,
         headers={
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {CEREBRAS_API_KEY}",
-            "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) Python-urllib-client",
+            "Authorization": f"Bearer {MISTRAL_API_KEY}",
+            "User-Agent": "bug-bounty-hunter-vet/1.0",
         },
         method="POST",
     )
@@ -1701,7 +1697,7 @@ def cerebras_check_ban(snippet, program_name):
                 data = json.loads(resp.read().decode())
             finish_reason = data["choices"][0].get("finish_reason")
             if finish_reason and finish_reason != "stop":
-                with open(os.path.join(OUTPUT_DIR, "cerebras_parse_fail_debug.log"), "a") as pf:
+                with open(os.path.join(OUTPUT_DIR, "mistral_parse_fail_debug.log"), "a") as pf:
                     pf.write(f"--- {program_name} ---\n")
                     pf.write(f"finish_reason: {finish_reason}\n")
                     pf.write(f"RAW: {json.dumps(data)}\n\n")
@@ -1711,19 +1707,19 @@ def cerebras_check_ban(snippet, program_name):
                 text = text[4:].strip()
             m = re.search(r'"is_ban"\s*:\s*(true|false)', text, re.IGNORECASE)
             if not m:
-                with open(os.path.join(OUTPUT_DIR, "cerebras_parse_fail_debug.log"), "a") as pf:
+                with open(os.path.join(OUTPUT_DIR, "mistral_parse_fail_debug.log"), "a") as pf:
                     pf.write(f"--- {program_name} ---\n")
                     pf.write(f"FULL RESPONSE: {text!r}\n\n")
                 raise ValueError(f"could not find is_ban in response: {text[:150]}")
             is_ban = m.group(1).lower() == "true"
             rm = re.search(r'"reason"\s*:\s*"(.*?)"\s*}', text, re.DOTALL)
             reason = rm.group(1) if rm else text[:150]
-            log_cerebras_call(program_name, snippet, is_ban, reason, error=None)
-            _CEREBRAS_CACHE[cache_key] = {"is_ban": is_ban, "reason": reason}
-            _CEREBRAS_CALLS_SINCE_SAVE += 1
-            if _CEREBRAS_CALLS_SINCE_SAVE >= 50:
-                save_cerebras_cache(_CEREBRAS_CACHE)
-                _CEREBRAS_CALLS_SINCE_SAVE = 0
+            log_mistral_call(program_name, snippet, is_ban, reason, error=None)
+            _MISTRAL_CACHE[cache_key] = {"is_ban": is_ban, "reason": reason}
+            _MISTRAL_CALLS_SINCE_SAVE += 1
+            if _MISTRAL_CALLS_SINCE_SAVE >= 50:
+                save_mistral_cache(_MISTRAL_CACHE)
+                _MISTRAL_CALLS_SINCE_SAVE = 0
             return is_ban
         except urllib.error.HTTPError as e:
             last_err = e
@@ -1733,7 +1729,7 @@ def cerebras_check_ban(snippet, program_name):
                 except Exception:
                     body = "<could not read body>"
                 retry_after = e.headers.get("Retry-After") if e.headers else None
-                with open(os.path.join(OUTPUT_DIR, "cerebras_429_debug.log"), "a") as df:
+                with open(os.path.join(OUTPUT_DIR, "mistral_429_debug.log"), "a") as df:
                     df.write(f"--- {program_name} ---\n")
                     df.write(f"retry_after: {retry_after}\n")
                     df.write(f"body: {body}\n\n")
@@ -1742,7 +1738,7 @@ def cerebras_check_ban(snippet, program_name):
                 except (TypeError, ValueError):
                     ra_val = None
                 if ra_val is not None and ra_val > 300:
-                    _CEREBRAS_QUOTA_EXHAUSTED_UNTIL = time.time() + ra_val
+                    _MISTRAL_QUOTA_EXHAUSTED_UNTIL = time.time() + ra_val
                     break
             if e.code in (503, 429) and attempt < 2:
                 wait = 5 * (attempt + 1)
@@ -1762,10 +1758,10 @@ def cerebras_check_ban(snippet, program_name):
                 time.sleep(5 * (attempt + 1))
                 continue
             break
-    log_cerebras_call(program_name, snippet, None, None, error=str(last_err))
+    log_mistral_call(program_name, snippet, None, None, error=str(last_err))
     return None
-def log_cerebras_call(program_name, snippet, is_ban, reason, error):
-    with open(CEREBRAS_LOG_PATH, "a") as f:
+def log_mistral_call(program_name, snippet, is_ban, reason, error):
+    with open(MISTRAL_LOG_PATH, "a") as f:
         f.write(f"--- {program_name} ---\n")
         f.write(f"snippet: {snippet[:200]!r}\n")
         if error:
@@ -1778,27 +1774,27 @@ def log_cerebras_call(program_name, snippet, is_ban, reason, error):
 def check_automation_ban_two_layer(text, program_name):
     banned, snippet = check_automation_ban(text)
     if banned:
-        result = cerebras_check_ban(snippet, program_name)
+        result = mistral_check_ban(snippet, program_name)
         if result is None:
-            return "review", f"[Cerebras call failed — needs manual review] {snippet[:80]}"
+            return "review", f"[Mistral call failed — needs manual review] {snippet[:80]}"
         if result:
-            return True, f"[Cerebras-confirmed ban] {snippet[:80]}"
+            return True, f"[Mistral-confirmed ban] {snippet[:80]}"
         return False, None
     if not text:
         return False, None
-    # Regex found no explicit ban language — send full policy to Cerebras
+    # Regex found no explicit ban language — send full policy to Mistral
     # for a real read instead of guessing off loose keywords, chunked so a
     # ban clause past the old 8000-char cutoff can't be missed.
     any_review = False
     for chunk in _chunk_text(text)[:MAX_FULLTEXT_FALLBACK_CHUNKS]:
-        result = cerebras_check_ban(chunk, program_name)
+        result = mistral_check_ban(chunk, program_name)
         if result is None:
             any_review = True
             continue
         if result:
-            return True, "[Cerebras-confirmed ban, no regex match]"
+            return True, "[Mistral-confirmed ban, no regex match]"
     if any_review:
-        return "review", "[Cerebras call failed on full-text check — needs manual review]"
+        return "review", "[Mistral call failed on full-text check — needs manual review]"
     return False, None
 
 if __name__ == "__main__":

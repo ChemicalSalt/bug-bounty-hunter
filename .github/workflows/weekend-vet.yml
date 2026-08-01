@@ -1,7 +1,7 @@
 name: Weekend Vet
 # ─────────────────────────────────────────────────────────────────────────────
 # SCHEDULE: every Saturday, 00:00 IST (Friday 18:30 UTC)
-# Runs discover_all_programs.py — full discovery + ban-detection (regex + Cerebras)
+# Runs discover_all_programs.py — full discovery + ban-detection (regex + Mistral)
 # across HackerOne, Intigriti, Bugcrowd, YesWeHack. Updates per-platform scope
 # files and domain_program_map.csv, then commits results to main.
 #
@@ -29,7 +29,7 @@ jobs:
     env:
       HACKERONE_TOKEN: ${{ secrets.HACKERONE_TOKEN }}
       INTIGRITI_TOKEN: ${{ secrets.INTIGRITI_TOKEN }}
-      CEREBRAS_API_KEY: ${{ secrets.CEREBRAS_API_KEY }}
+      MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
       VALIDATE_MAX_EXCLUDED_RATE_PCT: "99.5"
       OUTPUT_DIR: ${{ github.workspace }}
       MAPPING_CSV_PATH: ${{ github.workspace }}/domain_program_map.csv
@@ -72,7 +72,7 @@ jobs:
             hackerone_scope.txt intigriti_scope.txt yeswehack_scope.txt bugcrowd_scope.txt \
             hackerone_scope_diff.log intigriti_scope_diff.log yeswehack_scope_diff.log bugcrowd_scope_diff.log \
             excluded_domains.txt \
-            cerebras_ban_cache.json \
+            mistral_ban_cache.json \
             discovery_stats.csv \
             hackerone_excluded_full.txt intigriti_excluded_full.txt yeswehack_excluded_full.txt bugcrowd_excluded_full.txt \
             hackerone_skipped_full.txt intigriti_skipped_full.txt yeswehack_skipped_full.txt bugcrowd_skipped_full.txt \
@@ -103,7 +103,7 @@ jobs:
         with:
           name: weekend-vet-logs
           path: |
-            cerebras_review_log.txt
-            cerebras_429_debug.log
-            cerebras_parse_fail_debug.log
+            mistral_review_log.txt
+            mistral_429_debug.log
+            mistral_parse_fail_debug.log
           retention-days: 30
