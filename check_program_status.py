@@ -300,13 +300,13 @@ def main():
                     ban_ok = ban_result[0] is False
                     rate_ok = rate_result is not None and rate_result >= FLAT_RATE_LIMIT
                     sh_ok = sh_result[0] is True
-                    id_ok = id_result[0] is False
+                    id_ok = id_result[0] is not True
                     eligible = has_scope and is_public and not is_demo and not is_vdp and ban_ok and rate_ok and sh_ok and id_ok
                     print(f"    [SCOPE] {len(ywh_domains)} in-scope | public={is_public} demo={is_demo} vdp={is_vdp} | ban={ban_result[0]} | rate={rate_result} | safe_harbor={sh_result[0]} | id_verification={id_result[0]} | eligible={eligible}")
                     if id_result[0] is True:
                         print(f"    [EXCLUDED] ID verification requirement detected - {id_result[1]}")
                     elif id_result[0] == "review":
-                        print(f"    [EXCLUDED] ID verification check inconclusive - {id_result[1]}")
+                        print(f"    [KEPT-IF-ELSE-OK] ID verification unclear, no answer - not excluding on this alone - {id_result[1]}")
                     if not eligible:
                         excluded_domains.extend(domains)
                     else:
