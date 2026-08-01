@@ -361,7 +361,7 @@ jobs:
           name: batch-findings-combined-${{ matrix.batch }}
           path: results.txt
           retention-days: 1
-finalize_combined:
+  finalize_combined:
     needs: [prepare, weekend_combined]
     if: always()
     runs-on: ${{ github.event.inputs.runner == 'github' && 'ubuntu-latest' || fromJson('["self-hosted","linux","x64"]') }}
