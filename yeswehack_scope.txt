@@ -140,7 +140,6 @@ IN:www.onsexprime.fr
 IN:www.saturn.de
 IN:www.tabac-info-service.fr
 IN:www.vivre-avec-la-chaleur.fr
-OUT:fraga.atg.se
 OUT:hittabutik.atg.se
 OUT:kundo.atg.se
 OUT:r121.news.atg.se
