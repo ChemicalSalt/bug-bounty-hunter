@@ -45,7 +45,7 @@ jobs:
       - name: Check program open/blocked status (lightweight, no scope re-vet)
         run: |
           export MAPPING_CSV_PATH="checker/domain_program_map.csv"
-          export EXCLUDE_OUTPUT_PATH="excluded_domains.txt"
+          export EXCLUDED_OUTPUT_PATH="excluded_domains.txt"
           python3 checker/check_program_open.py
           touch excluded_domains.txt hackerone_scope.txt intigriti_scope.txt yeswehack_scope.txt bugcrowd_scope.txt
 
