@@ -69,10 +69,6 @@ jobs:
           export INTIGRITI_TOKEN="${{ secrets.INTIGRITI_TOKEN }}"
           export MAPPING_CSV_PATH="checker/domain_program_map.csv"
           export EXCLUDED_OUTPUT_PATH="excluded_domains.txt"
-          export HACKERONE_SCOPE_OUTPUT_PATH="hackerone_scope.txt"
-          export INTIGRITI_SCOPE_OUTPUT_PATH="intigriti_scope.txt"
-          export YESWEHACK_SCOPE_OUTPUT_PATH="yeswehack_scope.txt"
-          export BUGCROWD_SCOPE_OUTPUT_PATH="bugcrowd_scope.txt"
           pip install tldextract --break-system-packages
           python3 checker/check_program_open.py
 
