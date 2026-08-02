@@ -499,6 +499,7 @@ IN:myservices-api.stage.vismaonline.com
 IN:myservices.stage.vismaonline.com
 IN:newsletter-feedback.iciparisxl.nl
 IN:newsletter.iciparisxl.nl
+IN:newsos.com
 IN:ninja.kiwi
 IN:ninjakiwi.com
 IN:notula-accpt.portofantwerpbruges.com
