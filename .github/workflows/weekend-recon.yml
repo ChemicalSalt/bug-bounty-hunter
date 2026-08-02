@@ -650,6 +650,9 @@ jobs:
         run: |
           cp main-branch/domain_program_map.csv domain_program_map.csv 2>/dev/null || touch domain_program_map.csv
           cp main-branch/filter_scope.py filter_scope.py
+          for f in hackerone_scope.txt intigriti_scope.txt yeswehack_scope.txt bugcrowd_scope.txt; do
+            cp "main-branch/$f" "$f" 2>/dev/null || true
+          done
           python3 filter_scope.py
 
       - name: Commit final results
