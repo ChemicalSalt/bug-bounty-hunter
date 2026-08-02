@@ -116,7 +116,7 @@ antom.com
 apex-football.com
 apexnews.com
 apexscores.io
-api-exoscale.com
+apigee.net
 apple.com
 aqtooling.com
 aquiris.com.br
@@ -141,6 +141,7 @@ assurancewireless.com
 astrogaming.com
 atairbnb.com
 atg.se
+atjunction.com
 atlassian.com
 atlassian.net
 atlastunnel.com
@@ -315,6 +316,8 @@ chmfin.com
 circle.com
 circolocorecords.com
 citrixworkspacesapi.net
+citycentredeira.com
+citycentremalls.com
 citymapper.com
 claritymoney.com
 claude.ai
@@ -635,6 +638,7 @@ getmoneytree.com
 getorigen.com
 getsling.com
 getsurenow.com
+ghafwoods.com
 github.com
 github.io
 github.net
@@ -904,12 +908,16 @@ luno.com.ng
 luxuryretreats.com
 m-pesa.africa
 m-pesa.com
+maf.ae
+mafcms.com
 mafshoppingmalls.com
 magento.com
 magic.link
 magicplanetmena.com
 magwien.gv.at
 mailpoet.com
+majidalfuttaim.com
+majidalfuttaimproperties.com
 malloftheemirates.com
 malwarebytes.com
 mangerbouger.fr
@@ -1056,6 +1064,7 @@ muscache.com
 musta.ch
 mwb-threatintel.com
 mwbsys.com
+mycitycentrealbarsha.com
 myfitnesspal.com
 myharmony.com
 myhomebook.de
@@ -1234,6 +1243,7 @@ ppbdev.com
 preempt.com
 preemptsecurity.com
 prelert.com
+premogiftcards.com
 pressable.com
 priceless.com
 priceline.com
@@ -1557,6 +1567,7 @@ tiktokcdn.com
 tiktokpublishers.com
 tiktokshop.com
 tiktokv.com
+tilalalghaf.com
 tinder.com
 tinderops.net
 tinderwebstaging.com
@@ -1787,7 +1798,6 @@ worldfirst.com
 wotif.com
 wowjobs.ca
 wpscan.com
-www.amazon
 wyze.com
 wyzecam.com
 x.ai
