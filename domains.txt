@@ -229,6 +229,7 @@ blablacardaily.com
 blablalines.com
 blendlabs.com
 blinkforhome.com
+blinkit.com
 blis.com
 blismedia.com
 blockchain.com
@@ -249,6 +250,10 @@ booth.pm
 boozt.com
 booztlet.com
 boredapeyachtclub.com
+braintree-api.com
+braintree.tools
+braintreegateway.com
+braintreepayments.com
 breadcrumb.com
 bredbandsbolaget.se
 bridge.xyz
@@ -303,8 +308,10 @@ certos.com
 chain.link
 chatdate.app
 chatspot.ai
+cheapflights.com
 cheaptickets.com
 cheaptickets.nl
+checkfelix.com
 chiatest.net
 chime.com
 chimebank.com
@@ -419,6 +426,7 @@ digitaloceanpartners.com
 digitaloceanstatus.com
 digitaloceantest.com
 discourse.org
+district.in
 dns.eu
 do-ai.run
 do.co
@@ -484,6 +492,7 @@ eazybi.com
 ebookers.com
 ebookers.fi
 ecwid.com
+edition.in
 editionhotels.com
 editorial.one
 eero.com
@@ -534,6 +543,7 @@ epicgames.net
 episerver.net
 estccdn.com
 estratex.com
+eternal.com
 etherscan.io
 etoro.com
 etoropartners.com
@@ -575,6 +585,7 @@ fetlife.com
 fetlifemail.com
 fewo-direkt.de
 fga.dev
+figma.com
 filezilla-project.org
 financialforce.com
 fing.com
@@ -680,6 +691,8 @@ gravatar.com
 grindr.com
 grindr.io
 grindr.mobi
+grofer.io
+grofers.com
 grok.com
 grokipedia.com
 gs.com
@@ -689,6 +702,12 @@ gspublishing.com
 gsselect.com
 gx.games
 gx.me
+hacker101.com
+hackerone-ext-content.com
+hackerone-user-content.com
+hackerone.com
+hackerone.live
+hackerone.net
 hacktoberfest.com
 harmonixmusic.com
 harmonyremote.com
@@ -716,6 +735,7 @@ hostgator.com
 hostgator.com.br
 hostinger.com
 hotels.com
+hotelscombined.com
 hoteltonight-test.com
 hoteltonight.com
 hotornot.com
@@ -733,6 +753,8 @@ humio.com
 hungrygowhere.com
 hybrid-analysis.com
 hypermint.com
+hyperpure.com
+hyperwallet.com
 hypr.com
 hytale.com
 hytale.dev
@@ -762,6 +784,7 @@ indriver.io
 indriverapp.com
 infiniteathlete.ai
 inpli.se
+insider.in
 insight.io
 insightly.com
 insomnia.rest
@@ -797,6 +820,8 @@ jwt.io
 k8s.io
 kaleido.ai
 kartaview.org
+kayak.ai
+kayak.com
 keeper.io
 keepersecurity.com
 khealth-test.com
@@ -869,6 +894,7 @@ linepluscorp.com
 link.co
 linkedin.com
 linkpop.com
+loanbuilder.com
 localizestaging.com
 logi.com
 logicool.co.jp
@@ -1041,6 +1067,7 @@ mobile.monash
 modefestival.com
 moderntreasury.com
 moengage.com
+momondo.com
 monash.edu
 monashcollege.edu.au
 monashprofessional.edu.au
@@ -1051,6 +1078,7 @@ moneytree.jp
 mongodb.com
 moonpay.com
 moonpaycloud.com
+moonx-dev.com
 mortgagechoice.com.au
 movilepay.com
 movilepay.com.br
@@ -1060,6 +1088,7 @@ mpago.la
 mpago.li
 mrjet.se
 msgsvc.io
+mundi.com.br
 muscache.com
 musta.ch
 mwb-threatintel.com
@@ -1199,8 +1228,15 @@ parse.ly
 partycasino.com
 partypoker.com
 pastela.app
+paybox.sh
+paydiant.com
+paylution.com
 payoneer.com
 payoneer.com.cn
+paypal.com
+paypal.me
+paypalcorp.com
+paypalobjects.com
 payzippy.com
 peoplecert.org
 petbook-magazine.com
@@ -1259,7 +1295,9 @@ prowly.com
 psychobunny.me
 psynet.gg
 psyonix.com
+pullrequest.com
 pulsepoint.com
+py.pl
 pyszne.pl
 qualified-dev.com
 qualified.com
@@ -1362,6 +1400,7 @@ romwe.com
 row.pro
 rtbscale.com
 rubygems.org
+runnr.in
 runpanther.com
 runpanther.io
 ryadom.kz
@@ -1516,7 +1555,10 @@ superhuman.com
 superpal.com
 superpal.io
 sustentabilidadmercadolibre.com
+swiftcapital.com
+swiftfinancial.com
 swiftype.com
+swoodoo.com
 syfe.com
 t-mobile.com
 t.co
@@ -1559,6 +1601,7 @@ threatdown.com
 threatdownstage.com
 thueringer-foerderportal.eu
 thuisbezorgd.nl
+ticketnew.com
 tidal.com
 tidalhi.fi
 tidalhifi.com
@@ -1571,6 +1614,7 @@ tilalalghaf.com
 tinder.com
 tinderops.net
 tinderwebstaging.com
+tktnew.com
 tmall.com
 toast.org
 toasttab.com
@@ -1624,6 +1668,7 @@ uber.com
 ubnt.com
 ucverse.com
 ud.wtf
+udemy.com
 udimg.com
 uesmartradio.com
 ui.com
@@ -1685,6 +1730,7 @@ varonis.io
 varonis.net
 vayama.com
 vendhq.com
+venmo.com
 venturatvos.com
 verisign.com
 viator.com
@@ -1749,6 +1795,7 @@ watsons.com.tw
 watsons.vn
 watsonsbeautystudio.com
 wavecell.com
+wearehackerone.com
 weareone.world
 web3auth.io
 webauthn.me
@@ -1782,6 +1829,7 @@ withings.net
 withspotify.com
 wlo.link
 wmaudience.com
+wolt.com
 wonderboxapi.com
 wonderboxdev.com
 wordcamp.org
@@ -1818,6 +1866,7 @@ xiaomiwear.com
 xiaomiyoupin.com
 xnxx.com
 xnxx.gold
+xoom.com
 xtrachef.com
 xunkid.com
 xunkids.com
@@ -1837,11 +1886,14 @@ yourdelivery.de
 yoyogames.com
 yuga.com
 yugalabs.io
+zdev.net
 zelle.com
 zellepay.com
 zendesk.com
 zerobounce.net
 zmifi.com
+zomans.com
+zomato.com
 zoop.com.br
 zoop.ws
 zooplus.co.uk
