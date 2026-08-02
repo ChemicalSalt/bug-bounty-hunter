@@ -266,6 +266,7 @@ IN:assets.development.amazon-tacticalplanner.com
 IN:assets.platform.blis.com
 IN:assets.platform.development.blis.com
 IN:assets.platform.rc.blis.com
+IN:atjunction.com
 IN:atlantis-ext.myopenpass.com
 IN:audience-builder.vistarmedia.com
 IN:audiencelogos.blis.com
@@ -339,6 +340,7 @@ IN:cfc.naspers.com
 IN:chat.openai.com
 IN:chrome.google.com
 IN:chromewebstore.google.com
+IN:citycentredeira.com
 IN:clearpay.co.uk
 IN:clearpay.com
 IN:clickhou.se
@@ -415,6 +417,7 @@ IN:donate.mastercard.com
 IN:download.opera.com
 IN:dxc.episerver.net
 IN:eassessment.monash.edu
+IN:ecoupon.maf.ae
 IN:edgeacademy.thetradedesk.com
 IN:eforms.neogov.com
 IN:elementor.careers
@@ -489,6 +492,7 @@ IN:id.atlassian.com
 IN:id.recordedfuture.com
 IN:id.unity.com
 IN:identity.bugcrowd.com
+IN:identity.majidalfuttaim.com
 IN:identity.monash.edu
 IN:images.latitudepayapps.com
 IN:imply-pivot.blis.com
@@ -532,6 +536,7 @@ IN:lapi.yellowblocks.me
 IN:lastpass.com
 IN:latitudeinfinity.com.au
 IN:launchdarkly.com
+IN:lazzx4o5mh.execute-api.eu-west-1.amazonaws.com
 IN:learn.neogov.com
 IN:learn.newrelic.com
 IN:legacy-blockexplorer.electroneum.com
@@ -551,6 +556,7 @@ IN:login.medscape.com
 IN:login.neogov.com
 IN:lp.lime.bike
 IN:m.thefork.com
+IN:maf-properties-prod.apigee.net
 IN:manage.cic-bug-bounty.auth0app.com
 IN:manage.statuspage.io
 IN:manager.thefork.com
@@ -663,6 +669,7 @@ IN:partnerapi.arlo.com
 IN:partnerapi.tapayments.com
 IN:partnerapi1.tapayments.com
 IN:partnerapi2.tapayments.com
+IN:partnerconnect.maf.ae
 IN:partnerhelp.viator.com
 IN:partners.usaa.com
 IN:partners.viator.com
@@ -771,6 +778,8 @@ IN:sitepixel.blis.com
 IN:sitepixel.dev.blis.com
 IN:skippayments.com
 IN:skipthedishes.com
+IN:smbu-api.maf.ae
+IN:smbu.mafcms.com
 IN:snapnames.com
 IN:snc.underarmour.com
 IN:snctest-c.underarmour.com
@@ -907,6 +916,7 @@ IN:www.cb2.ae
 IN:www.chime.com
 IN:www.chipotle.co.uk
 IN:www.chipotle.com
+IN:www.citycentremalls.com
 IN:www.cloudvector.com
 IN:www.cms.gov
 IN:www.coindesk.com
@@ -927,6 +937,7 @@ IN:www.galabingo.com
 IN:www.galacasino.com
 IN:www.gamemaker.io
 IN:www.gesundheitsverbund.at
+IN:www.ghafwoods.com
 IN:www.globalacademycme.com
 IN:www.gohenry.com
 IN:www.governmentjobs.com
@@ -955,6 +966,7 @@ IN:www.lululemon.es
 IN:www.lululemon.fr
 IN:www.lululemon.me
 IN:www.magicplanetmena.com
+IN:www.majidalfuttaimproperties.com
 IN:www.malloftheemirates.com
 IN:www.mankind.co.uk
 IN:www.mastercard.ch
@@ -968,6 +980,7 @@ IN:www.microsoft.com
 IN:www.minhaconta.zoop.com.br
 IN:www.monash.edu
 IN:www.monashprofessional.edu.au
+IN:www.mycitycentrealbarsha.com
 IN:www.myprotein.com
 IN:www.myvitamins.com
 IN:www.namejet.com
@@ -985,6 +998,7 @@ IN:www.partypoker.com
 IN:www.pexels.com
 IN:www.pixpay.fr
 IN:www.planethoster.com
+IN:www.premogiftcards.com
 IN:www.proptrack.com
 IN:www.proptrack.com.au
 IN:www.quintoandar.com.br
@@ -1006,6 +1020,7 @@ IN:www.theforkmanager.com
 IN:www.thetradedesk.com
 IN:www.thuisbezorgd.nl
 IN:www.tickets.mgm.mo
+IN:www.tilalalghaf.com
 IN:www.toursgds.com
 IN:www.tripadvisor.com
 IN:www.underarmour.cn
