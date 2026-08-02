@@ -123,7 +123,7 @@ def check_skip_rate(csv_path="discovery_stats.csv", expected_run_id=None, only_p
     with open(csv_path) as f:
         reader = csv.DictReader(f)
         for row in reader:
-            latest[row["platform"]] = row
+            latest[row["platform"].lower()] = row
     if not latest:
         return False, [f"{csv_path} has no data rows - cannot verify run health, failing closed"]
     ok = True
