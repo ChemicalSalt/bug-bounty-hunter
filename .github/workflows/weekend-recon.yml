@@ -42,15 +42,11 @@ jobs:
         run: |
           pip install tldextract --break-system-packages
 
-      - name: Vet programs (status check only - fresh)
+      - name: Check program open/blocked status (lightweight, no scope re-vet)
         run: |
           export MAPPING_CSV_PATH="checker/domain_program_map.csv"
-          export EXCLUDED_OUTPUT_PATH="excluded_domains.txt"
-          export HACKERONE_SCOPE_OUTPUT_PATH="hackerone_scope.txt"
-          export INTIGRITI_SCOPE_OUTPUT_PATH="intigriti_scope.txt"
-          export YESWEHACK_SCOPE_OUTPUT_PATH="yeswehack_scope.txt"
-          export BUGCROWD_SCOPE_OUTPUT_PATH="bugcrowd_scope.txt"
-          python3 checker/check_program_status.py
+          export EXCLUDE_OUTPUT_PATH="excluded_domains.txt"
+          python3 checker/check_program_open.py
           touch excluded_domains.txt hackerone_scope.txt intigriti_scope.txt yeswehack_scope.txt bugcrowd_scope.txt
 
       - name: Use pre-vetted scope from monthly validation (trust Mistral+regex ban-detection, not this run's regen)
