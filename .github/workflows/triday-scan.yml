@@ -89,6 +89,9 @@ jobs:
           fi
 
           if [ -f checker/filter_to_scope.py ]; then
+            for sf in hackerone_scope.txt intigriti_scope.txt yeswehack_scope.txt bugcrowd_scope.txt; do
+              cp "checker/$sf" "$sf" 2>/dev/null || true
+            done
             for f in combined_full.txt live_hosts_403.txt live_hosts_404.txt; do
               SCOPE_FILTER_INPUT="$f" SCOPE_FILTER_OUTPUT="$f" python3 checker/filter_to_scope.py
             done
