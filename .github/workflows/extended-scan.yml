@@ -645,6 +645,7 @@ jobs:
             -silent \
             -js-crawl \
             -depth 1 \
+            -fs dn \
             -timeout 3 \
             -rl 5 \
             -concurrency 5 \
@@ -660,12 +661,18 @@ jobs:
             echo "::warning::Katana timed out (exit 124) - proceeding with partial/no crawled URLs, nuclei will still run"
           fi
           if [ -f urls.txt ]; then
-            sort -u urls.txt | head -10 > urls_capped.txt
+            awk -F/ '\''{h=$3; sub(/:.*/,"",h); print h}'\'' input.txt | sort -u > allowed_hosts.txt
+            awk -F/ '\''{h=$3; sub(/:.*/,"",h); print h"\t"$0}'\'' urls.txt > urls_with_host.txt
+            awk -F'\''\t'\'' 'NR==FNR{a[$1]=1;next} ($1 in a){print $2}' allowed_hosts.txt urls_with_host.txt > urls_scoped.txt
+            if [ "$(wc -l < urls_scoped.txt)" -lt "$(wc -l < urls.txt)" ]; then
+              echo "::warning::Dropped $(( $(wc -l < urls.txt) - $(wc -l < urls_scoped.txt) )) off-scope crawled URL(s)"
+            fi
+            sort -u urls_scoped.txt | head -10 > urls_capped.txt
             mv urls_capped.txt urls.txt
           else
             touch urls.txt
           fi
-          echo "URLs found: $(wc -l < urls.txt 2>/dev/null || echo 0)"
+          echo "URLs found (in-scope): $(wc -l < urls.txt 2>/dev/null || echo 0)"
 
       - name: Run nuclei (JS secrets)
         run: |
