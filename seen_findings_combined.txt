@@ -1,0 +1,5 @@
+[blockchain-rpc-txpool-exposed] [http] [high] https://chain-proxy.wallet.coinbase.com
+[mobotix-default-credentials] [http] [high] https://platform.development.blis.com/control/userimage.html
+[salesforce-community-misconfig] [http] [medium] https://connectivity.booking.com/s/sfsites/aura
+[zip-backup-files] [http] [medium] https://dl.acronis.com/test.zip [EXT="zip",FILENAME="test"]
+[zip-backup-files] [http] [medium] https://dl5.acronis.com/test.zip [EXT="zip",FILENAME="test"]
