@@ -129,6 +129,17 @@ def main():
     excluded_domains = []
     no_match = []
 
+    mapped_domains = {row["domain"] for row in rows}
+    combined_path = os.environ.get("COMBINED_HOSTS_PATH", "combined.txt")
+    if os.path.exists(combined_path):
+        with open(combined_path) as f:
+            unmapped = [line.strip() for line in f if line.strip() and line.strip() not in mapped_domains]
+        if unmapped:
+            print(f"[UNMAPPED] {len(unmapped)} domain(s) not in domain_program_map.csv - EXCLUDING (no program status known)")
+            for d in unmapped:
+                print(f"    - {d}")
+            excluded_domains.extend(unmapped)
+
     for (platform, keyword), domains in sorted(groups.items()):
         if platform == "yeswehack":
             status, detail = check_yeswehack(keyword)
