@@ -67,10 +67,7 @@ jobs:
           export INTIGRITI_TOKEN="${{ secrets.INTIGRITI_TOKEN }}"
           export MAPPING_CSV_PATH="checker/domain_program_map.csv"
           export EXCLUDED_OUTPUT_PATH="excluded_domains.txt"
-          export HACKERONE_SCOPE_OUTPUT_PATH="hackerone_scope.txt"
-          export INTIGRITI_SCOPE_OUTPUT_PATH="intigriti_scope.txt"
-          export YESWEHACK_SCOPE_OUTPUT_PATH="yeswehack_scope.txt"
-          export BUGCROWD_SCOPE_OUTPUT_PATH="bugcrowd_scope.txt"
+          export COMBINED_HOSTS_PATH="combined_full.txt"
           pip install tldextract --break-system-packages
           python3 checker/check_program_open.py
 
@@ -85,15 +82,6 @@ jobs:
             for f in combined_full.txt live_hosts_403.txt live_hosts_404.txt; do
               grep -vEf exclude_grep.txt "$f" > "${f}.filtered" || cp "$f" "${f}.filtered"
               mv "${f}.filtered" "$f"
-            done
-          fi
-
-          if [ -f checker/filter_to_scope.py ]; then
-            for sf in hackerone_scope.txt intigriti_scope.txt yeswehack_scope.txt bugcrowd_scope.txt; do
-              cp "checker/$sf" "$sf" 2>/dev/null || true
-            done
-            for f in combined_full.txt live_hosts_403.txt live_hosts_404.txt; do
-              SCOPE_FILTER_INPUT="$f" SCOPE_FILTER_OUTPUT="$f" python3 checker/filter_to_scope.py
             done
           fi
 
