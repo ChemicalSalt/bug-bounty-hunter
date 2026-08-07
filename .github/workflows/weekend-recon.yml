@@ -674,6 +674,22 @@ jobs:
           done
           python3 filter_scope.py
 
+      - name: Build combined.txt (new-first, deduped, post-filter)
+        run: |
+          touch live_hosts.txt new_live_hosts.txt
+          > combined.txt
+          if [ -s new_live_hosts.txt ]; then
+            cat new_live_hosts.txt >> combined.txt
+          fi
+          if [ -s live_hosts.txt ]; then
+            if [ -s new_live_hosts.txt ]; then
+              comm -23 <(sort live_hosts.txt) <(sort new_live_hosts.txt) >> combined.txt || true
+            else
+              cat live_hosts.txt >> combined.txt
+            fi
+          fi
+          echo "combined.txt: $(wc -l < combined.txt) hosts (new-first, deduped, already open-checked + in-scope filtered)"
+
       - name: Commit final results
         run: |
           git config --global user.email "bugbountybot@github.com"
@@ -684,6 +700,7 @@ jobs:
             live_hosts_404.txt \
             live_hosts_405.txt \
             live_hosts_500.txt \
-            new_live_hosts.txt || true
+            new_live_hosts.txt \
+            combined.txt || true
           git diff --staged --quiet || git commit -m "Weekly recon FINAL $(date +'%Y-%m-%d') — $(wc -l < live_hosts.txt) live | $(wc -l < new_live_hosts.txt) new live hosts"
           git push origin domains || (git pull --rebase origin domains && git push origin domains) || echo "::warning::Push failed in finalize - live_hosts.txt may be stale, daily-scan/weekly-scan may run on old data"
