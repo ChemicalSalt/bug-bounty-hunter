@@ -39,13 +39,6 @@ jobs:
           ref: domains
           fetch-depth: 1
 
-      - name: Checkout status checker from main
-        uses: actions/checkout@v4
-        with:
-          ref: main
-          path: checker
-          fetch-depth: 1
-
       - name: Build new_first list + calculate splits
         id: split
         run: |
@@ -63,28 +56,7 @@ jobs:
             fi
           fi
 
-          echo "Hosts before suspension filter: $(wc -l < combined.txt)"
-
-          export HACKERONE_TOKEN="${{ secrets.HACKERONE_TOKEN }}"
-          export INTIGRITI_TOKEN="${{ secrets.INTIGRITI_TOKEN }}"
-          export MAPPING_CSV_PATH="checker/domain_program_map.csv"
-          export EXCLUDED_OUTPUT_PATH="excluded_domains.txt"
-          pip install tldextract --break-system-packages
-          python3 checker/check_program_open.py
-
-          if [ -s excluded_domains.txt ]; then
-            > exclude_grep.txt
-            while IFS= read -r d; do
-              [ -z "$d" ] && continue
-              escaped=$(echo "$d" | sed 's/\./\\./g')
-              echo "\\.${escaped}\$|^${escaped}\$" >> exclude_grep.txt
-            done < excluded_domains.txt
-            grep -vEf exclude_grep.txt combined.txt > combined_filtered.txt || cp combined.txt combined_filtered.txt
-            echo "Excluded $(( $(wc -l < combined.txt) - $(wc -l < combined_filtered.txt) )) hosts belonging to suspended/paused programs"
-            mv combined_filtered.txt combined.txt
-          fi
-
-          echo "Hosts after suspension filter: $(wc -l < combined.txt)"
+          echo "Hosts (trusting recon finalize's already-filtered live_hosts.txt/new_live_hosts.txt, no redundant open-check here): $(wc -l < combined.txt)"
 
           full_total=$(wc -l < combined.txt)
           echo "Total hosts (full list): $full_total"
