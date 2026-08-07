@@ -1,0 +1,370 @@
+name: Custom Templates Scan
+
+on:
+  workflow_dispatch:
+    inputs:
+      runner:
+        description: 'Where to run'
+        type: choice
+        options:
+          - self-hosted
+          - github
+        default: self-hosted
+
+concurrency:
+  group: custom-scan-pipeline
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ${{ github.event.inputs.runner == 'github' && 'ubuntu-latest' || fromJson('["self-hosted","linux","x64"]') }}
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    outputs:
+      has_hosts: ${{ steps.split.outputs.has_hosts }}
+      num_batches: ${{ steps.split.outputs.num_batches }}
+      chunk_end: ${{ steps.split.outputs.chunk_end }}
+      full_total: ${{ steps.split.outputs.full_total }}
+      batches: ${{ steps.split.outputs.batches }}
+    steps:
+      - name: Checkout domains branch
+        uses: actions/checkout@v4
+        with:
+          ref: domains
+          fetch-depth: 1
+
+      - name: Build host list + calculate splits
+        id: split
+        run: |
+          touch combined.txt
+          echo "Hosts (reading recon finalize's already-built, already-filtered combined.txt, no rebuild/redundant open-check here): $(wc -l < combined.txt)"
+
+          full_total=$(wc -l < combined.txt)
+          echo "Total hosts (full list): $full_total"
+
+          if [ "$full_total" -eq 0 ]; then
+            echo "has_hosts=false" >> $GITHUB_OUTPUT
+            echo "batches=[]" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          target_per_batch=10
+          max_batches=256
+          chunk_size=$(( target_per_batch * max_batches ))
+
+          touch weekend_offset_custom.txt
+          offset=$(cat weekend_offset_custom.txt 2>/dev/null)
+          if [ -z "$offset" ] || [ "$offset" -gt "$full_total" ]; then
+            offset=1
+          fi
+
+          chunk_end=$(( offset + chunk_size - 1 ))
+          if [ "$chunk_end" -gt "$full_total" ]; then
+            chunk_end=$full_total
+          fi
+
+          sed -n "${offset},${chunk_end}p" combined.txt > combined_chunk.txt
+          mv combined_chunk.txt combined.txt
+
+          total=$(wc -l < combined.txt)
+          echo "Chunk: hosts $offset-$chunk_end of $full_total (this trigger: $total hosts)"
+
+          echo "has_hosts=true" >> $GITHUB_OUTPUT
+          num_batches=$(( (total + target_per_batch - 1) / target_per_batch ))
+          if [ "$num_batches" -gt $max_batches ]; then num_batches=$max_batches; fi
+          if [ "$num_batches" -lt 1 ]; then num_batches=1; fi
+          echo "Batches: $num_batches (~$(( (total + num_batches - 1) / num_batches )) hosts each)"
+          echo "num_batches=$num_batches" >> $GITHUB_OUTPUT
+          echo "chunk_end=$chunk_end" >> $GITHUB_OUTPUT
+          echo "full_total=$full_total" >> $GITHUB_OUTPUT
+
+          touch weekend_progress_custom.txt
+          done_count=$(sort -un weekend_progress_custom.txt | uniq | wc -l)
+          if [ "$done_count" -ge "$num_batches" ]; then
+            echo "Full cycle complete ($done_count/$num_batches) - resetting for new cycle"
+            > weekend_progress_custom.txt
+            done_count=0
+          fi
+          echo "Already completed this cycle: $done_count of $num_batches batch(es)"
+
+          batches=$(seq 1 $num_batches | grep -vFxf weekend_progress_custom.txt | jq -R . | jq -sc .)
+          echo "Remaining batches: $(echo "$batches" | jq 'length')"
+          echo "batches=$batches" >> $GITHUB_OUTPUT
+
+      - name: Upload host list
+        uses: actions/upload-artifact@v4
+        with:
+          name: custom-hosts
+          path: combined.txt
+          retention-days: 7
+
+  weekend_custom_batched:
+    needs: prepare
+    if: needs.prepare.outputs.has_hosts == 'true' && needs.prepare.outputs.batches != '[]'
+    runs-on: ${{ github.event.inputs.runner == 'github' && 'ubuntu-latest' || fromJson('["self-hosted","linux","x64"]') }}
+    timeout-minutes: 350
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        batch: ${{ fromJson(needs.prepare.outputs.batches) }}
+    steps:
+      - name: Checkout main branch (custom-templates live here)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - name: Checkout domains branch (for seen_findings_custom.txt)
+        uses: actions/checkout@v4
+        with:
+          ref: domains
+          path: domains_data
+          fetch-depth: 1
+
+      - name: Copy seen findings from domains branch
+        run: cp domains_data/seen_findings_custom.txt . 2>/dev/null || touch seen_findings_custom.txt
+
+      - name: Download host list
+        uses: actions/download-artifact@v4
+        with:
+          name: custom-hosts
+
+      - name: Slice hosts for this batch
+        run: |
+          total=$(wc -l < combined.txt)
+          num_batches=${{ needs.prepare.outputs.num_batches }}
+          batch_num=${{ matrix.batch }}
+          batch_size=$(( (total + num_batches - 1) / num_batches ))
+          start=$(( (batch_num - 1) * batch_size + 1 ))
+          end=$(( batch_num * batch_size ))
+          sed -n "${start},${end}p" combined.txt > input.txt
+          echo "Batch $batch_num/$num_batches: $(wc -l < input.txt) of $total hosts"
+
+      - name: Pre-filter dead hosts (liveness check)
+        run: |
+          echo "Hosts before liveness filter: $(wc -l < input.txt)"
+          cat input.txt | xargs -P 30 -I @@H@@ bash -c 'code=$(curl -s -o /dev/null -m 2 -w "%{http_code}" "@@H@@" 2>/dev/null || echo 000); if [ "$code" != "000" ]; then echo "@@H@@"; fi' > input_live.txt || true
+          if [ -s input_live.txt ]; then mv input_live.txt input.txt; fi
+          echo "Hosts after liveness filter: $(wc -l < input.txt)"
+
+      - name: Get week number
+        id: date
+        run: echo "week=$(date +'%Y-%U')" >> $GITHUB_OUTPUT
+
+      - name: Cache Go tools
+        uses: actions/cache@v4
+        id: cache-go
+        with:
+          path: ~/go/bin
+          key: go-tools-${{ runner.os }}-v4
+
+      - name: Install nuclei
+        if: steps.cache-go.outputs.cache-hit != 'true'
+        run: go install github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest
+
+      - name: Ensure nuclei installed
+        run: |
+          export PATH=$PATH:$(go env GOPATH)/bin
+          if ! command -v nuclei &>/dev/null; then
+            go install github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest
+          fi
+
+      - name: Run nuclei (custom templates only)
+        run: |
+          export PATH=$PATH:$(go env GOPATH)/bin
+          touch results.txt
+
+          if [ ! -s input.txt ]; then
+            echo "No targets for this batch"
+            exit 0
+          fi
+
+          if [ ! -d custom-templates ] || [ -z "$(ls -A custom-templates)" ]; then
+            echo "No custom templates found, skipping"
+            exit 0
+          fi
+
+          echo "[TIMING] Batch hosts: $(wc -l < input.txt)"
+          echo "[TIMING] Scan start: $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          SCAN_START=$(date +%s)
+          set +e
+
+          timeout 20700 nuclei -l input.txt \
+            -t custom-templates \
+            -severity medium,high,critical \
+            -H "User-Agent: Mozilla/5.0 BugBounty/42 (YWH) Chemical Oxidizer CS_YWH/BB" \
+            -H "X-Bug-Bounty: HackerOne-Chemical, HackerOne-Oxidizer" \
+            -H "X-Bugcrowd-Research: Chemical, Oxidizer" \
+            -H "X-Intigriti-Research: Chemical, Oxidizer" \
+            -H "X-YesWeHack-Research: Chemical, Oxidizer" \
+            -silent -retries 0 -timeout 3 \
+            -bulk-size 5 -concurrency 5 \
+            -rate-limit 5 -fhr -max-host-error 30 \
+            -stats -si 30 \
+            -no-color -o results.txt -je nuclei_findings.json -irr
+          NUCLEI_EXIT=$?
+          echo "$NUCLEI_EXIT" > nuclei_exit_code.txt
+          if [ "$NUCLEI_EXIT" -eq 124 ]; then
+            echo "::error::Nuclei timed out (exit 124) - failing step so batch is NOT marked done"
+            exit 1
+          fi
+
+          SCAN_END=$(date +%s)
+          echo "[TIMING] Scan end: $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          echo "[TIMING] Elapsed seconds: $(( SCAN_END - SCAN_START ))"
+          grep -E "\[(medium|high|critical)\]" results.txt > results_filtered.txt 2>/dev/null || true
+          mv results_filtered.txt results.txt
+          echo "Findings: $(wc -l < results.txt)"
+
+      - name: Filter against previously seen findings
+        run: |
+          touch seen_findings_custom.txt
+          comm -23 <(sort -u results.txt) <(sort -u seen_findings_custom.txt) > new_results.txt || true
+          echo "Total findings: $(wc -l < results.txt) | New (never emailed): $(wc -l < new_results.txt)"
+
+      - name: Show results
+        if: always()
+        run: |
+          count=$(wc -l < new_results.txt 2>/dev/null || echo 0)
+          echo "New findings: $count"
+          if [ "$count" -gt "0" ]; then cat new_results.txt; else echo "No new findings"; fi
+
+      - name: Check for results
+        id: check
+        run: |
+          if [ -s new_results.txt ]; then
+            echo "found=true" >> $GITHUB_OUTPUT
+            echo "count=$(wc -l < new_results.txt)" >> $GITHUB_OUTPUT
+          else
+            echo "found=false" >> $GITHUB_OUTPUT
+            echo "count=0" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build detailed email body
+        if: steps.check.outputs.found == 'true'
+        run: |
+          python3 build_email_body.py || cp new_results.txt new_results_detailed.txt
+
+      - name: Send email alert
+        if: steps.check.outputs.found == 'true'
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USER }}
+          password: ${{ secrets.EMAIL_PASS }}
+          subject: "[Custom Scan ${{ matrix.batch }}] ${{ steps.check.outputs.count }} New Finding(s)"
+          body: file://new_results_detailed.txt
+          to: ${{ secrets.EMAIL_TO }}
+          from: BugBountyBot
+
+      - name: Mark batch complete
+        if: success()
+        run: |
+          echo "${{ matrix.batch }}" > batch_marker.txt
+
+      - name: Upload batch completion marker
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: batch-marker-custom-${{ matrix.batch }}
+          path: batch_marker.txt
+          retention-days: 1
+
+      - name: Upload batch findings for seen-list merge
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: batch-findings-custom-${{ matrix.batch }}
+          path: results.txt
+          retention-days: 1
+
+  finalize_custom:
+    needs: [prepare, weekend_custom_batched]
+    if: always()
+    runs-on: ${{ github.event.inputs.runner == 'github' && 'ubuntu-latest' || fromJson('["self-hosted","linux","x64"]') }}
+    steps:
+      - name: Checkout domains branch
+        uses: actions/checkout@v4
+        with:
+          ref: domains
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Download custom batch markers
+        uses: actions/download-artifact@v4
+        with:
+          path: batch_markers
+          pattern: batch-marker-custom-*
+        continue-on-error: true
+
+      - name: Download custom batch findings
+        uses: actions/download-artifact@v4
+        with:
+          path: batch_findings
+          pattern: batch-findings-custom-*
+        continue-on-error: true
+
+      - name: Merge markers, findings, and advance offset
+        run: |
+          git config --global user.email "bugbountybot@github.com"
+          git config --global user.name "BugBountyBot"
+          touch weekend_progress_custom.txt weekend_offset_custom.txt weekend_stall_count_custom.txt seen_findings_custom.txt
+
+          for d in batch_findings/batch-findings-custom-*; do
+            [ -d "$d" ] && [ -f "$d/results.txt" ] && cat "$d/results.txt" >> seen_findings_custom.txt
+          done
+          sort -u seen_findings_custom.txt -o seen_findings_custom.txt
+          echo "seen_findings_custom.txt: $(wc -l < seen_findings_custom.txt) total"
+
+          for d in batch_markers/batch-marker-custom-*; do
+            [ -d "$d" ] || continue
+            num=$(basename "$d" | sed -E 's/^batch-marker-custom-([0-9]+)$/\1/')
+            [ -n "$num" ] && echo "$num" >> weekend_progress_custom.txt
+          done
+          sort -un weekend_progress_custom.txt -o weekend_progress_custom.txt
+          done_count=$(wc -l < weekend_progress_custom.txt)
+          echo "Batches complete this run: $done_count"
+
+          NUM_BATCHES="${{ needs.prepare.outputs.num_batches }}"
+          CHUNK_END="${{ needs.prepare.outputs.chunk_end }}"
+          FULL_TOTAL="${{ needs.prepare.outputs.full_total }}"
+
+          STALL_COUNT=$(cat weekend_stall_count_custom.txt 2>/dev/null)
+          [ -z "$STALL_COUNT" ] && STALL_COUNT=0
+
+          if [ -n "$NUM_BATCHES" ] && [ "$done_count" -ge "$NUM_BATCHES" ]; then
+            NEW_OFFSET=$(( CHUNK_END + 1 ))
+            if [ "$NEW_OFFSET" -gt "$FULL_TOTAL" ]; then
+              NEW_OFFSET=1
+            fi
+            echo "Chunk complete ($done_count/$NUM_BATCHES) - advancing offset to $NEW_OFFSET"
+            echo "$NEW_OFFSET" > weekend_offset_custom.txt
+            > weekend_progress_custom.txt
+            echo "0" > weekend_stall_count_custom.txt
+          else
+            STALL_COUNT=$(( STALL_COUNT + 1 ))
+            echo "Chunk not yet complete ($done_count/$NUM_BATCHES) - stall count now $STALL_COUNT"
+            if [ "$STALL_COUNT" -ge 3 ]; then
+              STUCK_BATCHES=$(seq 1 "$NUM_BATCHES" | grep -vFxf weekend_progress_custom.txt || true)
+              echo "::warning::Stalled 3 triggers on this chunk - force-advancing offset. Stuck batch(es) needing manual follow-up: $STUCK_BATCHES"
+              NEW_OFFSET=$(( CHUNK_END + 1 ))
+              if [ "$NEW_OFFSET" -gt "$FULL_TOTAL" ]; then
+                NEW_OFFSET=1
+              fi
+              echo "$NEW_OFFSET" > weekend_offset_custom.txt
+              > weekend_progress_custom.txt
+              echo "0" > weekend_stall_count_custom.txt
+              echo "$(date +'%Y-%m-%d'): force-advanced past stuck batch(es) $STUCK_BATCHES" >> weekend_stuck_batches_custom.log
+            else
+              echo "$STALL_COUNT" > weekend_stall_count_custom.txt
+            fi
+          fi
+
+          git add weekend_progress_custom.txt weekend_offset_custom.txt weekend_stall_count_custom.txt weekend_stuck_batches_custom.log seen_findings_custom.txt 2>/dev/null || git add weekend_progress_custom.txt weekend_offset_custom.txt weekend_stall_count_custom.txt seen_findings_custom.txt
+          git diff --staged --quiet || git commit -m "Custom scan progress update $(date +'%Y-%m-%d')"
+          git push origin domains || (git pull --rebase origin domains && git push origin domains) || echo "::warning::Push failed for custom progress"
