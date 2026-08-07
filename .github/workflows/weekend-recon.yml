@@ -42,29 +42,21 @@ jobs:
         run: |
           pip install tldextract --break-system-packages
 
-      - name: Check program open/blocked status (lightweight, no scope re-vet)
+      - name: Use pre-vetted scope and exclusions from main (no API call, file-based only)
         run: |
-          grep -vEi "^#|^$" domains.txt | grep -v '^\*\.' | sort -u > domains_clean.txt
-          export MAPPING_CSV_PATH="checker/domain_program_map.csv"
-          export EXCLUDED_OUTPUT_PATH="excluded_domains.txt"
-          export COMBINED_HOSTS_PATH="domains_clean.txt"
-          python3 checker/check_program_open.py
           touch excluded_domains.txt hackerone_scope.txt intigriti_scope.txt yeswehack_scope.txt bugcrowd_scope.txt
-
-      - name: Use pre-vetted scope from monthly validation (trust Mistral+regex ban-detection, not this run's regen)
-        run: |
+          grep -vEi "^#|^$" domains.txt | grep -v '^\*\.' | sort -u > domains_clean.txt
           for f in hackerone_scope.txt intigriti_scope.txt yeswehack_scope.txt bugcrowd_scope.txt; do
             if [ -s "checker/$f" ]; then
               cp "checker/$f" "$f"
               echo "Using vetted $f from main ($(wc -l < $f) entries)"
             else
-              echo "No vetted $f found on main, keeping freshly-generated version"
+              echo "No vetted $f found on main, keeping empty version"
             fi
           done
           if [ -s "checker/excluded_domains.txt" ]; then
-            cat "checker/excluded_domains.txt" >> excluded_domains.txt
-            sort -u excluded_domains.txt -o excluded_domains.txt
-            echo "Merged monthly-vet excluded list ($(wc -l < excluded_domains.txt) total excluded)"
+            cp "checker/excluded_domains.txt" excluded_domains.txt
+            echo "Using vetted excluded_domains.txt from main ($(wc -l < excluded_domains.txt) entries)"
           fi
       - name: Upload vetting results
         uses: actions/upload-artifact@v4
@@ -647,6 +639,32 @@ jobs:
       - name: Install tldextract
         run: |
           pip install tldextract --break-system-packages
+
+      - name: Check program open/blocked status (subdomain level, after discovery)
+        run: |
+          export HACKERONE_TOKEN="${{ secrets.HACKERONE_TOKEN }}"
+          export INTIGRITI_TOKEN="${{ secrets.INTIGRITI_TOKEN }}"
+          export MISTRAL_API_KEY="${{ secrets.MISTRAL_API_KEY }}"
+          export MAPPING_CSV_PATH="main-branch/domain_program_map.csv"
+          export EXCLUDED_OUTPUT_PATH="excluded_domains.txt"
+          python3 main-branch/check_program_status.py
+          touch excluded_domains.txt
+
+          if [ -s excluded_domains.txt ]; then
+            > exclude_grep.txt
+            while IFS= read -r d; do
+              [ -z "$d" ] && continue
+              escaped=$(echo "$d" | sed 's/\./\\./g')
+              echo "\\.$escaped\$|^$escaped\$" >> exclude_grep.txt
+            done < excluded_domains.txt
+            for f in live_hosts.txt live_hosts_403.txt live_hosts_404.txt live_hosts_405.txt live_hosts_500.txt new_live_hosts.txt; do
+              [ -f "$f" ] || continue
+              grep -vEf exclude_grep.txt "$f" > "$f.filtered" || cp "$f" "$f.filtered"
+              mv "$f.filtered" "$f"
+            done
+            echo "Excluded $(wc -l < excluded_domains.txt) domain(s) belonging to suspended/paused programs (subdomain-level check)"
+          fi
+
       - name: Filter out-of-scope hosts
         run: |
           cp main-branch/domain_program_map.csv domain_program_map.csv 2>/dev/null || touch domain_program_map.csv
