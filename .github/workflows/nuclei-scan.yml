@@ -37,8 +37,19 @@ jobs:
       - name: Build host list + calculate splits
         id: split
         run: |
-          touch combined.txt
-          echo "Hosts (reading recon finalize's already-built, already-filtered combined.txt, no rebuild/redundant open-check here): $(wc -l < combined.txt)"
+          touch live_hosts.txt new_live_hosts.txt
+          > combined.txt
+          if [ -s new_live_hosts.txt ]; then
+            cat new_live_hosts.txt >> combined.txt
+          fi
+          if [ -s live_hosts.txt ]; then
+            if [ -s new_live_hosts.txt ]; then
+              comm -23 <(sort live_hosts.txt) <(sort new_live_hosts.txt) >> combined.txt || true
+            else
+              cat live_hosts.txt >> combined.txt
+            fi
+          fi
+          echo "Hosts (built from recon's live_hosts.txt + new_live_hosts.txt, new-first deduped): $(wc -l < combined.txt)"
 
           full_total=$(wc -l < combined.txt)
           echo "Total hosts (full list): $full_total"
