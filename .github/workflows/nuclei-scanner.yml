@@ -1,4 +1,4 @@
-name: Nuclei Scan
+name: Nuclei Scanner
 
 on:
   workflow_dispatch:

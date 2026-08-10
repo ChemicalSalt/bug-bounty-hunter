@@ -1,4 +1,4 @@
-name: Custom Templates Scan
+name: Custom Scanner
 
 on:
   workflow_dispatch:
