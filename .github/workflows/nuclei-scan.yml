@@ -156,7 +156,13 @@ jobs:
       - name: Pre-filter dead hosts (liveness check)
         run: |
           echo "Hosts before liveness filter: $(wc -l < input.txt)"
-          cat input.txt | xargs -P 30 -I @@H@@ bash -c 'code=$(curl -s -o /dev/null -m 2 -w "%{http_code}" "@@H@@" 2>/dev/null || echo 000); if [ "$code" != "000" ]; then echo "@@H@@"; fi' > input_live.txt || true
+          cat input.txt | xargs -P 30 -I @@H@@ bash -c '
+            resp=$(curl -s -D - -o /dev/null -m 2 "@@H@@" 2>/dev/null)
+            code=$(echo "$resp" | head -1 | grep -oE "[0-9]{3}" | head -1)
+            if [ -z "$code" ] || [ "$code" = "000" ]; then exit 0; fi
+            if echo "$resp" | grep -qi "AE_GLOBAL_UNLOGIN"; then exit 0; fi
+            echo "@@H@@"
+          ' > input_live.txt || true
           if [ -s input_live.txt ]; then mv input_live.txt input.txt; fi
           echo "Hosts after liveness filter: $(wc -l < input.txt)"
 
@@ -219,6 +225,7 @@ jobs:
             -t "$TEMPLATE_PATHS" \
             -itags jwt,graphql,swagger,api-docs,openapi,git,env-file,default-login,jenkins,grafana,kibana,aws-s3,s3,springboot,actuator \
             -etags ssl,tls,http-missing-headers,tech,info,dns,helpers,passive,js \
+            -exclude-id ssrf-via-oauth-misconfig,detect-drone-config,credentials-json,mobotix-default-credentials,zip-backup-files \
             -severity medium,high,critical \
             -H "User-Agent: Mozilla/5.0 BugBounty/42 (YWH) Chemical Oxidizer CS_YWH/BB" \
             -H "X-Bug-Bounty: HackerOne-Chemical, HackerOne-Oxidizer" \
