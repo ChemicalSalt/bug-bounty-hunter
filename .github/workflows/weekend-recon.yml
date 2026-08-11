@@ -674,6 +674,16 @@ jobs:
           done
           python3 filter_scope.py
 
+      - name: Filter to declared in-scope hosts
+        run: |
+          cp main-branch/filter_to_scope.py filter_to_scope.py
+          for f in live_hosts.txt live_hosts_403.txt live_hosts_404.txt live_hosts_405.txt live_hosts_500.txt new_live_hosts.txt; do
+            [ -f "$f" ] || continue
+            export SCOPE_FILTER_INPUT="$f"
+            export SCOPE_FILTER_OUTPUT="$f"
+            python3 filter_to_scope.py
+          done
+
       - name: Build combined.txt (new-first, deduped, post-filter)
         run: |
           touch live_hosts.txt new_live_hosts.txt
