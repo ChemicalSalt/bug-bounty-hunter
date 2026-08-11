@@ -1,0 +1,3 @@
+[spring-boot-actuator-exposed] [http] [high] https://wallet-api.moonpay.com/actuator
+[spring-boot-actuator-exposed] [http] [high] https://wallet-api.moonpay.com/actuator/beans
+[spring-boot-actuator-exposed] [http] [high] https://wallet-api.moonpay.com/actuator/env
