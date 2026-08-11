@@ -31,7 +31,7 @@ jobs:
       - name: Checkout domains branch
         uses: actions/checkout@v4
         with:
-          ref: domains
+          ref: data
           fetch-depth: 1
 
       - name: Build host list + calculate splits
@@ -132,7 +132,7 @@ jobs:
       - name: Checkout domains branch (for seen_findings_custom.txt)
         uses: actions/checkout@v4
         with:
-          ref: domains
+          ref: data
           path: domains_data
           fetch-depth: 1
 
@@ -302,7 +302,7 @@ jobs:
       - name: Checkout domains branch
         uses: actions/checkout@v4
         with:
-          ref: domains
+          ref: data
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
@@ -378,4 +378,4 @@ jobs:
 
           git add weekend_progress_custom.txt weekend_offset_custom.txt weekend_stall_count_custom.txt weekend_stuck_batches_custom.log seen_findings_custom.txt 2>/dev/null || git add weekend_progress_custom.txt weekend_offset_custom.txt weekend_stall_count_custom.txt seen_findings_custom.txt
           git diff --staged --quiet || git commit -m "Custom scan progress update $(date +'%Y-%m-%d')"
-          git push origin domains || (git pull --rebase origin domains && git push origin domains) || echo "::warning::Push failed for custom progress"
+          git push origin data || (git pull --rebase origin data && git push origin data) || echo "::warning::Push failed for custom progress"

@@ -36,7 +36,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/checkout@v4
         with:
-          ref: domains
+          ref: data
           path: domains-branch
           fetch-depth: 0
       - run: pip install tldextract --break-system-packages
@@ -75,7 +75,7 @@ jobs:
           git config --global user.name "BugBountyBot"
           git add -f domains.txt domains_diff.log 2>/dev/null || true
           git diff --staged --quiet || git commit -m "Weekend vet (hackerone): rebuild domains.txt $(date +'%Y-%m-%d')"
-          git push origin domains || (git pull --rebase origin domains && git push origin domains) || { echo "::error::Push to domains failed"; exit 1; }
+          git push origin data || (git pull --rebase origin data && git push origin data) || { echo "::error::Push to data failed"; exit 1; }
       - if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -98,7 +98,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/checkout@v4
         with:
-          ref: domains
+          ref: data
           path: domains-branch
           fetch-depth: 0
       - run: pip install tldextract --break-system-packages
@@ -137,7 +137,7 @@ jobs:
           git config --global user.name "BugBountyBot"
           git add -f domains.txt domains_diff.log 2>/dev/null || true
           git diff --staged --quiet || git commit -m "Weekend vet (intigriti): rebuild domains.txt $(date +'%Y-%m-%d')"
-          git push origin domains || (git pull --rebase origin domains && git push origin domains) || { echo "::error::Push to domains failed"; exit 1; }
+          git push origin data || (git pull --rebase origin data && git push origin data) || { echo "::error::Push to data failed"; exit 1; }
       - if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -160,7 +160,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/checkout@v4
         with:
-          ref: domains
+          ref: data
           path: domains-branch
           fetch-depth: 0
       - run: pip install tldextract --break-system-packages
@@ -199,7 +199,7 @@ jobs:
           git config --global user.name "BugBountyBot"
           git add -f domains.txt domains_diff.log 2>/dev/null || true
           git diff --staged --quiet || git commit -m "Weekend vet (yeswehack): rebuild domains.txt $(date +'%Y-%m-%d')"
-          git push origin domains || (git pull --rebase origin domains && git push origin domains) || { echo "::error::Push to domains failed"; exit 1; }
+          git push origin data || (git pull --rebase origin data && git push origin data) || { echo "::error::Push to data failed"; exit 1; }
       - if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -222,7 +222,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/checkout@v4
         with:
-          ref: domains
+          ref: data
           path: domains-branch
           fetch-depth: 0
       - run: pip install tldextract --break-system-packages
@@ -261,7 +261,7 @@ jobs:
           git config --global user.name "BugBountyBot"
           git add -f domains.txt domains_diff.log 2>/dev/null || true
           git diff --staged --quiet || git commit -m "Weekend vet (bugcrowd): rebuild domains.txt $(date +'%Y-%m-%d')"
-          git push origin domains || (git pull --rebase origin domains && git push origin domains) || { echo "::error::Push to domains failed"; exit 1; }
+          git push origin data || (git pull --rebase origin data && git push origin data) || { echo "::error::Push to data failed"; exit 1; }
       - if: always()
         uses: actions/upload-artifact@v4
         with:

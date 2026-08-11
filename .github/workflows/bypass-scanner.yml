@@ -27,7 +27,7 @@ jobs:
       - name: Checkout domains branch
         uses: actions/checkout@v4
         with:
-          ref: domains
+          ref: data
           fetch-depth: 1
 
       - name: Checkout status checker from main
@@ -222,7 +222,7 @@ jobs:
       - name: Checkout domains branch (seen findings)
         uses: actions/checkout@v4
         with:
-          ref: domains
+          ref: data
           path: domains_data
           fetch-depth: 1
 
@@ -287,7 +287,7 @@ jobs:
       - name: Checkout domains branch
         uses: actions/checkout@v4
         with:
-          ref: domains
+          ref: data
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
@@ -323,4 +323,4 @@ jobs:
           echo "Done: $(wc -l < weekend_progress_bypass.txt) / ${{ needs.prepare.outputs.num_batches }}"
           git add weekend_progress_bypass.txt weekend_offset_bypass.txt seen_findings_bypass.txt
           git diff --staged --quiet || git commit -m "Bypass scanner progress update $(date +'%Y-%m-%d %H:%M')"
-          git push origin domains || (git pull --rebase origin domains && git push origin domains) || echo "::warning::push failed"
+          git push origin data || (git pull --rebase origin data && git push origin data) || echo "::warning::push failed"
