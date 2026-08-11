@@ -1,0 +1,282 @@
+name: Subzy Scanner
+on:
+  workflow_dispatch:
+    inputs:
+      runner:
+        description: 'Where to run'
+        type: choice
+        options:
+          - github
+          - self-hosted
+        default: github
+
+concurrency:
+  group: subzy-scanner-pipeline
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    runs-on: ${{ github.event.inputs.runner == 'self-hosted' && fromJson('["self-hosted","linux","x64"]') || 'ubuntu-latest' }}
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    outputs:
+      has_hosts: ${{ steps.split.outputs.has_hosts }}
+      num_batches: ${{ steps.split.outputs.num_batches }}
+      batches: ${{ steps.split.outputs.batches }}
+    steps:
+      - name: Checkout domains branch
+        uses: actions/checkout@v4
+        with:
+          ref: domains
+          fetch-depth: 1
+
+      - name: Checkout status checker from main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: checker
+          fetch-depth: 1
+
+      - name: Build full host list
+        run: |
+          touch live_hosts.txt new_live_hosts.txt
+          > combined_full.txt
+          if [ -s new_live_hosts.txt ]; then
+            cat new_live_hosts.txt >> combined_full.txt
+          fi
+          if [ -s live_hosts.txt ]; then
+            if [ -s new_live_hosts.txt ]; then
+              comm -23 <(sort live_hosts.txt) <(sort new_live_hosts.txt) >> combined_full.txt || true
+            else
+              cat live_hosts.txt >> combined_full.txt
+            fi
+          fi
+          export HACKERONE_TOKEN="${{ secrets.HACKERONE_TOKEN }}"
+          export INTIGRITI_TOKEN="${{ secrets.INTIGRITI_TOKEN }}"
+          export MAPPING_CSV_PATH="checker/domain_program_map.csv"
+          export EXCLUDED_OUTPUT_PATH="excluded_domains.txt"
+          export COMBINED_HOSTS_PATH="combined_full.txt"
+          pip install tldextract --break-system-packages
+          python3 checker/check_program_open.py
+          if [ -s excluded_domains.txt ]; then
+            > exclude_grep.txt
+            while IFS= read -r d; do
+              [ -z "$d" ] && continue
+              escaped=$(echo "$d" | sed 's/\./\\./g')
+              echo "\\.${escaped}\$|^${escaped}\$" >> exclude_grep.txt
+            done < excluded_domains.txt
+            grep -vEf exclude_grep.txt combined_full.txt > combined_full.txt.filtered || cp combined_full.txt combined_full.txt.filtered
+            mv combined_full.txt.filtered combined_full.txt
+          fi
+          echo "Full subzy list: $(wc -l < combined_full.txt)"
+
+      - name: Compute window
+        id: split
+        run: |
+          target_per_batch=10
+          max_batches=256
+          chunk_size=$(( target_per_batch * max_batches ))
+          full_total=$(wc -l < combined_full.txt)
+          touch weekend_offset_subzy.txt weekend_progress_subzy.txt
+          if [ "$full_total" -eq 0 ]; then
+            echo "has_hosts=false" >> $GITHUB_OUTPUT
+            echo "batches=[]" >> $GITHUB_OUTPUT
+            echo "num_batches=0" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          offset=$(cat weekend_offset_subzy.txt 2>/dev/null)
+          if [ -z "$offset" ] || [ "$offset" -gt "$full_total" ]; then
+            offset=1
+          fi
+          chunk_end=$(( offset + chunk_size - 1 ))
+          if [ "$chunk_end" -gt "$full_total" ]; then
+            chunk_end=$full_total
+          fi
+          sed -n "${offset},${chunk_end}p" combined_full.txt > subzy_chunk.txt
+          total=$(wc -l < subzy_chunk.txt)
+          num_batches=$(( (total + target_per_batch - 1) / target_per_batch ))
+          if [ "$num_batches" -gt $max_batches ]; then num_batches=$max_batches; fi
+          if [ "$num_batches" -lt 1 ]; then num_batches=1; fi
+          done_batches=$(cut -d: -f1 weekend_progress_subzy.txt | sort -un)
+          if [ -z "$done_batches" ]; then
+            batches=$(seq 1 "$num_batches" | jq -R . | jq -sc .)
+          else
+            batches=$(seq 1 "$num_batches" | grep -vFx "$done_batches" | jq -R . | jq -sc . 2>/dev/null || echo "[]")
+          fi
+          if [ "$(echo "$done_batches" | grep -c .)" -ge "$num_batches" ] && [ -n "$done_batches" ]; then
+            echo "Chunk fully done, advancing offset"
+            new_offset=$(( chunk_end + 1 ))
+            if [ "$new_offset" -gt "$full_total" ]; then new_offset=1; fi
+            echo "$new_offset" > weekend_offset_subzy.txt
+            > weekend_progress_subzy.txt
+            batches=$(seq 1 "$num_batches" | jq -R . | jq -sc .)
+          fi
+          echo "has_hosts=true" >> $GITHUB_OUTPUT
+          echo "batches=$batches" >> $GITHUB_OUTPUT
+          echo "num_batches=$num_batches" >> $GITHUB_OUTPUT
+          echo "Subzy: $total hosts this window, $num_batches batches, remaining: $(echo "$batches" | jq 'length')"
+
+      - name: Upload chunk host list
+        uses: actions/upload-artifact@v4
+        with:
+          name: subzy-chunk
+          path: subzy_chunk.txt
+          retention-days: 7
+
+  scan:
+    needs: prepare
+    if: needs.prepare.outputs.has_hosts == 'true' && needs.prepare.outputs.batches != '[]'
+    runs-on: ${{ github.event.inputs.runner == 'self-hosted' && fromJson('["self-hosted","linux","x64"]') || 'ubuntu-latest' }}
+    timeout-minutes: 420
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        batch: ${{ fromJson(needs.prepare.outputs.batches) }}
+    steps:
+      - name: Download chunk host list
+        uses: actions/download-artifact@v4
+        with:
+          name: subzy-chunk
+
+      - name: Slice hosts for this batch
+        run: |
+          total=$(wc -l < subzy_chunk.txt)
+          num_batches=${{ needs.prepare.outputs.num_batches }}
+          batch_num=${{ matrix.batch }}
+          batch_size=$(( (total + num_batches - 1) / num_batches ))
+          start=$(( (batch_num - 1) * batch_size + 1 ))
+          end=$(( batch_num * batch_size ))
+          sed -n "${start},${end}p" subzy_chunk.txt > input_subzy.txt
+
+      - name: Cache Go tools
+        uses: actions/cache@v4
+        id: cache-go-subzy
+        with:
+          path: ~/go/bin
+          key: go-tools-subzy-${{ runner.os }}-v1
+
+      - name: Install subzy
+        if: steps.cache-go-subzy.outputs.cache-hit != 'true'
+        run: go install -v github.com/PentestPad/subzy@latest
+
+      - name: Ensure subzy installed
+        run: |
+          export PATH=$PATH:$(go env GOPATH)/bin
+          command -v subzy &>/dev/null || go install -v github.com/PentestPad/subzy@latest
+
+      - name: Run subzy takeover scan
+        run: |
+          export PATH=$PATH:$(go env GOPATH)/bin
+          touch subzy_results.txt
+          if [ -s input_subzy.txt ]; then
+            set +e
+            timeout 20700 subzy run --targets input_subzy.txt --hide_fails --verify_ssl --concurrency 5 -o subzy_results.txt
+            SUBZY_EXIT=$?
+            if [ "$SUBZY_EXIT" -eq 124 ]; then
+              echo "::error::Subzy timed out - batch will NOT be marked done"
+              exit 1
+            fi
+          fi
+
+      - name: Checkout domains branch (seen findings)
+        uses: actions/checkout@v4
+        with:
+          ref: domains
+          path: domains_data
+          fetch-depth: 1
+
+      - name: Filter against previously seen findings
+        run: |
+          touch domains_data/seen_findings_subzy.txt
+          comm -23 <(sort -u subzy_results.txt) <(sort -u domains_data/seen_findings_subzy.txt) > new_subzy_results.txt || true
+
+      - name: Check for results
+        id: check
+        run: |
+          if [ -s new_subzy_results.txt ]; then
+            echo "found=true" >> $GITHUB_OUTPUT
+            echo "count=$(wc -l < new_subzy_results.txt)" >> $GITHUB_OUTPUT
+          else
+            echo "found=false" >> $GITHUB_OUTPUT
+            echo "count=0" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Send email alert
+        if: steps.check.outputs.found == 'true'
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USER }}
+          password: ${{ secrets.EMAIL_PASS }}
+          subject: "[Subzy Takeover ${{ matrix.batch }}] ${{ steps.check.outputs.count }} New Finding(s)"
+          body: file://new_subzy_results.txt
+          to: ${{ secrets.EMAIL_TO }}
+          from: BugBountyBot
+
+      - name: Mark batch complete
+        if: success()
+        run: echo "${{ matrix.batch }}" > batch_marker.txt
+
+      - name: Upload batch completion marker
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: batch-marker-subzy-${{ matrix.batch }}
+          path: batch_marker.txt
+          retention-days: 1
+
+      - name: Upload batch findings
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: batch-findings-subzy-${{ matrix.batch }}
+          path: subzy_results.txt
+          retention-days: 1
+
+  finalize:
+    needs: [prepare, scan]
+    if: always()
+    runs-on: ${{ github.event.inputs.runner == 'self-hosted' && fromJson('["self-hosted","linux","x64"]') || 'ubuntu-latest' }}
+    steps:
+      - name: Checkout domains branch
+        uses: actions/checkout@v4
+        with:
+          ref: domains
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Download markers
+        uses: actions/download-artifact@v4
+        with:
+          path: markers
+          pattern: batch-marker-subzy-*
+          continue-on-error: true
+
+      - name: Download findings
+        uses: actions/download-artifact@v4
+        with:
+          path: findings
+          pattern: batch-findings-subzy-*
+          continue-on-error: true
+
+      - name: Merge progress + seen findings
+        run: |
+          git config --global user.email "bugbountybot@github.com"
+          git config --global user.name "BugBountyBot"
+          touch weekend_progress_subzy.txt weekend_offset_subzy.txt seen_findings_subzy.txt
+          for d in markers/batch-marker-subzy-*; do
+            [ -d "$d" ] || continue
+            num=$(basename "$d" | sed -E 's/^batch-marker-subzy-([0-9]+)$/\1/')
+            echo "$num" >> weekend_progress_subzy.txt
+          done
+          sort -un weekend_progress_subzy.txt -o weekend_progress_subzy.txt
+          for d in findings/batch-findings-subzy-*; do
+            [ -d "$d" ] && [ -f "$d/subzy_results.txt" ] && cat "$d/subzy_results.txt" >> seen_findings_subzy.txt
+          done
+          sort -u seen_findings_subzy.txt -o seen_findings_subzy.txt
+          echo "Done: $(wc -l < weekend_progress_subzy.txt) / ${{ needs.prepare.outputs.num_batches }}"
+          git add weekend_progress_subzy.txt weekend_offset_subzy.txt seen_findings_subzy.txt
+          git diff --staged --quiet || git commit -m "Subzy progress update $(date +'%Y-%m-%d %H:%M')"
+          git push origin domains || (git pull --rebase origin domains && git push origin domains) || echo "::warning::push failed"
