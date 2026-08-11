@@ -1,0 +1,326 @@
+name: Bypass Scanner
+on:
+  workflow_dispatch:
+    inputs:
+      runner:
+        description: 'Where to run'
+        type: choice
+        options:
+          - github
+          - self-hosted
+        default: github
+
+concurrency:
+  group: bypass-scanner-pipeline
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    runs-on: ${{ github.event.inputs.runner == 'self-hosted' && fromJson('["self-hosted","linux","x64"]') || 'ubuntu-latest' }}
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    outputs:
+      has_hosts: ${{ steps.split.outputs.has_hosts }}
+      num_batches: ${{ steps.split.outputs.num_batches }}
+      batches: ${{ steps.split.outputs.batches }}
+    steps:
+      - name: Checkout domains branch
+        uses: actions/checkout@v4
+        with:
+          ref: domains
+          fetch-depth: 1
+
+      - name: Checkout status checker from main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: checker
+          fetch-depth: 1
+
+      - name: Build 403 host list
+        run: |
+          touch live_hosts_403.txt
+
+          export HACKERONE_TOKEN="${{ secrets.HACKERONE_TOKEN }}"
+          export INTIGRITI_TOKEN="${{ secrets.INTIGRITI_TOKEN }}"
+          export MAPPING_CSV_PATH="checker/domain_program_map.csv"
+          export EXCLUDED_OUTPUT_PATH="excluded_domains.txt"
+          export COMBINED_HOSTS_PATH="live_hosts_403.txt"
+          pip install tldextract --break-system-packages
+          python3 checker/check_program_open.py
+
+          if [ -s excluded_domains.txt ]; then
+            > exclude_grep.txt
+            while IFS= read -r d; do
+              [ -z "$d" ] && continue
+              escaped=$(echo "$d" | sed 's/\./\\./g')
+              echo "\\.${escaped}\$|^${escaped}\$" >> exclude_grep.txt
+            done < excluded_domains.txt
+            grep -vEf exclude_grep.txt live_hosts_403.txt > live_hosts_403.txt.filtered || cp live_hosts_403.txt live_hosts_403.txt.filtered
+            mv live_hosts_403.txt.filtered live_hosts_403.txt
+          fi
+
+          echo "Full 403 list: $(wc -l < live_hosts_403.txt)"
+
+      - name: Compute window
+        id: split
+        run: |
+          target_per_batch=10
+          max_batches=256
+          chunk_size=$(( target_per_batch * max_batches ))
+          full_total=$(wc -l < live_hosts_403.txt)
+          touch weekend_offset_bypass.txt weekend_progress_bypass.txt
+          if [ "$full_total" -eq 0 ]; then
+            echo "has_hosts=false" >> $GITHUB_OUTPUT
+            echo "batches=[]" >> $GITHUB_OUTPUT
+            echo "num_batches=0" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          offset=$(cat weekend_offset_bypass.txt 2>/dev/null)
+          if [ -z "$offset" ] || [ "$offset" -gt "$full_total" ]; then
+            offset=1
+          fi
+          chunk_end=$(( offset + chunk_size - 1 ))
+          if [ "$chunk_end" -gt "$full_total" ]; then
+            chunk_end=$full_total
+          fi
+          sed -n "${offset},${chunk_end}p" live_hosts_403.txt > 403_chunk.txt
+          total=$(wc -l < 403_chunk.txt)
+          num_batches=$(( (total + target_per_batch - 1) / target_per_batch ))
+          if [ "$num_batches" -gt $max_batches ]; then num_batches=$max_batches; fi
+          if [ "$num_batches" -lt 1 ]; then num_batches=1; fi
+          done_batches=$(cut -d: -f1 weekend_progress_bypass.txt | sort -un)
+          if [ -z "$done_batches" ]; then
+            batches=$(seq 1 "$num_batches" | jq -R . | jq -sc .)
+          else
+            batches=$(seq 1 "$num_batches" | grep -vFx "$done_batches" | jq -R . | jq -sc . 2>/dev/null || echo "[]")
+          fi
+          if [ "$(echo "$done_batches" | grep -c .)" -ge "$num_batches" ] && [ -n "$done_batches" ]; then
+            echo "Chunk fully done, advancing offset"
+            new_offset=$(( chunk_end + 1 ))
+            if [ "$new_offset" -gt "$full_total" ]; then new_offset=1; fi
+            echo "$new_offset" > weekend_offset_bypass.txt
+            > weekend_progress_bypass.txt
+            batches=$(seq 1 "$num_batches" | jq -R . | jq -sc .)
+          fi
+          echo "has_hosts=true" >> $GITHUB_OUTPUT
+          echo "batches=$batches" >> $GITHUB_OUTPUT
+          echo "num_batches=$num_batches" >> $GITHUB_OUTPUT
+          echo "Bypass: $total hosts this window, $num_batches batches, remaining: $(echo "$batches" | jq 'length')"
+
+      - name: Upload chunk host list
+        uses: actions/upload-artifact@v4
+        with:
+          name: bypass-chunk
+          path: 403_chunk.txt
+          retention-days: 7
+
+  scan:
+    needs: prepare
+    if: needs.prepare.outputs.has_hosts == 'true' && needs.prepare.outputs.batches != '[]'
+    runs-on: ${{ github.event.inputs.runner == 'self-hosted' && fromJson('["self-hosted","linux","x64"]') || 'ubuntu-latest' }}
+    timeout-minutes: 420
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        batch: ${{ fromJson(needs.prepare.outputs.batches) }}
+    steps:
+      - name: Checkout main branch script
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: main_scripts
+          fetch-depth: 1
+
+      - name: Download chunk host list
+        uses: actions/download-artifact@v4
+        with:
+          name: bypass-chunk
+
+      - name: Slice hosts for this batch
+        run: |
+          total=$(wc -l < 403_chunk.txt)
+          num_batches=${{ needs.prepare.outputs.num_batches }}
+          batch_num=${{ matrix.batch }}
+          batch_size=$(( (total + num_batches - 1) / num_batches ))
+          start=$(( (batch_num - 1) * batch_size + 1 ))
+          end=$(( batch_num * batch_size ))
+          sed -n "${start},${end}p" 403_chunk.txt > input_403.txt
+          echo "Batch $batch_num/$num_batches: $(wc -l < input_403.txt) hosts"
+
+      - name: Pre-filter dead hosts
+        run: |
+          cat input_403.txt | xargs -P 30 -I @@H@@ bash -c 'code=$(curl -s -o /dev/null -m 2 -w "%{http_code}" "@@H@@" 2>/dev/null || echo 000); if [ "$code" != "000" ]; then echo "@@H@@"; fi' > input_403_live.txt || true
+          if [ -s input_403_live.txt ]; then mv input_403_live.txt input_403.txt; fi
+
+      - name: Get week number
+        id: date
+        run: echo "week=$(date +'%Y-%U')" >> $GITHUB_OUTPUT
+
+      - name: Cache Go tools
+        uses: actions/cache@v4
+        id: cache-go
+        with:
+          path: ~/go/bin
+          key: go-tools-${{ runner.os }}-v4
+
+      - name: Install nuclei
+        if: steps.cache-go.outputs.cache-hit != 'true'
+        run: go install github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest
+
+      - name: Ensure nuclei installed
+        run: |
+          export PATH=$PATH:$(go env GOPATH)/bin
+          command -v nuclei &>/dev/null || go install github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest
+
+      - name: Cache nuclei templates
+        uses: actions/cache@v4
+        id: cache-templates
+        with:
+          path: ~/.local/share/nuclei-templates
+          key: nuclei-templates-${{ runner.os }}-${{ steps.date.outputs.week }}
+          restore-keys: nuclei-templates-${{ runner.os }}-
+
+      - name: Download nuclei templates
+        run: |
+          mkdir -p $HOME/.local/share/nuclei-templates
+          if [ ! -d "$HOME/.local/share/nuclei-templates/http" ]; then
+            git clone --depth 1 https://github.com/projectdiscovery/nuclei-templates.git $HOME/.local/share/nuclei-templates || true
+          fi
+
+      - name: Run 403 bypass scan
+        run: |
+          export PATH=$PATH:$(go env GOPATH)/bin
+          TEMPLATES_DIR="$HOME/.local/share/nuclei-templates"
+          touch results.txt
+          if [ ! -s input_403.txt ]; then echo "No targets"; exit 0; fi
+          set +e
+          timeout 20700 nuclei -l input_403.txt \
+            -t "$TEMPLATES_DIR/http/misconfiguration" \
+            -itags 403 \
+            -etags ssl,tls,http-missing-headers,tech,info,dns,helpers,passive \
+            -severity medium,high,critical \
+            -H "User-Agent: Mozilla/5.0 BugBounty/42 (YWH) Chemical Oxidizer CS_YWH/BB" \
+            -H "X-Bug-Bounty: HackerOne-Chemical, HackerOne-Oxidizer" \
+            -H "X-Bugcrowd-Research: Chemical, Oxidizer" \
+            -H "X-Intigriti-Research: Chemical, Oxidizer" \
+            -H "X-YesWeHack-Research: Chemical, Oxidizer" \
+            -silent -retries 0 -timeout 3 -bulk-size 5 -concurrency 5 \
+            -rate-limit 5 -fhr -max-host-error 30 \
+            -no-color -o results.txt -je nuclei_findings.json -irr
+          NUCLEI_EXIT=$?
+          if [ "$NUCLEI_EXIT" -eq 124 ]; then
+            echo "::error::Nuclei timed out - batch will NOT be marked done"
+            exit 1
+          fi
+          grep -E "\[(medium|high|critical)\]" results.txt > results_filtered.txt 2>/dev/null || true
+          mv results_filtered.txt results.txt
+
+      - name: Checkout domains branch (seen findings)
+        uses: actions/checkout@v4
+        with:
+          ref: domains
+          path: domains_data
+          fetch-depth: 1
+
+      - name: Filter against previously seen findings
+        run: |
+          touch domains_data/seen_findings_bypass.txt
+          comm -23 <(sort -u results.txt) <(sort -u domains_data/seen_findings_bypass.txt) > new_results.txt || true
+
+      - name: Check for results
+        id: check
+        run: |
+          if [ -s new_results.txt ]; then
+            echo "found=true" >> $GITHUB_OUTPUT
+            echo "count=$(wc -l < new_results.txt)" >> $GITHUB_OUTPUT
+          else
+            echo "found=false" >> $GITHUB_OUTPUT
+            echo "count=0" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build detailed email body
+        if: steps.check.outputs.found == 'true'
+        run: python3 main_scripts/build_email_body.py || cp new_results.txt new_results_detailed.txt
+
+      - name: Send email alert
+        if: steps.check.outputs.found == 'true'
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USER }}
+          password: ${{ secrets.EMAIL_PASS }}
+          subject: "[403 Bypass ${{ matrix.batch }}] ${{ steps.check.outputs.count }} New Finding(s)"
+          body: file://new_results_detailed.txt
+          to: ${{ secrets.EMAIL_TO }}
+          from: BugBountyBot
+
+      - name: Mark batch complete
+        if: success()
+        run: echo "${{ matrix.batch }}" > batch_marker.txt
+
+      - name: Upload batch completion marker
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: batch-marker-bypass-${{ matrix.batch }}
+          path: batch_marker.txt
+          retention-days: 1
+
+      - name: Upload batch findings
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: batch-findings-bypass-${{ matrix.batch }}
+          path: results.txt
+          retention-days: 1
+
+  finalize:
+    needs: [prepare, scan]
+    if: always()
+    runs-on: ${{ github.event.inputs.runner == 'self-hosted' && fromJson('["self-hosted","linux","x64"]') || 'ubuntu-latest' }}
+    steps:
+      - name: Checkout domains branch
+        uses: actions/checkout@v4
+        with:
+          ref: domains
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Download markers
+        uses: actions/download-artifact@v4
+        with:
+          path: markers
+          pattern: batch-marker-bypass-*
+          continue-on-error: true
+
+      - name: Download findings
+        uses: actions/download-artifact@v4
+        with:
+          path: findings
+          pattern: batch-findings-bypass-*
+          continue-on-error: true
+
+      - name: Merge progress + seen findings
+        run: |
+          git config --global user.email "bugbountybot@github.com"
+          git config --global user.name "BugBountyBot"
+          touch weekend_progress_bypass.txt weekend_offset_bypass.txt seen_findings_bypass.txt
+          for d in markers/batch-marker-bypass-*; do
+            [ -d "$d" ] || continue
+            num=$(basename "$d" | sed -E 's/^batch-marker-bypass-([0-9]+)$/\1/')
+            echo "$num" >> weekend_progress_bypass.txt
+          done
+          sort -un weekend_progress_bypass.txt -o weekend_progress_bypass.txt
+          for d in findings/batch-findings-bypass-*; do
+            [ -d "$d" ] && [ -f "$d/results.txt" ] && cat "$d/results.txt" >> seen_findings_bypass.txt
+          done
+          sort -u seen_findings_bypass.txt -o seen_findings_bypass.txt
+          echo "Done: $(wc -l < weekend_progress_bypass.txt) / ${{ needs.prepare.outputs.num_batches }}"
+          git add weekend_progress_bypass.txt weekend_offset_bypass.txt seen_findings_bypass.txt
+          git diff --staged --quiet || git commit -m "Bypass scanner progress update $(date +'%Y-%m-%d %H:%M')"
+          git push origin domains || (git pull --rebase origin domains && git push origin domains) || echo "::warning::push failed"
