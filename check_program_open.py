@@ -12,7 +12,7 @@ Domains belonging to a blocked/suspended program are excluded.
 Everything else is assumed already vetted (see check_program_status.py / vet workflow)
 and re-scoped at the subdomain level in recon.
 """
-import os, csv, json, sys
+import os, csv, json, re, sys
 import urllib.request, urllib.error
 
 HOME = os.path.expanduser("~")
@@ -53,6 +53,27 @@ def fetch_intigriti_programs(token):
     for p in data.get("records", []):
         programs.append({"handle": p["handle"], "name": p["name"], "status": p["status"]["value"], "id": p["id"]})
     return programs
+
+
+def wildcard_to_regex(pattern):
+    # Same glob convention used in filter_to_scope.py: "*" -> ".*"
+    escaped = re.escape(pattern)
+    escaped = escaped.replace(r"\*", ".*")
+    return re.compile(f"^{escaped}$", re.IGNORECASE)
+
+
+def bare_host(host):
+    # Same normalization as filter_to_scope.py's bare_host() - combined_full.txt
+    # entries carry a scheme (http://...), domain_program_map.csv entries don't.
+    h = host.replace("https://", "").replace("http://", "")
+    return h.split("/")[0].split(":")[0]
+
+
+def is_mapped(host, exact_domains, wildcard_regexes):
+    h = bare_host(host)
+    if h in exact_domains:
+        return True
+    return any(rx.match(h) for rx in wildcard_regexes)
 
 
 def find_match(programs, keyword, platform=None):
@@ -129,11 +150,12 @@ def main():
     excluded_domains = []
     no_match = []
 
-    mapped_domains = {row["domain"] for row in rows}
+    mapped_domains = {row["domain"] for row in rows if "*" not in row["domain"]}
+    wildcard_regexes = [wildcard_to_regex(row["domain"]) for row in rows if "*" in row["domain"]]
     combined_path = os.environ.get("COMBINED_HOSTS_PATH", "combined.txt")
     if os.path.exists(combined_path):
         with open(combined_path) as f:
-            unmapped = [line.strip() for line in f if line.strip() and line.strip() not in mapped_domains]
+            unmapped = [line.strip() for line in f if line.strip() and not is_mapped(line.strip(), mapped_domains, wildcard_regexes)]
         if unmapped:
             print(f"[UNMAPPED] {len(unmapped)} domain(s) not in domain_program_map.csv - EXCLUDING (no program status known)")
             for d in unmapped:
@@ -174,9 +196,20 @@ def main():
         print(f"    - {d}")
     print(f"\n  No/ambiguous API match or error: {len(no_match)} group(s)")
 
+    # Downstream (exclude_grep.txt in the scanner workflows) does suffix-match
+    # exclusion, not wildcard-glob matching. Strip a literal "*." prefix here
+    # so a blocked wildcard-scoped entry (e.g. "*.etoro.com") actually excludes
+    # its real subdomains (api.etoro.com, etc.) instead of only the literal
+    # "*.etoro.com" string, which never appears in a live host list.
+    normalized_excluded = []
+    for d in excluded_domains:
+        if d.startswith("*."):
+            d = d[2:]
+        normalized_excluded.append(d)
+
     exclude_tmp_path = f"{EXCLUDE_OUTPUT_PATH}.tmp"
     with open(exclude_tmp_path, "w") as f:
-        for d in excluded_domains:
+        for d in normalized_excluded:
             f.write(d + "\n")
     os.replace(exclude_tmp_path, EXCLUDE_OUTPUT_PATH)
     print(f"\nWrote {len(excluded_domains)} domains to {EXCLUDE_OUTPUT_PATH}")
