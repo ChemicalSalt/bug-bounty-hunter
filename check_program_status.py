@@ -465,9 +465,21 @@ def main():
     print(f"\n  No API match found: {len(no_match)} groups")
     print(f"  Ambiguous matches: {len(ambiguous)} groups")
 
+    # weekend-recon.yml builds exclude_grep.txt from this file as a suffix-match
+    # regex (\.domain$|^domain$), not a wildcard-glob match. Strip a literal
+    # "*." prefix here so a blocked/ineligible wildcard-scoped entry (e.g.
+    # "*.etoro.com") actually excludes its real subdomains (api.etoro.com,
+    # etc.) instead of only the literal "*.etoro.com" string, which never
+    # appears in a live host list. Same fix as check_program_open.py.
+    normalized_excluded = []
+    for d in excluded_domains:
+        if d.startswith("*."):
+            d = d[2:]
+        normalized_excluded.append(d)
+
     exclude_tmp_path = f"{EXCLUDE_OUTPUT_PATH}.tmp"
     with open(exclude_tmp_path, "w") as f:
-        for d in excluded_domains:
+        for d in normalized_excluded:
             f.write(d + "\n")
     os.replace(exclude_tmp_path, EXCLUDE_OUTPUT_PATH)
     print(f"\nWrote {len(excluded_domains)} domains to {EXCLUDE_OUTPUT_PATH}")
