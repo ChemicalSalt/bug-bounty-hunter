@@ -257,6 +257,11 @@ jobs:
           mv results_filtered.txt results.txt
           echo "Findings: $(wc -l < results.txt)"
 
+      - name: Refresh seen-findings list before dedup
+        run: |
+          (cd domains_data && git pull origin data --quiet) || echo "::warning::Could not refresh seen_findings_custom.txt, proceeding with local copy"
+          cp domains_data/seen_findings_custom.txt . 2>/dev/null || true
+
       - name: Filter against previously seen findings
         run: |
           touch seen_findings_custom.txt
