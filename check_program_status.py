@@ -15,7 +15,9 @@ def strip_html(text):
     return HTML_TAG_RE.sub(" ", text)
 
 def automation_ban_check(text, program_name):
-    """Returns True (banned/excluded), False (confirmed ok), or 'review' mapped to excluded."""
+    """Returns "allowed" (confirmed ok), or "banned"/"silent"/"review"/"no_key"
+    (all treated as not-ok here - this file fails closed on anything short of
+    confirmed explicit permission, same as the vet-time check)."""
     if not MISTRAL_API_KEY:
         return "no_key"
     result, reason = check_automation_ban_two_layer(text, program_name)
@@ -296,8 +298,8 @@ def main():
                     rate_result, _ = check_rate_limit_two_layer(policy_text, f"yeswehack/{keyword}")
                     sh_result = check_safe_harbor_two_layer(policy_text, f"yeswehack/{keyword}")
                     id_result = check_id_verification_two_layer(policy_text, f"yeswehack/{keyword}")
-                    ban_ok = ban_result[0] is False
-                    rate_ok = rate_result is not None and rate_result >= FLAT_RATE_LIMIT
+                    ban_ok = ban_result[0] == "allowed"
+                    rate_ok = rate_result is None or rate_result >= FLAT_RATE_LIMIT
                     sh_ok = sh_result[0] is True
                     id_ok = id_result[0] is not True
                     eligible = has_scope and is_public and not is_demo and not is_vdp and ban_ok and rate_ok and sh_ok and id_ok
@@ -335,8 +337,8 @@ def main():
                         rate_result, _ = check_rate_limit_two_layer(policy_text, f"bugcrowd/{keyword}")
                         sh_result = check_safe_harbor_two_layer(policy_text, f"bugcrowd/{keyword}")
                         id_result = check_id_verification_two_layer(policy_text, f"bugcrowd/{keyword}")
-                        ban_ok = ban_result[0] is False
-                        rate_ok = rate_result is not None and rate_result >= FLAT_RATE_LIMIT
+                        ban_ok = ban_result[0] == "allowed"
+                        rate_ok = rate_result is None or rate_result >= FLAT_RATE_LIMIT
                         sh_ok = sh_result[0] is True
                         id_flag = id_result[0]
                         id_ok = id_flag is not True
@@ -393,8 +395,8 @@ def main():
                     ban_result = automation_ban_check(ban_text, f"hackerone/{keyword}")
                     rate_result, _ = check_rate_limit_two_layer(ban_text, f"hackerone/{keyword}")
                     id_result = check_id_verification_two_layer(ban_text, f"hackerone/{keyword}")
-                    ban_ok = ban_result is False
-                    rate_ok = rate_result is not None and rate_result >= FLAT_RATE_LIMIT
+                    ban_ok = ban_result == "allowed"
+                    rate_ok = rate_result is None or rate_result >= FLAT_RATE_LIMIT
                     id_ok = id_result[0] is not True
                     text_eligible = ban_ok and rate_ok and id_ok
                     print(f"    [BAN CHECK] automation_ban={ban_result} | rate={rate_result} | id_verification={id_result[0]} | text_eligible={text_eligible}")
@@ -427,11 +429,11 @@ def main():
             has_scope = len(scope_result["scope"]) > 0
             safe_harbor_ok = scope_result["safe_harbor"] is True
             rate_limit_val = scope_result["rate_limit"]
-            automated_ok = rate_limit_val is not None and rate_limit_val >= FLAT_RATE_LIMIT
+            automated_ok = rate_limit_val is None or rate_limit_val >= FLAT_RATE_LIMIT
             eligible = has_scope and safe_harbor_ok and automated_ok
             print(f"    [SCOPE] {len(scope_result['scope'])} in-scope, {len(scope_result.get('out_scope', []))} out-of-scope | safe_harbor={scope_result['safe_harbor']} | automated_tooling_rate={rate_limit_val} | eligible={eligible}")
             if rate_limit_val is None:
-                print(f"    [EXCLUDED] No automatedTooling rate limit specified - cannot confirm automated scanning is permitted")
+                print(f"    [KEPT-ON-RATE] No automatedTooling rate limit specified - not a blocker, we self-limit to {FLAT_RATE_LIMIT}rps regardless")
             elif rate_limit_val < FLAT_RATE_LIMIT:
                 print(f"    [EXCLUDED] Program's automatedTooling rate ({rate_limit_val}) is stricter than our flat {FLAT_RATE_LIMIT} rps")
             print(f"    [NOTE] Intigriti API does not expose ID-verification-required - covered by text-based check below")
@@ -441,7 +443,7 @@ def main():
                 ban_text = strip_html(scope_result.get("policy"))
                 ban_result = automation_ban_check(ban_text, f"intigriti/{keyword}")
                 id_result = check_id_verification_two_layer(ban_text, f"intigriti/{keyword}")
-                ban_ok = ban_result is False
+                ban_ok = ban_result == "allowed"
                 id_ok = id_result[0] is not True
                 text_eligible = ban_ok and id_ok
                 print(f"    [BAN CHECK] automation_ban={ban_result} | id_verification={id_result[0]} | text_eligible={text_eligible}")

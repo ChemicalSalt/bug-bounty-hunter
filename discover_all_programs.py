@@ -54,6 +54,18 @@ AUTOMATION_BAN_PATTERNS = [
     r"do not use scanners",
 ]
 
+# Condition #3 requires EXPLICIT permission for automated scanning - silence
+# is not permission. These patterns are the converse of AUTOMATION_BAN_PATTERNS:
+# they catch explicit grants, not the mere absence of a ban.
+AUTOMATION_ALLOW_PATTERNS = [
+    r"automated (?:scan\w*|tool\w*|test\w*) (?:is|are) (?:allowed|permitted|welcome)",
+    r"(?:you )?(?:may|can) use automated (?:scan\w*|tool\w*)",
+    r"we allow automated (?:scan\w*|tool\w*|test\w*)",
+    r"automated (?:scanning|testing|tools?) (?:is|are) (?:permitted|allowed|welcome)",
+    r"manual and automated (?:test\w*|scan\w*) (?:is|are) (?:both )?(?:allowed|permitted|welcome)",
+    r"automated (?:scan\w*|tool\w*) (?:is|are) permitted (?:as long as|provided|if)",
+]
+
 SAFE_HARBOR_PATTERNS = [
     r"safe harbor",
     r"good faith security research",
@@ -125,6 +137,23 @@ def check_automation_ban(text):
     if not text:
         return False, None
     for pat in AUTOMATION_BAN_PATTERNS:
+        m = re.search(pat, text, re.I)
+        if m:
+            start = max(0, m.start() - 100)
+            end = min(len(text), m.end() + 100)
+            cleaned = re.sub(r"\s+", " ", text[start:end]).strip()
+            return True, cleaned
+    return False, None
+
+
+def check_automation_allow(text):
+    """Fast regex sweep of the FULL text (not chunked - regex has no context
+    window limit) for explicit language granting permission to use automated
+    scanners/tools. This is the only thing that can turn condition #3's
+    'silent' default into a keep."""
+    if not text:
+        return False, None
+    for pat in AUTOMATION_ALLOW_PATTERNS:
         m = re.search(pat, text, re.I)
         if m:
             start = max(0, m.start() - 100)
@@ -716,12 +745,13 @@ def vet_hackerone_program(handle, auth, results):
     if not sh_ok:
         results["excluded"].append((handle, f"safe harbor not confirmed: {(sh_snippet or 'no safe-harbor language found in full policy text')[:80]}", domain_count))
         return
-    banned, snippet = check_automation_ban_two_layer(policy, handle)
-    if banned == "review":
+    automation_status, snippet = check_automation_ban_two_layer(policy, handle)
+    if automation_status == "review":
         results["skipped"].append((handle, snippet, domain_count))
         return
-    if banned:
-        results["excluded"].append((handle, f"automation ban: {snippet[:80]}", domain_count))
+    if automation_status != "allowed":
+        reason = "automation ban" if automation_status == "banned" else "no explicit automation permission (silent)"
+        results["excluded"].append((handle, f"{reason}: {(snippet or '')[:80]}", domain_count))
         return
     id_req, id_snippet = check_id_verification_two_layer(policy, handle)
     if id_req is True:
@@ -837,12 +867,13 @@ def vet_intigriti_program(program, token, results):
     if rate is not None and rate < MIN_RATE_LIMIT:
         results["excluded"].append((pid, f"{name}: rate limit below {MIN_RATE_LIMIT}/s (found: {rate})", domain_count))
         return
-    banned, snippet = check_automation_ban_two_layer(roe_text, name)
-    if banned == "review":
+    automation_status, snippet = check_automation_ban_two_layer(roe_text, name)
+    if automation_status == "review":
         results["skipped"].append((pid, f"{name}: {snippet}", domain_count))
         return
-    if banned:
-        results["excluded"].append((pid, f"{name}: automation ban: {snippet[:80]}", domain_count))
+    if automation_status != "allowed":
+        reason = "automation ban" if automation_status == "banned" else "no explicit automation permission (silent)"
+        results["excluded"].append((pid, f"{name}: {reason}: {(snippet or '')[:80]}", domain_count))
         return
     id_req, id_snippet = check_id_verification_two_layer(roe_text, name)
     if id_req is True:
@@ -1093,12 +1124,13 @@ def vet_yeswehack_program(program, results):
         sh_display = sh_snippet or "no safe-harbor language found in full policy text"
         results["excluded"].append((slug, f"safe harbor not confirmed: {sh_display[:80]}", domain_count))
         return
-    banned, snippet = check_automation_ban_two_layer(rules, slug)
-    if banned == "review":
+    automation_status, snippet = check_automation_ban_two_layer(rules, slug)
+    if automation_status == "review":
         results["skipped"].append((slug, snippet, domain_count))
         return
-    if banned:
-        results["excluded"].append((slug, f"automation ban: {snippet[:80]}", domain_count))
+    if automation_status != "allowed":
+        reason = "automation ban" if automation_status == "banned" else "no explicit automation permission (silent)"
+        results["excluded"].append((slug, f"{reason}: {(snippet or '')[:80]}", domain_count))
         return
     id_req, id_snippet = check_id_verification_two_layer(rules, slug)
     if id_req is True:
@@ -1237,12 +1269,13 @@ def vet_bugcrowd_program(program, results):
         else:
             out_domains.extend(target_domains)
     domain_count = len(set(domains))
-    banned, snippet = check_automation_ban_two_layer(text, slug)
-    if banned == "review":
+    automation_status, snippet = check_automation_ban_two_layer(text, slug)
+    if automation_status == "review":
         results["skipped"].append((slug, snippet, domain_count))
         return
-    if banned:
-        results["excluded"].append((slug, f"automation ban: {snippet[:80]}", domain_count))
+    if automation_status != "allowed":
+        reason = "automation ban" if automation_status == "banned" else "no explicit automation permission (silent)"
+        results["excluded"].append((slug, f"{reason}: {(snippet or '')[:80]}", domain_count))
         return
     id_req, id_snippet = check_id_verification_two_layer(text, slug)
     if id_req is True:
@@ -1942,6 +1975,112 @@ def mistral_check_ban(snippet, program_name):
             break
     log_mistral_call(program_name, snippet, None, None, error=str(last_err))
     return None
+def mistral_check_automation_allowed(snippet, program_name):
+    cache_key = hashlib.sha256(("autoallow:v1:" + snippet).encode()).hexdigest()
+    if cache_key in _MISTRAL_CACHE:
+        cached = _MISTRAL_CACHE[cache_key]
+        log_mistral_call(program_name, snippet, cached["is_allowed"], cached["reason"] + " [CACHED]", error=None)
+        return cached["is_allowed"]
+    if not MISTRAL_API_KEY:
+        return None
+    global _MISTRAL_QUOTA_EXHAUSTED_UNTIL, _MISTRAL_CALLS_SINCE_SAVE
+    if time.time() < _MISTRAL_QUOTA_EXHAUSTED_UNTIL:
+        return None
+    _mistral_pace()
+    prompt = (
+        "You are reviewing a single snippet from a bug bounty program's "
+        "policy text. Answer ONLY with valid JSON, no other text, in this "
+        'exact format: {"is_allowed": true or false, "reason": "one short sentence"}.\n\n'
+        "Question: Does this snippet EXPLICITLY grant permission for the ACT "
+        "of using automated scanners/tools against their systems?\n\n"
+        "THE KEY TEST: this must be a clear, affirmative grant of permission "
+        "to run automated scanning tools - not merely the absence of a ban, "
+        "not a mention of automation in an unrelated context, and not a "
+        "rule about what may be SUBMITTED (report/output rules do not "
+        "grant or restrict tool use, they gate submissions).\n\n"
+        "Examples:\n"
+        "ALLOWED (true): 'Automated scanning is permitted on all in-scope assets.'\n"
+        "ALLOWED (true): 'You may use automated tools as long as you respect rate limits.'\n"
+        "ALLOWED (true): 'We allow both manual and automated testing.'\n"
+        "NOT ALLOWED (false): 'Reports from automated tools without a working "
+        "PoC will be closed.' (a submission rule, not a grant of scanning "
+        "permission)\n"
+        "NOT ALLOWED (false): 'Please respect our rate limits.' (says nothing "
+        "about whether automation itself is permitted)\n"
+        "NOT ALLOWED (false): silence / no mention of automated tooling at all.\n\n"
+        f"Snippet:\n{snippet}"
+    )
+    body = json.dumps({
+        "model": "mistral-large-latest",
+        "messages": [{"role": "user", "content": prompt}],
+        "temperature": 0,
+        "max_tokens": 700,
+    }).encode()
+    req = urllib.request.Request(
+        MISTRAL_URL,
+        data=body,
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {MISTRAL_API_KEY}",
+            "User-Agent": "bug-bounty-hunter-vet/1.0",
+        },
+        method="POST",
+    )
+    last_err = None
+    for attempt in range(3):
+        try:
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                data = json.loads(resp.read().decode())
+            text = data["choices"][0]["message"]["content"].strip()
+            text = text.strip("`")
+            if text.startswith("json"):
+                text = text[4:].strip()
+            m = re.search(r'"is_allowed"\s*:\s*(true|false)', text, re.IGNORECASE)
+            if not m:
+                raise ValueError(f"could not find is_allowed in response: {text[:150]}")
+            is_allowed = m.group(1).lower() == "true"
+            rm = re.search(r'"reason"\s*:\s*"(.*?)"\s*}', text, re.DOTALL)
+            reason = rm.group(1) if rm else text[:150]
+            log_mistral_call(program_name, snippet, is_allowed, reason, error=None)
+            _MISTRAL_CACHE[cache_key] = {"is_allowed": is_allowed, "reason": reason}
+            _MISTRAL_CALLS_SINCE_SAVE += 1
+            if _MISTRAL_CALLS_SINCE_SAVE >= 50:
+                save_mistral_cache(_MISTRAL_CACHE)
+                _MISTRAL_CALLS_SINCE_SAVE = 0
+            return is_allowed
+        except urllib.error.HTTPError as e:
+            last_err = e
+            if e.code == 429:
+                try:
+                    retry_after = e.headers.get("Retry-After") if e.headers else None
+                    ra_val = float(retry_after) if retry_after is not None else None
+                except (TypeError, ValueError):
+                    ra_val = None
+                if ra_val is not None and ra_val > 300:
+                    _MISTRAL_QUOTA_EXHAUSTED_UNTIL = time.time() + ra_val
+                    break
+            if e.code in (503, 429) and attempt < 2:
+                wait = 5 * (attempt + 1)
+                if e.code == 429:
+                    try:
+                        ra = e.headers.get("Retry-After") if e.headers else None
+                        if ra is not None:
+                            wait = max(wait, min(int(float(ra)) + 1, 90))
+                    except (TypeError, ValueError):
+                        pass
+                time.sleep(wait)
+                continue
+            break
+        except Exception as e:
+            last_err = e
+            if attempt < 2:
+                time.sleep(5 * (attempt + 1))
+                continue
+            break
+    log_mistral_call(program_name, snippet, None, None, error=str(last_err))
+    return None
+
+
 def log_mistral_call(program_name, snippet, is_ban, reason, error):
     with open(MISTRAL_LOG_PATH, "a") as f:
         f.write(f"--- {program_name} ---\n")
@@ -1954,19 +2093,47 @@ def log_mistral_call(program_name, snippet, is_ban, reason, error):
 
 
 def check_automation_ban_two_layer(text, program_name):
-    banned, snippet = check_automation_ban(text)
+    """Returns (status, snippet) where status is one of:
+      "banned"  - explicit ban on the ACT of automated scanning, confirmed
+      "allowed" - explicit permission for automated scanning, confirmed
+      "silent"  - neither found anywhere in the text (condition #3: no
+                  evidence of permission = no permission = drop)
+      "review"  - a Mistral call failed; queue for retry, don't decide yet
+    """
+    # Layer 1a: regex fast-path for explicit ban language, Mistral-confirmed
+    # (Mistral filters out false positives like report-quality/submission
+    # rules that mention "automated" but don't ban the act of scanning).
+    banned, ban_snippet = check_automation_ban(text)
     if banned:
-        result = mistral_check_ban(snippet, program_name)
+        result = mistral_check_ban(ban_snippet, program_name)
         if result is None:
-            return "review", f"[Mistral call failed — queued for retry] {snippet[:80]}"
+            return "review", f"[Mistral call failed — queued for retry] {ban_snippet[:80]}"
         if result:
-            return True, f"[Mistral-confirmed ban] {snippet[:80]}"
-        return False, None
+            return "banned", f"[Mistral-confirmed ban] {ban_snippet[:80]}"
+        # Mistral says this snippet isn't actually a ban (e.g. a submission
+        # rule) - that's not evidence of permission either, so fall through
+        # to check for explicit allow language / genuine silence below.
+
     if not text:
-        return False, None
-    # Regex found no explicit ban language — send full policy to Mistral
-    # for a real read instead of guessing off loose keywords, chunked so a
-    # ban clause past the old 8000-char cutoff can't be missed.
+        return "silent", None
+
+    # Layer 1b: regex fast-path for explicit allow language, Mistral-confirmed.
+    # Regex sweeps the FULL text here (no chunk cap), so this doesn't miss
+    # allow language that happens to fall outside the full-text fallback's
+    # chunk limit below.
+    allowed, allow_snippet = check_automation_allow(text)
+    if allowed:
+        result = mistral_check_automation_allowed(allow_snippet, program_name)
+        if result is None:
+            return "review", f"[Mistral call failed — queued for retry] {allow_snippet[:80]}"
+        if result:
+            return "allowed", f"[Mistral-confirmed explicit allow] {allow_snippet[:80]}"
+        # Mistral says this snippet isn't actually a grant of permission -
+        # fall through to the full-text ban re-check below.
+
+    # Layer 2: regex found no clear signal either way — send full policy to
+    # Mistral for a real read instead of guessing off loose keywords, chunked
+    # so a ban clause past the old 8000-char cutoff can't be missed.
     any_review = False
     for chunk in _chunk_text(text)[:MAX_FULLTEXT_FALLBACK_CHUNKS]:
         result = mistral_check_ban(chunk, program_name)
@@ -1974,10 +2141,13 @@ def check_automation_ban_two_layer(text, program_name):
             any_review = True
             continue
         if result:
-            return True, "[Mistral-confirmed ban, no regex match]"
+            return "banned", "[Mistral-confirmed ban, no regex match]"
     if any_review:
         return "review", "[Mistral call failed on full-text check — queued for retry]"
-    return False, None
+
+    # No ban found anywhere (regex or full-text read), and no explicit allow
+    # language found either. Per condition #3, silence is NOT permission.
+    return "silent", "[No automation ban found, but no explicit allow language found either - condition #3 requires explicit permission, not just absence of a ban]"
 
 if __name__ == "__main__":
     main()
