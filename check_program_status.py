@@ -145,9 +145,10 @@ def fetch_intigriti_scope(program_id, token):
     safe_harbor = roe.get("safeHarbour")
     automated_tooling = roe.get("testingRequirements", {}).get("automatedTooling")
     policy_text = roe.get("description")
+    roe_text = json.dumps(roe) if roe else policy_text
     confidentiality = data.get("confidentialityLevel", {}).get("value")
 
-    return {"scope": in_scope, "out_scope": out_scope, "safe_harbor": safe_harbor, "rate_limit": automated_tooling, "policy": policy_text, "confidentiality": confidentiality, "error": None}
+    return {"scope": in_scope, "out_scope": out_scope, "safe_harbor": safe_harbor, "rate_limit": automated_tooling, "policy": policy_text, "roe_text": roe_text, "confidentiality": confidentiality, "error": None}
 
 def find_match(programs, keyword, platform=None):
     if platform == "intigriti":
@@ -223,7 +224,7 @@ def fetch_bugcrowd_scope(slug):
         else:
             out_domains.extend(target_domains)
     brief = full.get("data", {}).get("brief", {}) or {}
-    policy_text = strip_html(brief.get("description"))
+    policy_text = strip_html(" ".join(filter(None, [brief.get("description"), brief.get("targetsOverview")])))
     engagement_config = full.get("data", {}).get("engagementConfiguration", {}) or {}
     participation = engagement_config.get("participation")
     return {"scope": sorted(set(domains)), "out_scope": sorted(set(out_domains)), "policy": policy_text, "participation": participation, "error": None}
@@ -429,6 +430,9 @@ def main():
             has_scope = len(scope_result["scope"]) > 0
             safe_harbor_ok = scope_result["safe_harbor"] is True
             rate_limit_val = scope_result["rate_limit"]
+            if rate_limit_val is not None and not isinstance(rate_limit_val, (int, float)):
+                fallback_text = strip_html(scope_result.get("roe_text") or scope_result.get("policy"))
+                rate_limit_val, _ = check_rate_limit_two_layer(fallback_text, f"intigriti/{keyword}")
             automated_ok = rate_limit_val is None or rate_limit_val >= FLAT_RATE_LIMIT
             eligible = has_scope and safe_harbor_ok and automated_ok
             print(f"    [SCOPE] {len(scope_result['scope'])} in-scope, {len(scope_result.get('out_scope', []))} out-of-scope | safe_harbor={scope_result['safe_harbor']} | automated_tooling_rate={rate_limit_val} | eligible={eligible}")
@@ -440,7 +444,7 @@ def main():
             if not eligible:
                 excluded_domains.extend(domains)
             else:
-                ban_text = strip_html(scope_result.get("policy"))
+                ban_text = strip_html(scope_result.get("roe_text") or scope_result.get("policy"))
                 ban_result = automation_ban_check(ban_text, f"intigriti/{keyword}")
                 id_result = check_id_verification_two_layer(ban_text, f"intigriti/{keyword}")
                 ban_ok = ban_result == "allowed"
