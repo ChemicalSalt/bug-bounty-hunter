@@ -47,6 +47,7 @@ def fetch_hackerone_programs(token):
                 "offers_bounties": a.get("offers_bounties"),
                 "state": a.get("state"),  # "public_mode" = public program
                 "gold_standard_safe_harbor": a.get("gold_standard_safe_harbor"),
+                "policy": a.get("policy"),
             })
         url = data.get("links", {}).get("next")
     return programs
@@ -380,9 +381,14 @@ def main():
         if platform == "hackerone":
             is_bbp = m.get("offers_bounties") is True
             is_public = m.get("state") == "public_mode"
-            hard_safe_harbor = m.get("gold_standard_safe_harbor") is True
-            eligible = is_open and is_bbp and is_public and hard_safe_harbor
-            print(f"[{'OPEN  ' if is_open else 'BLOCKED'}]  {platform}/{keyword} -> '{m['name']}' status={m['status']} bbp={is_bbp} public={is_public} safe_harbor={hard_safe_harbor} eligible={eligible} ({len(domains)} domain(s))")
+            if m.get("gold_standard_safe_harbor") is True:
+                sh_ok = True
+            else:
+                sh_text = strip_html(m.get("policy") or "")
+                sh_result = check_safe_harbor_two_layer(sh_text, f"hackerone/{keyword}")
+                sh_ok = sh_result[0] is True
+            eligible = is_open and is_bbp and is_public and sh_ok
+            print(f"[{'OPEN  ' if is_open else 'BLOCKED'}]  {platform}/{keyword} -> '{m['name']}' status={m['status']} bbp={is_bbp} public={is_public} safe_harbor={sh_ok} eligible={eligible} ({len(domains)} domain(s))")
             print(f"    [NOTE] HackerOne API does not expose automated-tooling-allowed - covered by text-based check below")
             if not eligible:
                 excluded_domains.extend(domains)
