@@ -58,6 +58,14 @@ jobs:
             cp "checker/excluded_domains.txt" excluded_domains.txt
             echo "Using vetted excluded_domains.txt from main ($(wc -l < excluded_domains.txt) entries)"
           fi
+
+      - name: Live-check program open/blocked status before recon
+        run: |
+          export MAPPING_CSV_PATH="checker/domain_program_map.csv"
+          export EXCLUDED_OUTPUT_PATH="excluded_domains.txt"
+          python3 checker/check_program_open.py
+          echo "After live check: $(wc -l < excluded_domains.txt) domain(s) excluded (blocked/suspended right now)"
+
       - name: Upload vetting results
         uses: actions/upload-artifact@v4
         with:
