@@ -648,16 +648,14 @@ jobs:
         run: |
           pip install tldextract --break-system-packages
 
-      - name: Check program open/blocked status (subdomain level, after discovery)
-        run: |
-          export HACKERONE_TOKEN="${{ secrets.HACKERONE_TOKEN }}"
-          export INTIGRITI_TOKEN="${{ secrets.INTIGRITI_TOKEN }}"
-          export MISTRAL_API_KEY="${{ secrets.MISTRAL_API_KEY }}"
-          export MAPPING_CSV_PATH="main-branch/domain_program_map.csv"
-          export EXCLUDED_OUTPUT_PATH="excluded_domains.txt"
-          python3 main-branch/check_program_status.py
-          touch excluded_domains.txt
+      - name: Download vetting results (live open/blocked check from before recon)
+        uses: actions/download-artifact@v4
+        with:
+          name: vetting-results
 
+      - name: Exclude hosts belonging to blocked/closed programs
+        run: |
+          touch excluded_domains.txt
           if [ -s excluded_domains.txt ]; then
             > exclude_grep.txt
             while IFS= read -r d; do
@@ -670,7 +668,7 @@ jobs:
               grep -vEf exclude_grep.txt "$f" > "$f.filtered" || cp "$f" "$f.filtered"
               mv "$f.filtered" "$f"
             done
-            echo "Excluded $(wc -l < excluded_domains.txt) domain(s) belonging to suspended/paused programs (subdomain-level check)"
+            echo "Excluded $(wc -l < excluded_domains.txt) domain(s) belonging to blocked/closed programs (live-checked before recon started, no duplicate API call here)"
           fi
 
       - name: Filter out-of-scope hosts
