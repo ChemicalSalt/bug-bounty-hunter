@@ -508,6 +508,7 @@ jobs:
             -title \
             -status-code \
             -tech-detect \
+            -hash sha256 \
             -no-color \
             -o httpx_results_${{ matrix.chunk }}.txt || true
 
@@ -563,6 +564,7 @@ jobs:
             -threads 25 \
             -mc 200,201,301,302,303,401,403,404,405,500 \
             -status-code \
+            -hash sha256 \
             -no-color \
             -o new_live_${{ matrix.chunk }}.txt || true
 
@@ -614,7 +616,33 @@ jobs:
         run: |
           find httpx_results -name "httpx_results_*.txt" | xargs cat 2>/dev/null | \
             sort -u > httpx_full.txt || true
-          echo "Total httpx results: $(wc -l < httpx_full.txt)"
+          echo "Total httpx results before wildcard dedup: $(wc -l < httpx_full.txt)"
+
+          pip install tldextract --break-system-packages --quiet
+          python3 - <<'PYEOF'
+import re, tldextract
+seen = set()
+out = []
+with open("httpx_full.txt") as f:
+    for line in f:
+        line = line.rstrip("\n")
+        if not line:
+            continue
+        url = line.split()[0]
+        m = re.search(r"\[([a-f0-9]{64})\]\s*$", line)
+        h = m.group(1) if m else None
+        host = re.sub(r"^https?://", "", url).split("/")[0].split(":")[0]
+        root = tldextract.extract(host).registered_domain or host
+        key = (root, h)
+        if h and key in seen:
+            continue
+        if h:
+            seen.add(key)
+        out.append(line)
+with open("httpx_full.txt", "w") as f:
+    f.write("\n".join(out) + "\n")
+print(f"After wildcard dedup: {len(out)}")
+PYEOF
 
           grep -E '\[200\]|\[201\]|\[301\]|\[302\]|\[303\]|\[401\]|\[403\]' httpx_full.txt | \
             awk '{print $1}' | sort -u > live_hosts.txt || true
