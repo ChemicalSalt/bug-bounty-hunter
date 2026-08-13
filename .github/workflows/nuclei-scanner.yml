@@ -186,7 +186,6 @@ jobs:
             resp=$(curl -s -D - -o /dev/null -m 2 "@@H@@" 2>/dev/null)
             code=$(echo "$resp" | head -1 | grep -oE "[0-9]{3}" | head -1)
             if [ -z "$code" ] || [ "$code" = "000" ]; then exit 0; fi
-            if echo "$resp" | grep -qi "AE_GLOBAL_UNLOGIN"; then exit 0; fi
             echo "@@H@@"
           ' > input_live.txt || true
           if [ -s input_live.txt ]; then mv input_live.txt input.txt; fi
