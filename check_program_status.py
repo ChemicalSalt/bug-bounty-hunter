@@ -186,13 +186,21 @@ def check_bugcrowd(slug):
         if not match:
             match = re.search(r'"state":"([^"]+)"', html)
         if not match:
-            return ("error", "state field not found")
+            return ("error", "state field not found", None)
         state = match.group(1)
-        return ("open" if state == "in_progress" else "blocked", state)
+        # productLabel (e.g. "Bug Bounty" vs "Vulnerability Disclosure") is
+        # embedded in this same HTML - condition #2 (BBP not VDP) needs this,
+        # and discover_all_programs.py already excludes non-BBP engagements,
+        # so this recheck must match it instead of only checking open/blocked.
+        type_match = re.search(r"&quot;productLabel&quot;:&quot;([^&]+)&quot;", html)
+        if not type_match:
+            type_match = re.search(r'"productLabel":"([^"]+)"', html)
+        engagement_type = type_match.group(1) if type_match else None
+        return ("open" if state == "in_progress" else "blocked", state, engagement_type)
     except urllib.error.HTTPError as e:
-        return ("error", f"HTTP {e.code}")
+        return ("error", f"HTTP {e.code}", None)
     except Exception as e:
-        return ("error", str(e))
+        return ("error", str(e), None)
 
 def fetch_bugcrowd_scope(slug):
     headers = {"User-Agent": "Mozilla/5.0", "Accept": "application/json"}
@@ -317,14 +325,18 @@ def main():
                             yeswehack_scope_lines.append(d)
             continue
         if platform == "bugcrowd":
-            status, detail = check_bugcrowd(keyword)
+            status, detail, engagement_type = check_bugcrowd(keyword)
             if status == "error":
                 print(f"[ERROR]   {platform}/{keyword} -> {detail} ({len(domains)} domain(s))")
                 no_match.append((platform, keyword, domains))
             else:
                 tag = "OPEN  " if status == "open" else "BLOCKED"
-                print(f"[{tag}]  {platform}/{keyword} -> state={detail} ({len(domains)} domain(s))")
+                print(f"[{tag}]  {platform}/{keyword} -> state={detail} engagement_type={engagement_type} ({len(domains)} domain(s))")
+                is_bbp = engagement_type == "Bug Bounty"
                 if status == "blocked":
+                    excluded_domains.extend(domains)
+                elif status == "open" and not is_bbp:
+                    print(f"    [EXCLUDED] not a Bug Bounty engagement (productLabel={engagement_type})")
                     excluded_domains.extend(domains)
                 elif status == "open":
                     scope_result = fetch_bugcrowd_scope(keyword)
