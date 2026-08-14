@@ -879,6 +879,10 @@
     "is_ban": false,
     "reason": "The snippet does not restrict the act of using automated scanners/tools; it focuses on data handling, testing conduct, and report submission rules."
   },
+  "1dcf1f504c8757a5ce6f0f7419f6cd88f73d0411298c57b21c2b2aa49fe7458a": {
+    "is_ban": false,
+    "reason": "No personal identity verification or documents are required to participate or get paid."
+  },
   "1e26924ea6a864ec3b675b77e95a78f37e9f2e293899a29e59648ea70eea89cd": {
     "is_ban": false,
     "reason": "The text does not require personal identity verification for participation or payment."
@@ -1686,6 +1690,10 @@
   "3adda00a7343078703c876b47810580b3c3743969d552d4ba736c500ea9530dc": {
     "is_ban": false,
     "reason": "The policy does not require personal identity verification for participation or payment."
+  },
+  "3ae8b89f0cdb46f0acb8e2b7b873e2e5a1fae336a1e65c66b9e30d61a6a30c49": {
+    "is_ban": false,
+    "reason": "No personal identity verification or documents are required to participate or get paid."
   },
   "3b469f4cdf86b6a8026c65fb89ff6f814830a505512a0c83ca9b81103ab876d4": {
     "is_out": false,
@@ -3619,6 +3627,10 @@
     "is_ban": true,
     "reason": "The snippet explicitly restricts the act of using testing tools or scanners that automatically generate significant volumes of traffic."
   },
+  "77b979deacadbcd3ee25f55b0cbd534c7dc6493304118ac8c20631893ddb0201": {
+    "rate": null,
+    "reason": "no rate limit or scanning throttle is mentioned"
+  },
   "77bbac5baf7f8f553968fcc8733af8550e3b1f7a35062870fbded615c4ff2be5": {
     "has_safe_harbor": false,
     "reason": "The policy does not explicitly grant legal safe harbor or promise not to pursue legal action against good-faith researchers."
@@ -4523,6 +4535,10 @@
     "has_safe_harbor": true,
     "reason": "The policy explicitly states it will not pursue legal action for good faith violations and considers such conduct 'authorized' under the CFAA."
   },
+  "93d7180aad869f0e7e2dcf36212374932bbffc26c86c50f5b931555e34df2138": {
+    "is_ban": false,
+    "reason": "The snippet does not mention or restrict the act of using automated scanners/tools against their systems."
+  },
   "94164474f481ee7812bdd33670c188ae9b9da67852af48485f96959496201356": {
     "rate": null,
     "reason": "No rate limit or scanning throttle is mentioned in the text."
@@ -4942,6 +4958,10 @@
   "a221d2b56629e17d219316d0b7f7bb066071b7e660b855327c7ddea8b34675e8": {
     "is_ban": false,
     "reason": "The snippet does not explicitly restrict the act of using automated scanners/tools; it focuses on report quality and submission rules."
+  },
+  "a2825fd2361468445d3b7b15f0b429a08a10178f49518d719bec0ebef16577df": {
+    "is_ban": false,
+    "reason": "The text does not require personal identity verification for participation or payment."
   },
   "a2e041b9a94168babd6365a7512fd1744a5b1781eaed82306db608170408a867": {
     "is_ban": false,
