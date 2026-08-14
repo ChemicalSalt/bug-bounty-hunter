@@ -1,8 +1,8 @@
+infomaniak-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	40
 bind-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	1
 expressvpn-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	25
 programmes-de-primes-aux-bogues-du-gouvernement-du-quebec-cgcd	safe harbor not confirmed: no safe-harbor language found in full policy text	2
 toom-baumarkt-gmbh-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	2
-infomaniak-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	40
 deezer-bug-bounty-program-2019	safe harbor not confirmed: no safe-harbor language found in full policy text	11
 goto-financial-public-bounty-program	safe harbor not confirmed: [Mistral did not confirm safe harbor] s/id6446321594) + [Android](https://play.g	12
 gojek-bug-bounty-program	safe harbor not confirmed: [Mistral did not confirm safe harbor] eresting for us. *Note that you will need 	11
