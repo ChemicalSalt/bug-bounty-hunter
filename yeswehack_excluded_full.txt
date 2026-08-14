@@ -1,9 +1,16 @@
+bind-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+expressvpn-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	25
+programmes-de-primes-aux-bogues-du-gouvernement-du-quebec-cgcd	safe harbor not confirmed: no safe-harbor language found in full policy text	2
+toom-baumarkt-gmbh-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	2
 infomaniak-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	40
+deezer-bug-bounty-program-2019	safe harbor not confirmed: no safe-harbor language found in full policy text	11
+goto-financial-public-bounty-program	safe harbor not confirmed: [Mistral did not confirm safe harbor] s/id6446321594) + [Android](https://play.g	12
+gojek-bug-bounty-program	safe harbor not confirmed: [Mistral did not confirm safe harbor] eresting for us. *Note that you will need 	11
+decathlon	safe harbor not confirmed: no safe-harbor language found in full policy text	15
+tencent-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	0
 bug-bounty-program-blablacar	safe harbor not confirmed: no safe-harbor language found in full policy text	60
 superbank-public-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	3
 swiss-post-evoting	automation ban: [Mistral-confirmed ban, no regex match]	0
-gojek-bug-bounty-program	safe harbor not confirmed: [Mistral did not confirm safe harbor] eresting for us. *Note that you will need 	10
-goto-financial-public-bounty-program	safe harbor not confirmed: [Mistral did not confirm safe harbor] s/id6446321594) + [Android](https://play.g	12
 alasco-gmbh-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	4
 fdj-united-online-betting-gaming-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	32
 dojo	not BBP (VDP or other)	0
@@ -14,12 +21,10 @@ teamviewer-bounty-program	safe harbor not confirmed: no safe-harbor language fou
 telenor-sweden-public-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	23
 mediamarktsaturn-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	11
 dana-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	2
-expressvpn-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	25
 cyberghost-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	6
 private-internet-access-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	6
 zecible-public-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	17
 komoju-public-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	2
-programmes-de-primes-aux-bogues-du-gouvernement-du-quebec-cgcd	safe harbor not confirmed: no safe-harbor language found in full policy text	2
 cybermalveillance-gouv-fr-sensibilization-prevention-and-support-in-terms-of-cybersecurity	safe harbor not confirmed: no safe-harbor language found in full policy text	1
 pine-labs-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	20
 otto-de-bug-bounty	safe harbor not confirmed: no safe-harbor language found in full policy text	7
@@ -30,7 +35,6 @@ harman-international-web-applications	safe harbor not confirmed: [Mistral did no
 bookbeat	safe harbor not confirmed: no safe-harbor language found in full policy text	4
 mon-espace-sante-mes	safe harbor not confirmed: no safe-harbor language found in full policy text	33
 dossier-medical-partage-program	safe harbor not confirmed: no safe-harbor language found in full policy text	10
-decathlon	safe harbor not confirmed: no safe-harbor language found in full policy text	14
 coindcx-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	2
 okto-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	0
 bitoasis-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	1
@@ -45,6 +49,7 @@ xelians-blackbox-program	safe harbor not confirmed: no safe-harbor language foun
 grw-trading-fze-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	2
 vidaxl-services-open-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	39
 vincisa-public-program	safe harbor not confirmed: no safe-harbor language found in full policy text	19
+keycloak-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	0
 ezviz-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	9
 swapcard	safe harbor not confirmed: no safe-harbor language found in full policy text	10
 paddle-com-public-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	12
@@ -56,6 +61,3 @@ ooredoo-qpsc-bug-bounty-program	automation ban: [Mistral-confirmed ban] e strict
 yes-we-hack	safe harbor not confirmed: no safe-harbor language found in full policy text	4
 qwant	safe harbor not confirmed: no safe-harbor language found in full policy text	6
 sogexia	safe harbor not confirmed: no safe-harbor language found in full policy text	1
-withings-public-program	safe harbor not confirmed: no safe-harbor language found in full policy text	6
-tencent-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	0
-salt-mobile-sa-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	3
