@@ -140,7 +140,7 @@ jobs:
     needs: prepare
     if: needs.prepare.outputs.has_hosts == 'true' && needs.prepare.outputs.batches != '[]'
     runs-on: ${{ github.event.inputs.runner == 'github' && 'ubuntu-latest' || fromJson('["self-hosted","linux","x64"]') }}
-    timeout-minutes: 350
+    timeout-minutes: 420
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     strategy:
