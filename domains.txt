@@ -972,6 +972,7 @@ mastercard.nl
 mastercard.us
 matalan.co.uk
 mattermost.com
+maventa.com
 mayoclinic.org
 mb-cosmos.com
 mbamupdates.com
@@ -1119,6 +1120,7 @@ namestudioforsocial.com
 naspers.com
 navan.com
 naver.jp
+nederlandseloterij.nl
 neogov.com
 neoket.net
 neon.build
@@ -1518,6 +1520,7 @@ soundon.global
 soundtrack.io
 soundtrackyourbrand.com
 sourcetreeapp.com
+spacelift.dev
 spectacles.com
 spiketrap.io
 sportbild.de
@@ -1625,6 +1628,7 @@ tokopediax.com
 tomorrowland.com
 toolsforhumanity.com
 tospotify.com
+toto.nl
 toursgds.com
 tradepmr.com
 transferwise.com
@@ -1648,6 +1652,7 @@ tripadvisor.com
 triplinkintl.com
 truata.com
 truecaller.com
+truelayer-sandbox.com
 truelayer.cloud
 truelayer.com
 truelayer.io
@@ -1745,6 +1750,7 @@ vinted.fr
 vinted.net
 vintedgo.com
 visma.com
+visma.net
 vismaonline.com
 vistarmedia.com
 vistarmedia.eu
@@ -1892,6 +1898,8 @@ zelle.com
 zellepay.com
 zendesk.com
 zerobounce.net
+zimpler.com
+zimpler.net
 zmifi.com
 zomans.com
 zomato.com
