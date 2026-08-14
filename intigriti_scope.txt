@@ -1,6 +1,7 @@
 IN:*.allegro.cz.allegrosandbox.pl
 IN:*.allegro.pl.allegrosandbox.pl
 IN:*.allegro.sk.allegrosandbox.pl
+IN:*.app.spacelift.dev
 IN:*.as-nmt.de
 IN:*.asadcdn.com
 IN:*.attentia.be
@@ -94,12 +95,14 @@ IN:*.reclaim.ai
 IN:*.registry.eu
 IN:*.rivian.com
 IN:*.sa-tech.de
+IN:*.sandbox.zimpler.net
 IN:*.savers.co.uk
 IN:*.sportbild.de
 IN:*.spring-media.de
 IN:*.springtools.de
 IN:*.stag.tomorrowland.com
 IN:*.stag.weareone.world
+IN:*.staging.zimpler.net
 IN:*.stylebook.de
 IN:*.superdrug.com
 IN:*.techbook.de
@@ -110,6 +113,7 @@ IN:*.toasttakeout.com
 IN:*.tomorrowland.com
 IN:*.travelbook.de
 IN:*.trekpleister.nl
+IN:*.truelayer-sandbox.com
 IN:*.truelayer.cloud
 IN:*.truelayer.com
 IN:*.truelayer.io
@@ -133,6 +137,8 @@ IN:*.welt.de
 IN:*.whois.eu
 IN:*.wissen-sie-mehr.de
 IN:*.xtrachef.com
+IN:*.zimpler.com
+IN:*.zimpler.net
 IN:*badger.it.vinted.com
 IN:*careers.vinted.com
 IN:*company.vinted.com
@@ -147,6 +153,7 @@ IN:accountsettings.connect.identity.stagaws.visma.com
 IN:adayevrak.watsons.com.tr
 IN:admin.stage.vismaonline.com
 IN:adtechnology.axelspringer.com
+IN:ai-testing.maventa.com
 IN:aiassistant.stage.vismaonline.com
 IN:alerts.ninjakiwi.com
 IN:amd.digitalocean.com
@@ -224,6 +231,7 @@ IN:app.pharmacy.superdrug.com
 IN:app.qualified-dev.com
 IN:app.reclaim.ai
 IN:app.savers.co.uk
+IN:app.spacelift.dev
 IN:app.superdrug.com
 IN:app.theperfumeshop.com
 IN:app.truelayer[-sandbox].com
@@ -242,6 +250,8 @@ IN:auth.embark.net
 IN:auth.mtls.truelayer[-sandbox].com
 IN:auth.truelayer[-sandbox].com
 IN:authz.workbox.dk
+IN:autointerface.stag.visma.net
+IN:ax-stage.maventa.com
 IN:basecamp.rivian.com
 IN:battles.tv
 IN:bdes-api.marionnaud.fr
@@ -562,6 +572,7 @@ IN:shopify-admin.truelayer.com
 IN:sign.dropbox.com
 IN:signin.auth.welt.de
 IN:sp1y1tpaf1.execute-api.eu-west-1.amazonaws.com
+IN:spacelift.dev
 IN:speelgoedfolder.kruidvat.be
 IN:speelgoedfolder.kruidvat.nl
 IN:sso.shop-apotheke.com
@@ -574,6 +585,7 @@ IN:studio.shop-apotheke.com
 IN:swarm.embark.net
 IN:technik.autobild.de
 IN:technik.beta.autobild.de
+IN:testing.maventa.com
 IN:tickets.kinepolis.be
 IN:tickets.kinepolis.ch
 IN:tickets.kinepolis.es
@@ -622,6 +634,7 @@ IN:www.delen.be/en
 IN:www.digitalocean.com
 IN:www.drogas.lt
 IN:www.drogas.lv
+IN:www.eurojackpot.nederlandseloterij.nl
 IN:www.fortress.com.hk
 IN:www.iciparisxl.be
 IN:www.iciparisxl.com
@@ -636,12 +649,15 @@ IN:www.kinepolis.es
 IN:www.kinepolis.fr
 IN:www.kinepolis.lu
 IN:www.kinepolis.nl
+IN:www.krasloten.nederlandseloterij.nl
 IN:www.kruidvat.be
 IN:www.kruidvat.nl
 IN:www.kruidvatkids.nl
 IN:www.landmarkcinemas.com
 IN:www.languagecert.org
 IN:www.lookatme.com.ph
+IN:www.lotto.nederlandseloterij.nl
+IN:www.luckyday.nederlandseloterij.nl
 IN:www.marionnaud.at
 IN:www.marionnaud.ch
 IN:www.marionnaud.cz
@@ -650,8 +666,10 @@ IN:www.marionnaud.hu
 IN:www.marionnaud.it
 IN:www.marionnaud.ro
 IN:www.marionnaud.sk
+IN:www.miljoenenspel.nederlandseloterij.nl
 IN:www.mjrtheatres.com
 IN:www.moneyback.com.hk
+IN:www.nederlandseloterij.nl
 IN:www.peoplecert.org
 IN:www.pns.hk
 IN:www.portofantwerpbruges.com
@@ -662,10 +680,12 @@ IN:www.redcare.it
 IN:www.savers.co.uk
 IN:www.shop-apotheke.at
 IN:www.shop-apotheke.com
+IN:www.staatsloterij.nederlandseloterij.nl
 IN:www.superdrug.com
 IN:www.superdrugmobile.com
 IN:www.theperfumeshop.com
 IN:www.tomorrowland.com
+IN:www.toto.nl
 IN:www.trekpleister.nl
 IN:www.watsons.co.id
 IN:www.watsons.co.th

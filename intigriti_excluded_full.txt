@@ -6,11 +6,10 @@
 096899f2-d734-4026-90f0-92b5b6ef23e4	Ubisoft Game Security BBP: not public (confidentialityLevel=Application)	0
 0b7bb6fd-9e64-435f-b944-ded6d6eec842	Atolls Vulnerability Disclosure Program (VDP): safe harbor not confirmed: no safe-harbor language found	0
 0bcf5043-a086-4bfe-9542-4dc58c575b41	Wireless Logic: not public (confidentialityLevel=Application)	0
-0caa10ae-b946-433c-9bdf-080a7588456d	House of HR: not public (confidentialityLevel=Registered)	0
+0caa10ae-b946-433c-9bdf-080a7588456d	House of HR: not open (status=Suspended)	0
 0d0034de-b53e-47b8-9a9d-41c302c49b5a	Torfs: rate limit below 5/s (found: 1)	6
 0d585f25-b705-4141-a961-66d6ade8942e	SimScale: rate limit below 5/s (found: 2)	0
 0d6d1230-beb5-489c-b306-cf9c2e06730f	De Volkskrant: automation ban: [Mistral-confirmed ban, no regex match]	6
-0fd1d85b-2d33-4966-b5a0-caabfda5108e	Ninja Kiwi Games Bug Bounty program: not open (status=Suspended)	0
 11b73072-3c8c-44a4-82b2-80203a7fc6f8	RAMPF Bug Bounty: not public (confidentialityLevel=Application)	0
 12715f4b-d10e-415f-a309-6ab042f6158a	Doccle Bug Bounty program: not public (confidentialityLevel=Application)	0
 13cfc6fe-92b2-4a56-8577-855ff0bc2f1c	Cyber Security Coalition: automation ban: [Mistral-confirmed ban, no regex match]	0
@@ -42,7 +41,7 @@
 474db664-f7ab-4fc5-8a2d-061096bf19bf	SolarWinds Serv-U : not public (confidentialityLevel=Registered)	0
 495935c2-44bf-4eb5-81b4-dac0daa38b79	Telenet - Base - Wyre - Tadaam: private/invite-gated program, no API access	0
 4afd6f0f-40a3-4f6d-a332-56b5970d12a0	Bühler Group VDP: automation ban: [Mistral-confirmed ban, no regex match]	0
-5447fd42-afb9-4119-8ed7-65d25baee1df	Embark Studios: not public (confidentialityLevel=Registered)	0
+5447fd42-afb9-4119-8ed7-65d25baee1df	Embark Studios: not open (status=Suspended)	0
 59af45f8-edaf-436c-8649-fbd88702468a	GlobalSign: not public (confidentialityLevel=Registered)	0
 5ae36363-b875-4a56-9ecc-ebb7db2fa530	Coveo Public Bug Bounty: not open (status=Suspended)	0
 5ae71f99-d61e-42d2-b74e-b218530bb3b5	Mobile Vikings: rate limit below 5/s (found: 1)	12
@@ -52,32 +51,33 @@
 5ce94aa0-6e9b-46a6-b82e-bebb7e340afb	Farfetch Bug Bounty: not public (confidentialityLevel=Application)	0
 5d4636ea-c62f-4480-938c-85d5011bf0a5	VMware Workstation, Fusion, and Tools: not public (confidentialityLevel=Registered)	0
 5ec1446f-cf57-419b-b9bc-65dd012a1a85	Engel & Völkers: not public (confidentialityLevel=Registered)	0
-5ed6962a-7017-4d60-8805-e169b638528d	Sqills: not open (status=Suspended)	0
+5ed6962a-7017-4d60-8805-e169b638528d	Sqills: automation ban: [Mistral-confirmed ban, no regex match]	2
 5f29e1eb-85e8-4d99-9b52-b809f06de633	Bpost: automation ban: [Mistral-confirmed ban, no regex match]	0
 602b4785-333e-457e-bff8-e7a585693099	Mediahuis Corporate Domains: not public (confidentialityLevel=Registered)	0
 611c246e-1bf9-42b7-a458-af832582d0d7	Grafana Labs: not open (status=Suspended)	0
 61e0e37c-19cc-4abe-af51-108a78bee995	BMW Group: rate limit below 5/s (found: 2)	6
 628aafa9-b3ef-4967-a783-2fe4803be088	Leapsome: not public (confidentialityLevel=Application)	0
-64f80113-969e-4c55-9649-8a044487941c	PDQ bug bounty program: not open (status=Suspended)	0
+64f80113-969e-4c55-9649-8a044487941c	PDQ bug bounty program: automation ban: [Mistral-confirmed ban, no regex match]	5
 67d5a491-4baa-4565-bdc9-962bcd5f5ddd	Humo: automation ban: [Mistral-confirmed ban, no regex match]	6
 68787d97-06f4-4f15-952d-473aeab05e5d	CARIAD VDP: private/invite-gated program, no API access	0
 694f3e58-f408-4a3f-8e2a-1b562650399a	Personio: rate limit below 5/s (found: 2)	14
-6beaf9ec-e307-4415-a93e-0e4262b5ee4b	12Build Bug Bounty Program: not public (confidentialityLevel=Application)	0
+6beaf9ec-e307-4415-a93e-0e4262b5ee4b	12Build Bug Bounty Program: not open (status=Suspended)	0
 6bec8ce6-1494-4bf7-89cc-416f7d584fd4	Probiller Bug Bounty Program: private/invite-gated program, no API access	0
 6c8455c8-66b7-4360-bc6d-45b854c6fa85	Posti Bug Bounty : rate limit below 5/s (found: 2)	41
 6d1b587f-8d04-471f-939e-0ed401537c51	ZOwonen: not public (confidentialityLevel=Registered)	0
 6e7a62cb-e227-4280-8c34-81646485d899	Belfius: not public (confidentialityLevel=Application)	0
 7043a1a4-76cf-4fef-98a9-d5d2c84d1f05	Webnode: not open (status=Suspended)	0
-72251963-9df7-4fab-af7d-35d0305d63cc	Sqills S3 Passenger: not open (status=Suspended)	0
+72251963-9df7-4fab-af7d-35d0305d63cc	Sqills S3 Passenger: not public (confidentialityLevel=Registered)	0
 724ad196-90de-4ba8-bf21-dc114ab7fce4	Trusted Firmware: safe harbor not confirmed: [Mistral did not confirm safe harbor] ve sole jurisdiction for any claims or dis	0
 768ad323-335b-4710-9370-6b81925c122f	Kinepolis Group: not open (status=Suspended)	0
 786344cc-f080-42d8-bb9b-b3fb919b0261	Nutaku Bug Bounty Program: private/invite-gated program, no API access	0
-7999e698-363d-49e2-bd34-4ce47556d03c	Water-Link: not open (status=Suspended)	0
+7999e698-363d-49e2-bd34-4ce47556d03c	Water-Link: automation ban: [Mistral-confirmed ban, no regex match]	7
 7a233e93-7ba8-4459-a128-cc9a8ec2230c	My.sdworx.com: not public (confidentialityLevel=Application)	0
-7e3ebdf6-3679-418d-b3e6-faa1fc6344bb	Admissions for Students: not open (status=Suspended)	0
+7e3ebdf6-3679-418d-b3e6-faa1fc6344bb	Admissions for Students: not public (confidentialityLevel=Registered)	0
 806f54d7-a85d-40bd-82cc-f09c1a500f28	DPG Media: automation ban: [Mistral-confirmed ban, no regex match]	2
 82c22bcc-73ae-4b33-bcb8-74a302fae028	Mediahuis Noord Domains: not public (confidentialityLevel=Registered)	0
 8a5bf4a3-3183-4e2a-aa5e-20f71efe7f4b	Water-Link VDP: automation ban: [Mistral-confirmed ban, no regex match]	0
+8ae2027e-eba1-4b17-a7f6-9da683b2f6c7	Salto Vulnerability Disclosure : rate limit below 5/s (found: 3)	32
 8bf1f259-cac9-4114-9b84-3b950897b1ec	De Morgen: automation ban: [Mistral-confirmed ban, no regex match]	5
 8f699f26-d069-48ea-941c-dfa02ab12f73	Toyota Motor Europe: not public (confidentialityLevel=Registered)	0
 8f6c92dc-1300-4f11-8284-29b6ed743378	Speakap Responsible Disclosure: automation ban: [Mistral-confirmed ban, no regex match]	0
@@ -93,9 +93,8 @@ a2e25ae9-2522-4689-8ebb-bf56276589f2	SolarWinds SaaS: not public (confidentialit
 a4ade6d3-ca83-4bb1-8acc-1977945782eb	Too Good To Go - Marketplace: not public (confidentialityLevel=Registered)	0
 a5bd8905-a802-41c7-b31d-03d5f521f876	Salto Home Solutions: not public (confidentialityLevel=Registered)	0
 a765798c-f66e-4839-8b65-6979993abd98	Bank J.Van Breda & C°: not public (confidentialityLevel=Registered)	0
-a880a8c4-d7e7-4166-9c2b-5ae5925ee4d7	Challenge 0726: rate limit below 5/s (found: 3)	1
-ac81c127-b11b-469e-8060-e0fbb9c9c398	Aikido Security: Zen by Aikido - Public Program: not open (status=Suspended)	0
-ac854a9a-0a69-427a-b25e-7292f98c36a2	Daytona Bug Bounty: not public (confidentialityLevel=Application)	0
+a880a8c4-d7e7-4166-9c2b-5ae5925ee4d7	Challenge 0726: not open (status=Suspended)	0
+ac854a9a-0a69-427a-b25e-7292f98c36a2	Daytona Bug Bounty: not open (status=Suspended)	0
 acb142c1-ffeb-41c3-a9e7-1624054f42e4	Veriff Bug Bounty: not open (status=Suspended)	0
 accb5edd-2337-4c87-9d49-f21a500b3bc0	VCF - vCenter Server: not open (status=Suspended)	0
 aec12d84-be07-4d86-9954-7525f151f493	Kaufland Marketplace Bug Bounty: not public (confidentialityLevel=Application)	0
@@ -112,9 +111,9 @@ bd22f48d-633e-4b26-bf71-e4778d41b247	DataCamp: not open (status=Suspended)	0
 bdcf0f7c-1562-4a8b-9a88-1c0fb477648a	UCB -External Perimeter: not public (confidentialityLevel=Registered)	0
 bef9d2e2-0e7c-49f7-82e3-81fd8f133225	UZ Brussel: not public (confidentialityLevel=Registered)	0
 c45fe6df-1e31-4701-8e75-e9f01919ea20	NVIDIA Vulnerability Disclosure Program: automation ban: [Mistral-confirmed ban, no regex match]	0
-c5a9bbd6-2139-4ec9-bdcc-8e2a5082fd7e	Venly: automation ban: [Mistral-confirmed ban, no regex match]	8
+c5a9bbd6-2139-4ec9-bdcc-8e2a5082fd7e	Venly: not open (status=Suspended)	0
 c7272420-0cef-4366-87d2-278c06591799	House of HR Vulnerability Disclosure Program: automation ban: [Mistral-confirmed ban, no regex match]	0
-c72bd9b7-72aa-43eb-854f-60cddc0effd7	Allekabels: not public (confidentialityLevel=Application)	0
+c72bd9b7-72aa-43eb-854f-60cddc0effd7	Allekabels: not open (status=Suspended)	0
 cf95261d-750a-4672-b42e-74825f0d421d	9altitudes - Vulnerability Disclosure Program: not open (status=Suspended)	0
 cfe97e43-8c31-482f-9930-637eaf68658c	Zimmo: not public (confidentialityLevel=Registered)	0
 d489d81f-6b42-4ef1-b7f8-f16d9b404621	Nexuzhealth VDP: rate limit below 5/s (found: 2)	0
