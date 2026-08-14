@@ -1,2 +1,0 @@
-eu-public-1	HTTPError 404	0
-Demo-EU-admin-Test	HTTPError 404	0
