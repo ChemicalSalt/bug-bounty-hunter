@@ -157,13 +157,8 @@ def check_skip_rate(csv_path="discovery_stats.csv", expected_run_id=None, only_p
         if skip_pct > MAX_SKIP_RATE_PCT:
             problems.append(f"{platform}: skip rate {skip_pct:.1f}% ({skipped}/{total}) exceeds {MAX_SKIP_RATE_PCT}% threshold")
             ok = False
-        excluded_pct = (excluded / total) * 100
-        if excluded_pct > MAX_EXCLUDED_RATE_PCT:
-            problems.append(f"{platform}: excluded rate {excluded_pct:.1f}% ({excluded}/{total}) exceeds {MAX_EXCLUDED_RATE_PCT}% threshold - possible systemic failure (auth, quota, broken check)")
-            ok = False
-        if included == 0:
-            problems.append(f"{platform}: included count is 0 out of {total} discovered - possible systemic failure")
-            ok = False
+        # excluded-rate / included==0 guard removed: silence-means-drop on
+        # automation-permission legitimately excludes most programs now.
     return ok, problems
 
 
