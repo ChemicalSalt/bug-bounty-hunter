@@ -899,6 +899,10 @@
     "is_ban": false,
     "reason": "The snippet does not explicitly restrict the act of using automated scanners/tools; it only outlines general participation rules."
   },
+  "1ec4f2c05b1d3df37713070b2733a63d5747514b6929861249e7d3f4618ce3d7": {
+    "has_safe_harbor": false,
+    "reason": "The policy does not explicitly grant legal safe harbor or promise protection from legal action for good-faith research."
+  },
   "1fa580d51abab60468350fb0aec53c5fd61fa82e9ed5a5ad39b93506adaa9602": {
     "is_ban": false,
     "reason": "The snippet does not restrict the act of using automated scanners/tools; it only mentions report quality guidelines."
@@ -1326,6 +1330,10 @@
   "2e0361fe22ffb578b6a143c2914085395f075401492fdd661f00684a87a4bdc5": {
     "is_ban": false,
     "reason": "The text does not require personal identity verification for participation or payment."
+  },
+  "2e0707215a93a834d381a249d8359c1889cfd1b7d90c2e3bf374d8ae1b1c5188": {
+    "has_safe_harbor": false,
+    "reason": "The policy does not explicitly grant legal safe harbor or promise not to pursue legal action against good-faith researchers."
   },
   "2e26fce220deb86cac9551531198570091f0034706fe5639bde8aa7121f0752b": {
     "rate": null,
@@ -1807,6 +1815,10 @@
     "is_ban": false,
     "reason": "The snippet mentions automated tooling as a testing requirement (with a numeric value) but does not explicitly ban the act of using automated scanners/tools."
   },
+  "40258fb62003773703df786dda9b81dddd4d731a7522bb8a63156d07d55a43b5": {
+    "has_safe_harbor": false,
+    "reason": "The policy does not explicitly grant legal safe harbor or promise not to pursue legal action against good-faith researchers."
+  },
   "4060d5a91a4fa82e9f5571f66e5c96455ce8dbfb2ff683eade0b6540308b9b9e": {
     "is_ban": false,
     "reason": "The text does not require personal identity verification for participation or payment."
@@ -1915,6 +1927,10 @@
     "is_ban": true,
     "reason": "The snippet explicitly prohibits the act of using automated scanners/tools against their systems."
   },
+  "4408dd429ffb8ef7b7c4c01bfb51b6f8b82486cebc0e0527b663fd8d4a917efa": {
+    "has_safe_harbor": false,
+    "reason": "The policy does not explicitly grant legal safe harbor or promise not to pursue legal action against good-faith researchers."
+  },
   "440dcf51fb6d4f633c7e5ea8eb6d7b14c8fe9d592256ab5fd155cafedc8b88d7": {
     "rate": null,
     "reason": "No rate limit or scanning throttle is mentioned in the text."
@@ -1954,6 +1970,10 @@
   "44c0c1c93fd32c1cfa24c5c9e0b64e1c7fa8777bb4d9ec8d17e66efee3892417": {
     "is_ban": false,
     "reason": "The snippet restricts the rate of automated testing, not the act of using automated scanners/tools."
+  },
+  "44c8ebab2de93a0b53d6fe511437ed339888b7a38c591a2efa2d4fe53733e3b7": {
+    "has_safe_harbor": false,
+    "reason": "The policy does not explicitly grant legal safe harbor or mention protection from legal action for good-faith researchers."
   },
   "45268ea281c5d4e8833766d27714f5edf503edfac1e127abe83f7cec6f4a4a14": {
     "rate": null,
@@ -2395,6 +2415,10 @@
     "has_safe_harbor": false,
     "reason": "The policy does not explicitly grant legal safe harbor or promise protection from legal action for good-faith researchers."
   },
+  "5591458cd3e88e65ffcbee79d2294b138a3d088a511d2054da120e27ab842bb2": {
+    "is_out": false,
+    "reason": "The domain 'lists.isc.org' is implied to be in scope due to negation phrasing."
+  },
   "55b154ab3588711098a1a527d7f241f77ff7ed2b5bb9a7734dc48acd80855e8f": {
     "is_ban": false,
     "reason": "The snippet does not restrict the act of using automated scanners/tools; it only outlines report submission and testing guidelines."
@@ -2639,6 +2663,10 @@
     "is_ban": false,
     "reason": "No requirement for personal identity verification or submission of government ID is mentioned."
   },
+  "5c1e971da782e3f7a58995460554be65b8d23a4eda018ab6fcc1909f0a94508b": {
+    "has_safe_harbor": false,
+    "reason": "The policy does not explicitly grant legal safe harbor or mention protection from legal action for good-faith research."
+  },
   "5c583955ebde5316fa4ce79fcd68f026f476f2de198f00434513763dff61c032": {
     "is_ban": false,
     "reason": "The snippet restricts methodical testing and fuzzing but does not explicitly ban the act of using automated scanners/tools."
@@ -2650,6 +2678,10 @@
   "5cb35f60b5e418128a1e5b92c083cf0e76d95698fa3b73e52848a2f555bede66": {
     "rate": null,
     "reason": "No rate limit or scanning throttle is mentioned in the provided text."
+  },
+  "5d17c1ff925cbc04dad74d021bfeb70078d340a3172211a8fe93f969496a9da8": {
+    "is_out": false,
+    "reason": "The domain 'developers.deezer.com' is implied to be in scope based on the context provided."
   },
   "5d36beec82e8429792445fdf4b254adf8c750463650a7a2f0c6fbf0cb724725a": {
     "has_safe_harbor": false,
@@ -2779,6 +2811,10 @@
     "has_safe_harbor": false,
     "reason": "The policy does not explicitly grant legal safe harbor or promise protection from legal action for good faith research."
   },
+  "6192d0e53e09f3b425caacbe4b48c36d0f319b74da3e52c8ec3c11ae6f9e36d5": {
+    "is_out": true,
+    "reason": "The domain 'e.g' is not explicitly included and is a placeholder example of excluded assets."
+  },
   "61a440e488ed4e4be8861b28bf87276c17467f30eb1abf9ce2573f78a54a0bbf": {
     "is_ban": false,
     "reason": "The text does not require researchers to submit personal identity documents or undergo identity verification."
@@ -2798,6 +2834,10 @@
   "62444b9432e3da8d943cf0026466edbfebcbfd620ffdd4003d1e6a711ff63797": {
     "rate": 0.75,
     "reason": "explicit numeric rate limit stated"
+  },
+  "624ef90040aa0ee6caf92451114c219d9b2a4c636d66800b82bdbbfb5ff2cd98": {
+    "has_safe_harbor": false,
+    "reason": "The policy does not explicitly grant legal safe harbor or promise not to pursue legal action against good-faith researchers."
   },
   "62d4dfc72b1eebf0b54f21a28facdf397505a1a815254f0457fc4fe0f79860d6": {
     "rate": null,
@@ -2970,6 +3010,10 @@
   "675aafbda25846ed4f34c99cd3e79d97a07008c4fdff3658a88f5810b693bba9": {
     "is_out": false,
     "reason": "The domain 'www.otto.de' is implied to be in scope based on the provided URL."
+  },
+  "675c4b70a9db2e60d3fe3bc7996bd98cbd0b2a4360e59ff4d5c791d07cb1f6df": {
+    "has_safe_harbor": false,
+    "reason": "The policy does not explicitly grant legal safe harbor or promise not to pursue legal action against good-faith researchers."
   },
   "67673dbb33ddb72cfee95bcd6a48b23458688a051c7daa078166f30682cbc8a5": {
     "has_safe_harbor": false,
@@ -3331,6 +3375,10 @@
     "is_out": true,
     "reason": "The domain is explicitly mentioned as an external supplier, implying it is out of scope."
   },
+  "71b50eb0dfe24ffd5175b01e4d7a6bff8c9d4cf268c8d42d86faf2196c761e4a": {
+    "is_out": false,
+    "reason": "The domain is not explicitly excluded, implying it may be in scope."
+  },
   "71dbdf12f9b79b8e44bb3d429665530cb12671eff1749f81cb0691daf18fcab8": {
     "is_ban": true,
     "reason": "The snippet explicitly prohibits the use of automated scanners against their systems."
@@ -3479,6 +3527,10 @@
     "is_ban": false,
     "reason": "The text does not require personal identity verification for participation or payment."
   },
+  "764e453d97cc828af96b951b17679547058de13dabe53ad84b097c33abf94eda": {
+    "has_safe_harbor": false,
+    "reason": "The policy does not explicitly grant legal safe harbor or promise not to pursue legal action against good-faith researchers."
+  },
   "768ce5f52983989b3fc5b5b3930c79d4a1882d2f6a0a35168f6bc2df86d08acd": {
     "has_safe_harbor": false,
     "reason": "The policy text only discusses rewards and scope without any legal protection or safe harbor language."
@@ -3498,6 +3550,10 @@
   "76ec01a12cf8252429e69e282eb4d5c4c1d1c2e21812bc23e485996e7c90296b": {
     "is_ban": true,
     "reason": "The snippet explicitly states 'The Use of Automated Scanners' as out-of-scope, restricting the act of using such tools."
+  },
+  "77019c8ae2259a677ce8b010b488c670d2dcd2c2e838be8c4406000f48ec7ccf": {
+    "has_safe_harbor": false,
+    "reason": "The policy does not explicitly grant legal safe harbor or promise protection from legal action for good-faith research."
   },
   "771bc9d6da4f218887a1adc53cc7ad6ad79231b5e6bbfe11a62ac36250e276f7": {
     "is_out": false,
@@ -3875,9 +3931,17 @@
     "is_out": false,
     "reason": "The domain 'dm.dana.id' is implied to be in scope due to negation phrasing in typical policy structures."
   },
+  "8280b771e4d6140afa98a118c3dd8db6e9b311d6ebe91aaccdd7af7ec44970f2": {
+    "has_safe_harbor": false,
+    "reason": "The policy does not explicitly grant legal safe harbor or promise not to pursue legal action against good-faith researchers."
+  },
   "82cd843765f4bdea8ea90056b1eea2d89d0e8d087d92a6609f50b28e08affbce": {
     "is_ban": true,
     "reason": "The snippet explicitly restricts the act of using automatic scanners ('do not use automatic scanners')."
+  },
+  "82ea66d91562b18c4654e2f3f9ffc10bbbac5da3a93693708d0f9c145d28e9c8": {
+    "is_out": true,
+    "reason": "The domain 'e.g' refers to unspecified third-party assets, which are explicitly out of scope."
   },
   "82eb1dcdcda9b046408d15b65cff89bbf2f10a6b7ec37db13d8f1f2498d05ec2": {
     "rate": null,
@@ -3890,6 +3954,10 @@
   "833e248c2b6fc40b9f05aac5b699abd6b7f821c47eaa64873c19d74327fc5646": {
     "is_out": true,
     "reason": "The domain is explicitly listed as an external supplier, implying it is out of scope."
+  },
+  "83651a147b52793a4405039b9ca9db1809894cbba365db322c543672c5283b72": {
+    "has_safe_harbor": false,
+    "reason": "The policy does not explicitly grant legal safe harbor or mention protection from legal action for good faith research."
   },
   "83d88cd8223a4b625c26241b64b2174576e674deacce6c1a5b850ffd70dca186": {
     "is_ban": false,
@@ -4026,6 +4094,10 @@
   "880f7f138b033e054e2237503306316adcf9217a5e7217b24aec28ed99f5ad3c": {
     "is_ban": false,
     "reason": "The snippet does not restrict the act of using automated scanners; it only outlines submission validation timelines and general participation rules."
+  },
+  "8823af2d98be859ed5e1a7ab41039d59c181b89874412c850ad22be54df16c5a": {
+    "is_out": false,
+    "reason": "The domain is not explicitly listed as out of scope in the provided text."
   },
   "88417feae1ce9f882753441c85c40b7c39f80032507427e26fea8f69c28a7793": {
     "is_ban": false,
@@ -4188,6 +4260,10 @@
     "reason": "The text mentions 'safe harbor' but does not explicitly define legal protection or promise against legal action."
   },
   "8dded0b0390c5642f52656ff7d05423ff7ded50d029ccc68e8f55c23d9f501c6": {
+    "has_safe_harbor": false,
+    "reason": "The policy does not explicitly grant legal safe harbor or promise not to pursue legal action against good-faith researchers."
+  },
+  "8e13c2355c76d7585802d2adcad3becfeb5cf62a428c48162ad8382546ca35f4": {
     "has_safe_harbor": false,
     "reason": "The policy does not explicitly grant legal safe harbor or promise not to pursue legal action against good-faith researchers."
   },
@@ -4414,6 +4490,10 @@
   "9551188905172c26e7342e48fb5f93d3c87d10ee361cb0f20a6e0375f2b1d2cc": {
     "has_safe_harbor": false,
     "reason": "The policy does not explicitly grant legal safe harbor or promise protection from legal action for good-faith research."
+  },
+  "95581103cba625280523795866d049f0eb8fa566e954df412099f3da7738f922": {
+    "has_safe_harbor": false,
+    "reason": "The policy does not explicitly grant legal safe harbor or promise protection from legal action for good-faith researchers."
   },
   "955feb8f39f9e59bc6018eb52c177615a82a7515a415cc306a02be37086e25f1": {
     "is_ban": false,
@@ -5395,6 +5475,10 @@
     "is_ban": false,
     "reason": "The snippet does not restrict the act of using automated scanners/tools; it only outlines report submission requirements."
   },
+  "b7c6f520eaadff7fd471dd1722bbf8859f2c0625d53b99488e3798cbb7082ae6": {
+    "is_out": false,
+    "reason": "The domain is not explicitly listed as out of scope in the provided text."
+  },
   "b8065aabe54dda6006eec2ae892181b5c37f6fe3d6433e56eb946565efbffa44": {
     "is_ban": false,
     "reason": "The snippet does not mention scanning, tools, or automation in any context."
@@ -5723,6 +5807,10 @@
     "is_out": true,
     "reason": "The domain 'siilo.zendesk.com' is explicitly listed as out of scope."
   },
+  "c330b2e12810116806d6023bae87cf47034ee9eef39e1db4bf178a6943230671": {
+    "is_out": true,
+    "reason": "The domain 'deezerjobs.com' is explicitly mentioned as out of scope in the policy."
+  },
   "c3437d03f86dfe0be10d16f7c53c2221b93b774fc1c9f6d8838256d8b06e27f5": {
     "is_ban": false,
     "reason": "The snippet does not restrict the act of using automated scanners; it only provides testing requirements metadata."
@@ -5738,6 +5826,10 @@
   "c37073f47ef3b2f09b5e0d5c033e07e22d9b92f966fd0c445e307f94a9191dcc": {
     "is_out": false,
     "reason": "The domain '3.1.6' refers to a version number, not an out-of-scope system, and the URL suggests it is part of the in-scope target."
+  },
+  "c3c7dc20e29a4773985ce375cb53d2a015b9fd732dfe91c7acbf3450448f9455": {
+    "is_out": false,
+    "reason": "The domain 'gitlab.isc.org' is implied to be in scope as no explicit exclusion is stated."
   },
   "c3d980f4a7d667768d7fb8e84cb021c35f007f54b052b3eedba80438cc03acd1": {
     "is_ban": false,
@@ -5834,6 +5926,10 @@
   "c69d3639d059899a125f1c9269a158f25d34e5bed1ec3bc24fc163c380837f38": {
     "is_ban": false,
     "reason": "The policy does not require personal identity verification for participation or payment."
+  },
+  "c6a9ad150659a16f5da39d4756054fbd91b1ed80dd75f6ea1c3dccbf75275c5f": {
+    "is_out": false,
+    "reason": "The domain 'support.deezer.com' is implied to be in scope unless explicitly excluded."
   },
   "c6b6413bb22ebcdce0cf3b1b0a4dc3411f3d44e46c86540d76e8d046da4ad9c6": {
     "is_out": false,
@@ -5942,6 +6038,10 @@
   "ca23c4b12ca1240f4bf3ee32e5c95b2dc4722a4a9e8a81d5526b52fb13a709b0": {
     "rate": null,
     "reason": "No rate limit or scanning throttle is mentioned in the text."
+  },
+  "ca43188043987492c947b4bc636ab91c96dc229e2b043dbbec4b89f7c2069296": {
+    "is_out": false,
+    "reason": "The domain is not explicitly excluded and may be implied as in scope."
   },
   "ca485a62f51e41338ef8c727f9a7b87fe1297e9253ca76252cbefb8bf8c870cd": {
     "is_ban": true,
@@ -6082,6 +6182,10 @@
   "ced4c9f1d61d77f05a45241d80fb5ddc9d1812408ec89c9e696391acc1c12bb3": {
     "is_ban": false,
     "reason": "The snippet does not restrict the act of using automated scanners/tools; it only provides guidelines for scanner traffic and report submissions."
+  },
+  "cee8ab24e98ba6516443d942553859e139ef8718897bc9591d8ec92308c3877f": {
+    "has_safe_harbor": false,
+    "reason": "The policy does not explicitly grant legal safe harbor or promise not to pursue legal action against good-faith researchers."
   },
   "ceee5f1d656f9f5cc32f88496db289fcc19545978cb7930fd98df186ab510f30": {
     "is_ban": true,
@@ -6599,9 +6703,17 @@
     "is_ban": false,
     "reason": "The snippet does not explicitly restrict the act of using automated scanners/tools; it focuses on responsible testing and submission guidelines."
   },
+  "dc48e0ec6dfb6556ed4069e4ddd9738a9391e7df2c757cafdb537b60066639a7": {
+    "has_safe_harbor": false,
+    "reason": "The policy does not explicitly grant legal safe harbor or promise not to pursue legal action against good-faith researchers."
+  },
   "dd0811cb612c1938743d0f1f221d75d5b909e89888813ae22ea0975df76adc3b": {
     "rate": null,
     "reason": "No explicit rate limit or scanning throttle is mentioned in the text."
+  },
+  "dd2342309862689821893d0728288f76239707a1730a45211080e59f46079415": {
+    "is_out": false,
+    "reason": "The domain is implied to be in scope as no explicit out-of-scope statement excludes it."
   },
   "dd23dd7641425140cd4b82b144f3c901bc85c0f3366f6255946161574d4013fe": {
     "is_ban": true,
@@ -7270,6 +7382,10 @@
   "f60860db7e1bcc5b0feb5e75ae02a8107746e00a38bae13aa3ff5a4815a41261": {
     "is_ban": false,
     "reason": "The policy does not require researchers to submit personal identity documents or undergo identity verification."
+  },
+  "f61673d63f917a14048483b69e262521d9948b5b1e123c8758be9647d37ae210": {
+    "is_out": true,
+    "reason": "The domain 'deezer-blog.com' is explicitly mentioned as out of scope."
   },
   "f61c7201a2e8ac644c1e60c624b62d3a0a0545b0d3f25f2404c4023a907fda23": {
     "is_ban": false,
