@@ -414,7 +414,7 @@ def main():
                     ban_result = automation_ban_check(ban_text, f"hackerone/{keyword}")
                     rate_result, _ = check_rate_limit_two_layer(ban_text, f"hackerone/{keyword}")
                     id_result = check_id_verification_two_layer(ban_text, f"hackerone/{keyword}")
-                    ban_ok = ban_result == "allowed"
+                    ban_ok = ban_result != "banned"
                     rate_ok = rate_result is None or rate_result >= FLAT_RATE_LIMIT
                     id_ok = id_result[0] is not True
                     text_eligible = ban_ok and rate_ok and id_ok
@@ -465,7 +465,7 @@ def main():
                 ban_text = strip_html(scope_result.get("roe_text") or scope_result.get("policy"))
                 ban_result = automation_ban_check(ban_text, f"intigriti/{keyword}")
                 id_result = check_id_verification_two_layer(ban_text, f"intigriti/{keyword}")
-                ban_ok = ban_result == "allowed"
+                ban_ok = ban_result != "banned"
                 id_ok = id_result[0] is not True
                 text_eligible = ban_ok and id_ok
                 print(f"    [BAN CHECK] automation_ban={ban_result} | id_verification={id_result[0]} | text_eligible={text_eligible}")
