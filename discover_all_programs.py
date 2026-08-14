@@ -749,8 +749,8 @@ def vet_hackerone_program(handle, auth, results):
     if automation_status == "review":
         results["skipped"].append((handle, snippet, domain_count))
         return
-    if automation_status == "banned":
-        reason = "automation ban"
+    if automation_status != "allowed":
+        reason = "automation ban" if automation_status == "banned" else "no explicit automation permission (silent)"
         results["excluded"].append((handle, f"{reason}: {(snippet or '')[:80]}", domain_count))
         return
     id_req, id_snippet = check_id_verification_two_layer(policy, handle)
@@ -871,8 +871,8 @@ def vet_intigriti_program(program, token, results):
     if automation_status == "review":
         results["skipped"].append((pid, f"{name}: {snippet}", domain_count))
         return
-    if automation_status == "banned":
-        reason = "automation ban"
+    if automation_status != "allowed":
+        reason = "automation ban" if automation_status == "banned" else "no explicit automation permission (silent)"
         results["excluded"].append((pid, f"{name}: {reason}: {(snippet or '')[:80]}", domain_count))
         return
     id_req, id_snippet = check_id_verification_two_layer(roe_text, name)
@@ -1128,8 +1128,8 @@ def vet_yeswehack_program(program, results):
     if automation_status == "review":
         results["skipped"].append((slug, snippet, domain_count))
         return
-    if automation_status == "banned":
-        reason = "automation ban"
+    if automation_status != "allowed":
+        reason = "automation ban" if automation_status == "banned" else "no explicit automation permission (silent)"
         results["excluded"].append((slug, f"{reason}: {(snippet or '')[:80]}", domain_count))
         return
     id_req, id_snippet = check_id_verification_two_layer(rules, slug)
@@ -1236,7 +1236,8 @@ def vet_bugcrowd_program(program, results):
     sh_status = (brief.get("safeHarborStatus") or {}).get("status")
     desc = clean_html(brief.get("description", ""))
     overview = clean_html(brief.get("targetsOverview", ""))
-    text = desc + overview
+    additional = clean_html(brief.get("additionalInformation", ""))
+    text = desc + overview + additional
     if sh_status is None:
         sh_result, sh_note = check_safe_harbor_two_layer(text, slug)
         if sh_result == "review":
@@ -1273,8 +1274,8 @@ def vet_bugcrowd_program(program, results):
     if automation_status == "review":
         results["skipped"].append((slug, snippet, domain_count))
         return
-    if automation_status == "banned":
-        reason = "automation ban"
+    if automation_status != "allowed":
+        reason = "automation ban" if automation_status == "banned" else "no explicit automation permission (silent)"
         results["excluded"].append((slug, f"{reason}: {(snippet or '')[:80]}", domain_count))
         return
     id_req, id_snippet = check_id_verification_two_layer(text, slug)
