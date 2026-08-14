@@ -55,6 +55,7 @@ swapcard	safe harbor not confirmed: no safe-harbor language found in full policy
 paddle-com-public-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	12
 ovh	safe harbor not confirmed: no safe-harbor language found in full policy text	3
 imou-public-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	6
+atg-public-bug-bounty-program	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	4
 outscale	safe harbor not confirmed: no safe-harbor language found in full policy text	7
 maya-public-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	6
 ooredoo-qpsc-bug-bounty-program	automation ban: [Mistral-confirmed ban] e strictly forbidden. - Avoid tests that could cause deg	2
