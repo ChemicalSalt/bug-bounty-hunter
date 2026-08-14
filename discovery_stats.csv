@@ -52,3 +52,4 @@ timestamp_utc,platform,total_discovered,included,excluded,skipped,excluded_domai
 2026-08-14T07:22:06Z,Bugcrowd,250,0,250,0,1028,0,31776542197
 2026-08-14T08:32:58Z,Intigriti,215,74,141,0,311,0,31783726607
 2026-08-14T08:34:33Z,YesWeHack,64,1,63,0,599,0,31783726607
+2026-08-14T09:17:48Z,HackerOne,592,0,592,0,37847,0,31785343448
