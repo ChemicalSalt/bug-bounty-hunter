@@ -235,7 +235,7 @@ mailtime_technology_inc	not open (submission_state=paused)	0
 worklytics	not BBP (VDP or other)	1
 amitree_inc	not open (submission_state=paused)	1
 lark_technologies	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	13
-solidus	not open (submission_state=paused)	0
+solidus	not BBP (VDP or other)	0
 aodocs	not open (submission_state=paused)	1
 keybank	not BBP (VDP or other)	11
 top_echelon_software	not BBP (VDP or other)	3
@@ -314,7 +314,7 @@ rebellion-defense	not open (submission_state=paused)	6
 aig	not BBP (VDP or other)	19
 dropcontact	not open (submission_state=paused)	1
 tiktok	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	24
-john-deere	not BBP (VDP or other)	1972
+john-deere	not BBP (VDP or other)	1973
 8x8-bounty	automation ban: [Mistral-confirmed ban, no regex match]	83
 hudapp	not open (submission_state=paused)	5
 cbre	not BBP (VDP or other)	8660
