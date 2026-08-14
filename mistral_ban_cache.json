@@ -643,6 +643,10 @@
     "is_ban": false,
     "reason": "The text does not require personal identity verification for participation or payment."
   },
+  "14be856400690055eed9875126308973863b0bdb2e43c7307469f6d06250febb": {
+    "is_ban": false,
+    "reason": "The snippet does not restrict the act of using automated scanners/tools; it focuses on scope, legal protections, and report eligibility."
+  },
   "14d082661717019dc574784ea16a4be6a34ecda4533352d4e046a8662df3eadc": {
     "rate": null,
     "reason": "No rate limit or scanning throttle is mentioned in the text."
@@ -1154,6 +1158,10 @@
   "2625c34dc957621f8f9763e10352fb325bc710dbf7d172f3246dea52e1012914": {
     "has_safe_harbor": true,
     "reason": "The policy explicitly states 'Provided that you\u2019ve made a good faith effort to abide by this policy, we will not take legal action against you or ask law enforcement to investigate you.'"
+  },
+  "2674485bb2e08a821b0637b8c527c024885e59d6a5450974f9e630bec14877bf": {
+    "is_ban": false,
+    "reason": "The snippet does not restrict the act of using automated scanners/tools; it focuses on report submission and engagement guidelines."
   },
   "2677cf3a9f14aa6c83bf65921685272bb6421903d7ed28fa126bdf66079b1584": {
     "has_safe_harbor": true,
