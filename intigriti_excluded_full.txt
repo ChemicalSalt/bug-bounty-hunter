@@ -66,7 +66,6 @@
 4981522f-5675-4f46-b7b7-e065d30c8d79	Cross Border Fines: no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	0
 4acc7e11-3634-4ce5-b100-d961d3f6c6f0	HRS Group VDP: no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	0
 4afd6f0f-40a3-4f6d-a332-56b5970d12a0	Bühler Group VDP: automation ban: [Mistral-confirmed ban, no regex match]	0
-4d41a636-c811-4757-8fd9-007d7f18e212	Exoscale Bug Bounty: no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	7
 5111e2de-2d04-4ec8-9f24-c0b76cbfd38e	Storebrand Responsible Disclosure: no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	0
 540e04bb-ae56-49cd-8e05-311a08ba44f7	ING Responsible Disclosure: no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	0
 5447fd42-afb9-4119-8ed7-65d25baee1df	Embark Studios: not public (confidentialityLevel=Registered)	0
