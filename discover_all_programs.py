@@ -2143,6 +2143,20 @@ def check_automation_ban_two_layer(text, program_name):
             continue
         if result:
             return "banned", "[Mistral-confirmed ban, no regex match]"
+
+    # Layer 2b: same full-text Mistral fallback for explicit ALLOW language.
+    # Without this, allow detection only ever had the narrow regex gate above
+    # (Layer 1b) with no full-text safety net - unlike ban, which gets this
+    # re-read. That asymmetry meant real explicit-permission text in natural
+    # phrasing the regex didn't anticipate fell straight through to "silent".
+    for chunk in _chunk_text(text)[:MAX_FULLTEXT_FALLBACK_CHUNKS]:
+        result = mistral_check_automation_allowed(chunk, program_name)
+        if result is None:
+            any_review = True
+            continue
+        if result:
+            return "allowed", "[Mistral-confirmed explicit allow, no regex match]"
+
     if any_review:
         return "review", "[Mistral call failed on full-text check — queued for retry]"
 
