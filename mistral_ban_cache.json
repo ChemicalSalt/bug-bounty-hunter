@@ -2171,6 +2171,10 @@
     "has_safe_harbor": false,
     "reason": "The policy does not explicitly grant legal safe harbor or promise not to pursue legal action against good-faith researchers."
   },
+  "4040b01503f1c6730d27697ca67063f7f608800bba989ceff9dcfd73261b33f3": {
+    "is_allowed": false,
+    "reason": "The snippet mentions rate limiting for automatic testing tools but does not explicitly grant permission to use them."
+  },
   "4060d5a91a4fa82e9f5571f66e5c96455ce8dbfb2ff683eade0b6540308b9b9e": {
     "is_ban": false,
     "reason": "The text does not require personal identity verification for participation or payment."
