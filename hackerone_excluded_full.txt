@@ -57,7 +57,6 @@ grab	safe harbor not confirmed: no safe-harbor language found in full policy tex
 goodrx	safe harbor not confirmed: no safe-harbor language found in full policy text	1
 nokogiri	not open (submission_state=paused)	0
 torproject	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	0
-github	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	10
 paypal	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	31
 matomo	safe harbor not confirmed: no safe-harbor language found in full policy text	2
 badoo	not open (submission_state=paused)	0
@@ -112,7 +111,6 @@ nextcloud	not BBP (VDP or other)	24
 pyca	not open (submission_state=paused)	2
 line	not open (submission_state=paused)	6
 secnews	not open (submission_state=paused)	1
-acronis	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	7
 gocd	not open (submission_state=paused)	0
 hiro	not open (submission_state=paused)	0
 localizejs	not open (submission_state=paused)	4
@@ -121,7 +119,7 @@ portswigger	safe harbor not confirmed: no safe-harbor language found in full pol
 plaid	safe harbor not confirmed: no safe-harbor language found in full policy text	7
 cornershop	not open (submission_state=paused)	4
 shopify-scripts	not open (submission_state=paused)	0
-brave	safe harbor not confirmed: no safe-harbor language found in full policy text	0
+brave	not open (submission_state=paused)	0
 semrush	safe harbor not confirmed: [Mistral did not confirm safe harbor] says in Match 'leave blank to add a new he	11
 deptofdefense	not BBP (VDP or other)	0
 xiaomi	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	43
@@ -260,7 +258,7 @@ companyhub	not open (submission_state=paused)	1
 exodus	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	14
 thomsonreuters-public	not BBP (VDP or other)	2
 hcl_software	not BBP (VDP or other)	0
-amazonvrp	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	29
+amazonvrp	safe harbor not confirmed: [Mistral did not confirm safe harbor] lack of good faith, resulting in ineligibi	29
 lemlist	not BBP (VDP or other)	5
 picsart	not BBP (VDP or other)	15
 truecaller	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	7
@@ -300,7 +298,6 @@ trycourier	not open (submission_state=paused)	5
 insightly	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	9
 lichess	not open (submission_state=paused)	40
 mendix	not BBP (VDP or other)	23
-cs_money	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	5
 vendasta	not BBP (VDP or other)	11
 figma	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	2
 launchdarkly	not open (submission_state=paused)	5
@@ -396,9 +393,8 @@ amazonvrp-devices	no explicit automation permission (silent): [No automation ban
 fresenius	not BBP (VDP or other)	0
 wellsfargo-bbp	safe harbor not confirmed: [Mistral did not confirm safe harbor] basis * Public Zero-day vulnerabilities th	7
 agoric	not open (submission_state=paused)	0
-wickr	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	2
 allegion	not BBP (VDP or other)	37
-hilton	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	9
+hilton	rate limit below 5/s (found: 1.6666666666666667)	9
 moov	not BBP (VDP or other)	7
 sidefx	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	1
 unitigroup	not BBP (VDP or other)	16
@@ -457,11 +453,9 @@ stripchat	safe harbor not confirmed: [Mistral did not confirm safe harbor] ut th
 mozilla	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	21
 fertitta_entertainment	not BBP (VDP or other)	21
 truist_financial	not BBP (VDP or other)	15
-eero	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	2
 eufy_security	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	0
 brightspeed	not BBP (VDP or other)	5
 six-group	automation ban: [Mistral-confirmed ban, no regex match]	8
-ring	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	4
 toolsforhumanity	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	9
 alshaya	not BBP (VDP or other)	161
 visa	safe harbor not confirmed: [Mistral did not confirm safe harbor] formation about potential vulnerabilities,	147
@@ -479,7 +473,6 @@ bybit_fintech	no explicit automation permission (silent): [No automation ban fou
 vectra_ai_vdp	not BBP (VDP or other)	8
 3cx	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	1
 aeromexico_vdp	not BBP (VDP or other)	13
-audible	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	1
 privy-bbp	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	5
 23andme_bbp	automation ban: [Mistral-confirmed ban, no regex match]	18
 temu	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	3
@@ -528,7 +521,7 @@ kaseya	not BBP (VDP or other)	36
 penn_entertainment	not BBP (VDP or other)	8
 neon_bbp	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	3
 vf-corporation-vdp	not BBP (VDP or other)	2
-1password	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	1
+1password	rate limit below 5/s (found: 0.75)	1
 bcny	automation ban: [Mistral-confirmed ban, no regex match]	4
 kraken-tech	not BBP (VDP or other)	0
 hemi_labs_vdp	not open (submission_state=paused)	6
