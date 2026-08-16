@@ -5,6 +5,7 @@
 [openbmcs-ssrf] [http] [medium] https://bi-cn-hongkong.alibabacloud.com/php/query.php
 [openbmcs-ssrf] [http] [medium] https://buy-api.alibabacloud.com/php/query.php
 [openbmcs-ssrf] [http] [medium] https://cart-intl.alibabacloud.com/php/query.php
+[salesforce-community-misconfig] [http] [medium] https://care.acronis.com/s/sfsites/aura
 [salesforce-community-misconfig] [http] [medium] https://connectivity.booking.com/s/sfsites/aura
 [ssrf-via-oauth-misconfig] [http] [medium] http://zaliv.aliexpress.ru/connect/register
 [ssrf-via-oauth-misconfig] [http] [medium] https://0002.aliexpress.com/connect/register
