@@ -1,1 +1,2 @@
 [CVE-2024-2473] [http] [medium] https://corporate.abercrombie.com/wp-admin/?action=postpass
+[CVE-2025-32101] [http] [critical] https://www.arrowfilms.com/cache_public/sh.phtml
