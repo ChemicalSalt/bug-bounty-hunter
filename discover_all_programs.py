@@ -1115,7 +1115,7 @@ def vet_yeswehack_program(program, results):
     if out_domains:
         domains = sorted(set(domains) - set(out_domains))
     domain_count = len(domains)
-    rules = data.get("rules", "") or ""
+    rules = data.get("rules") or clean_html(data.get("rules_html", "")) or ""
     sh_ok, sh_snippet = check_safe_harbor_two_layer(rules, slug)
     if sh_ok == "review":
         results["skipped"].append((slug, f"safe harbor unresolved: {sh_snippet[:80]}", domain_count))
