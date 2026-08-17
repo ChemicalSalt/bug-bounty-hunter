@@ -2735,6 +2735,10 @@
     "is_ban": true,
     "reason": "The snippet explicitly restricts the act of using automatic scanners against their systems."
   },
+  "4bd3c8cb52ea4cf5a5b4735f2d85a31654ef716ffa3559fd0e00e3a552e7550d": {
+    "is_ban": true,
+    "reason": "The snippet explicitly restricts the act of using automated scanners and tools."
+  },
   "4be391763988b4842c7550b550ccbc950286cb0faa3eae500d4c72cb2dddd8b7": {
     "is_out": false,
     "reason": "The domain 'share.doctolib.net' is not explicitly listed as out of scope in the provided text."
@@ -3282,6 +3286,10 @@
   "59f4b2f52322e7fa8280c5b3657e6d7cd497f7ff23ab1853742ef944bd329c05": {
     "is_ban": false,
     "reason": "The snippet restricts submission of unverified automated tool output, not the act of using automated scanners."
+  },
+  "59f8762c276870897c875a208deef64268bcd1380d3c9953be746c6a6cc17d0e": {
+    "has_safe_harbor": false,
+    "reason": "The policy does not explicitly grant legal safe harbor or promise not to pursue legal action against good-faith researchers."
   },
   "59fb9e4388c468e66d9e7192ff0925217ce8d3b4557321fc92e1460c1b66a708": {
     "is_out": false,
@@ -5442,6 +5450,10 @@
   "90c32167ce223c4c9aba08f24f38657571099d3f0f9410989e3eec5c9b0fbaf0": {
     "is_ban": false,
     "reason": "The text does not require personal identity verification for participation or payment."
+  },
+  "90f5c490fe200453bd6e378266da30bb8474ee88144290c6f03c37419ec5fe55": {
+    "has_safe_harbor": false,
+    "reason": "The policy does not explicitly grant legal safe harbor or promise not to pursue legal action against good-faith researchers."
   },
   "91053370f3f092d4829938d9493ebe79440fd28e066ffa79df8d41fb58af2535": {
     "has_safe_harbor": false,
@@ -9002,6 +9014,10 @@
   "f07f18c6cbca1d1d2e7b7015036bb21f63f30c4173e0b6beaee312e8d3314659": {
     "is_ban": false,
     "reason": "The text does not require personal identity verification for participation or payment."
+  },
+  "f0a4dec0e0501d50c83ccfe63ae6c499a04c6376e718978750c301cbc9c3038a": {
+    "has_safe_harbor": false,
+    "reason": "The policy does not explicitly grant legal safe harbor or promise not to pursue legal action against good-faith researchers."
   },
   "f0adf640fc73d55c28be26f4e2e2436af496e0b5ab2f4553abfb54c9f7b6c8f1": {
     "is_ban": false,
