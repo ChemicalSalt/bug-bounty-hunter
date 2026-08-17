@@ -355,6 +355,10 @@
     "is_allowed": false,
     "reason": "The snippet does not explicitly grant permission for using automated scanners/tools."
   },
+  "091081be8f9a394f32177d07843c77eeb5da3cea6da21aef600a19247dcd2c54": {
+    "is_ban": false,
+    "reason": "The snippet does not explicitly restrict the act of using automated scanners; it only provides general testing guidelines and reporting requirements."
+  },
   "09125a6c4c37c975182da753925895a1a3a4f8023d0612f6605a9acfc0c71ed9": {
     "is_allowed": false,
     "reason": "The snippet does not explicitly grant permission for using automated scanners or tools."
@@ -466,6 +470,10 @@
   "0b55088bc16605c183d3413686eacefe61fc653034bf3aa6ec07a36731f3b6d9": {
     "is_ban": false,
     "reason": "The snippet does not explicitly restrict the act of using automated scanners/tools, only mentions testing requirements without banning automation."
+  },
+  "0b68a6e6f7fd4265f7f3580da32d6c30e2d25f0cc98745580cca1f5d1502c794": {
+    "is_allowed": false,
+    "reason": "The snippet does not explicitly grant permission for automated scanning, only mentions a numeric value for 'automatedTooling' without clear allowance."
   },
   "0b90969dd83b8cd60fff7ed2c18bc6163c1ee0ed6df7ab4f99e1c1a5c165864e": {
     "is_allowed": false,
