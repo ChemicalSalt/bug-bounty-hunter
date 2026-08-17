@@ -93,9 +93,9 @@ rubygems	not BBP (VDP or other)	2
 paragonie	not open (submission_state=paused)	0
 kiwicom	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	7
 bitaccess	not open (submission_state=paused)	0
-mariadb	not BBP (VDP or other)	1
+mariadb	not open (submission_state=paused)	1
 mainwp	not open (submission_state=paused)	0
-phpbb	not BBP (VDP or other)	0
+phpbb	not open (submission_state=paused)	0
 dyson	safe harbor not confirmed: no safe-harbor language found in full policy text	61
 aspen	not open (submission_state=paused)	0
 duckduckgo	not BBP (VDP or other)	1
@@ -119,7 +119,7 @@ portswigger	safe harbor not confirmed: no safe-harbor language found in full pol
 plaid	safe harbor not confirmed: no safe-harbor language found in full policy text	7
 cornershop	not open (submission_state=paused)	4
 shopify-scripts	not open (submission_state=paused)	0
-brave	not open (submission_state=paused)	0
+brave	safe harbor not confirmed: no safe-harbor language found in full policy text	0
 semrush	safe harbor not confirmed: [Mistral did not confirm safe harbor] says in Match 'leave blank to add a new he	11
 deptofdefense	not BBP (VDP or other)	0
 xiaomi	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	43
@@ -177,7 +177,7 @@ pingidentity	safe harbor not confirmed: no safe-harbor language found in full po
 passhash	not open (submission_state=paused)	0
 ycombinator	not open (submission_state=paused)	6
 ratelimited	not open (submission_state=paused)	0
-crypto	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	16
+crypto	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	18
 liberapay	not open (submission_state=paused)	1
 pixiv	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	18
 arkadiyt-projects	not BBP (VDP or other)	1
@@ -241,7 +241,7 @@ people_interactive	not open (submission_state=paused)	0
 nuri	not open (submission_state=paused)	6
 coinspot	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	2
 panther_labs	not open (submission_state=paused)	3
-mtn_group	not BBP (VDP or other)	443
+mtn_group	not BBP (VDP or other)	444
 box_private	safe harbor not confirmed: no safe-harbor language found in full policy text	10
 investnext	not open (submission_state=paused)	4
 uphabit	not open (submission_state=paused)	2
@@ -267,7 +267,7 @@ earny	not open (submission_state=paused)	3
 evernote	safe harbor not confirmed: [Mistral did not confirm safe harbor] y accessed information with anyone else. C	5
 chorus_jg4l2	not open (submission_state=paused)	0
 pubg	not BBP (VDP or other)	2
-myndr	not BBP (VDP or other)	3
+myndr	not open (submission_state=paused)	3
 playstation	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	20
 rghost	not open (submission_state=paused)	1
 skale_network	not open (submission_state=paused)	0
@@ -396,7 +396,7 @@ agoric	not open (submission_state=paused)	0
 allegion	not BBP (VDP or other)	37
 hilton	rate limit below 5/s (found: 1.6666666666666667)	9
 moov	not BBP (VDP or other)	7
-sidefx	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	1
+sidefx	not open (submission_state=paused)	1
 unitigroup	not BBP (VDP or other)	16
 mongodb	automation ban: [Mistral-confirmed ban, no regex match]	1
 sorare	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	3
