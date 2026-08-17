@@ -1599,6 +1599,10 @@
     "rate": null,
     "reason": "No rate limit or scanning throttle is mentioned in the text."
   },
+  "2a48784f59a2b8fe6c6d6f6f8bc1e6730dd922dc8fca4737811c61db42768e80": {
+    "is_ban": false,
+    "reason": "The snippet does not explicitly restrict the act of using automated scanners/tools; it only lists exclusions like brute force and DoS."
+  },
   "2a4d03f70555c8c3d67fe3b27dde2825ce7e56cfe1de3b0bb10c209db27f98f3": {
     "is_allowed": false,
     "reason": "The snippet does not explicitly grant permission for using automated scanners/tools."
@@ -3378,6 +3382,10 @@
   "5bbeb038f29b274d81863f4246a818a3d298a49f14968645afb8295afbb55b95": {
     "is_ban": false,
     "reason": "No requirement for personal identity verification or submission of government ID is mentioned."
+  },
+  "5be069e15a7d1e613155556a8554d1f76061e6de466154ad25ee1e2fe49a90f5": {
+    "is_allowed": false,
+    "reason": "The snippet does not explicitly grant permission for the use of automated scanners or tools."
   },
   "5c1e971da782e3f7a58995460554be65b8d23a4eda018ab6fcc1909f0a94508b": {
     "has_safe_harbor": false,
