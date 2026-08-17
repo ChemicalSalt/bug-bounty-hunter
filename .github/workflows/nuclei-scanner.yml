@@ -136,7 +136,7 @@ jobs:
           path: combined.txt
           retention-days: 7
 
-  weekend_combined:
+  weekend_nuclei:
     needs: prepare
     if: needs.prepare.outputs.has_hosts == 'true' && needs.prepare.outputs.batches != '[]'
     runs-on: ${{ github.event.inputs.runner == 'github' && 'ubuntu-latest' || fromJson('["self-hosted","linux","x64"]') }}
@@ -278,12 +278,12 @@ jobs:
 
       - name: Refresh seen-findings list before dedup
         run: |
-          git pull origin data --quiet || echo "::warning::Could not refresh seen_findings_combined.txt, proceeding with local copy"
+          git pull origin data --quiet || echo "::warning::Could not refresh seen_findings_nuclei.txt, proceeding with local copy"
 
       - name: Filter against previously seen findings
         run: |
-          touch seen_findings_combined.txt
-          comm -23 <(sort -u results.txt) <(sort -u seen_findings_combined.txt) > new_results.txt || true
+          touch seen_findings_nuclei.txt
+          comm -23 <(sort -u results.txt) <(sort -u seen_findings_nuclei.txt) > new_results.txt || true
           echo "Total findings: $(wc -l < results.txt) | New (never emailed): $(wc -l < new_results.txt)"
 
       - name: Show results
@@ -331,7 +331,7 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: batch-marker-combined-${{ matrix.batch }}
+          name: batch-marker-nuclei-${{ matrix.batch }}
           path: batch_marker.txt
           retention-days: 1
 
@@ -339,12 +339,12 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: batch-findings-combined-${{ matrix.batch }}
+          name: batch-findings-nuclei-${{ matrix.batch }}
           path: results.txt
           retention-days: 1
 
-  finalize_combined:
-    needs: [prepare, weekend_combined]
+  finalize_nuclei:
+    needs: [prepare, weekend_nuclei]
     if: always()
     runs-on: ${{ github.event.inputs.runner == 'github' && 'ubuntu-latest' || fromJson('["self-hosted","linux","x64"]') }}
     steps:
@@ -355,35 +355,35 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
-      - name: Download combined batch markers
+      - name: Download nuclei batch markers
         uses: actions/download-artifact@v4
         with:
           path: batch_markers
-          pattern: batch-marker-combined-*
+          pattern: batch-marker-nuclei-*
         continue-on-error: true
 
-      - name: Download combined batch findings
+      - name: Download nuclei batch findings
         uses: actions/download-artifact@v4
         with:
           path: batch_findings
-          pattern: batch-findings-combined-*
+          pattern: batch-findings-nuclei-*
         continue-on-error: true
 
       - name: Merge markers, findings, and advance offset
         run: |
           git config --global user.email "bugbountybot@github.com"
           git config --global user.name "BugBountyBot"
-          touch weekend_progress_nuclei.txt weekend_offset_nuclei.txt weekend_stall_count_nuclei.txt seen_findings_combined.txt
+          touch weekend_progress_nuclei.txt weekend_offset_nuclei.txt weekend_stall_count_nuclei.txt seen_findings_nuclei.txt
 
-          for d in batch_findings/batch-findings-combined-*; do
-            [ -d "$d" ] && [ -f "$d/results.txt" ] && cat "$d/results.txt" >> seen_findings_combined.txt
+          for d in batch_findings/batch-findings-nuclei-*; do
+            [ -d "$d" ] && [ -f "$d/results.txt" ] && cat "$d/results.txt" >> seen_findings_nuclei.txt
           done
-          sort -u seen_findings_combined.txt -o seen_findings_combined.txt
-          echo "seen_findings_combined.txt: $(wc -l < seen_findings_combined.txt) total"
+          sort -u seen_findings_nuclei.txt -o seen_findings_nuclei.txt
+          echo "seen_findings_nuclei.txt: $(wc -l < seen_findings_nuclei.txt) total"
 
-          for d in batch_markers/batch-marker-combined-*; do
+          for d in batch_markers/batch-marker-nuclei-*; do
             [ -d "$d" ] || continue
-            num=$(basename "$d" | sed -E 's/^batch-marker-combined-([0-9]+)$/\1/')
+            num=$(basename "$d" | sed -E 's/^batch-marker-nuclei-([0-9]+)$/\1/')
             [ -n "$num" ] && echo "$num" >> weekend_progress_nuclei.txt
           done
           sort -un weekend_progress_nuclei.txt -o weekend_progress_nuclei.txt
@@ -425,6 +425,6 @@ jobs:
             fi
           fi
 
-          git add weekend_progress_nuclei.txt weekend_offset_nuclei.txt weekend_stall_count_nuclei.txt weekend_stuck_batches_nuclei.log seen_findings_combined.txt 2>/dev/null || git add weekend_progress_nuclei.txt weekend_offset_nuclei.txt weekend_stall_count_nuclei.txt seen_findings_combined.txt
+          git add weekend_progress_nuclei.txt weekend_offset_nuclei.txt weekend_stall_count_nuclei.txt weekend_stuck_batches_nuclei.log seen_findings_nuclei.txt 2>/dev/null || git add weekend_progress_nuclei.txt weekend_offset_nuclei.txt weekend_stall_count_nuclei.txt seen_findings_nuclei.txt
           git diff --staged --quiet || git commit -m "Nuclei scan progress update $(date +'%Y-%m-%d')"
           git push origin data || (git pull --rebase origin data && git push origin data) || echo "::warning::Push failed for nuclei progress"
