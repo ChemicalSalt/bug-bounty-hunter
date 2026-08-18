@@ -140,7 +140,7 @@ roblox	safe harbor not confirmed: no safe-harbor language found in full policy t
 rocket_chat	not open (submission_state=paused)	2
 autodesk	not BBP (VDP or other)	0
 teradici	not open (submission_state=paused)	0
-stellar	not BBP (VDP or other)	0
+stellar	not open (submission_state=paused)	0
 parrot_sec	not open (submission_state=paused)	1
 bitwarden	not BBP (VDP or other)	7
 omise	not open (submission_state=paused)	6
@@ -311,7 +311,7 @@ rebellion-defense	not open (submission_state=paused)	6
 aig	not BBP (VDP or other)	19
 dropcontact	not open (submission_state=paused)	1
 tiktok	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	24
-john-deere	not BBP (VDP or other)	1973
+john-deere	not BBP (VDP or other)	1975
 8x8-bounty	automation ban: [Mistral-confirmed ban, no regex match]	83
 hudapp	not open (submission_state=paused)	5
 cbre	not BBP (VDP or other)	8660
@@ -464,11 +464,10 @@ aven_response	not BBP (VDP or other)	4
 bykea	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	13
 aon	not BBP (VDP or other)	251
 fireblocks_mpc	not open (submission_state=paused)	0
-leather_wallet	not open (submission_state=paused)	1
 inditex	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	0
 trip_com	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	13
 anthropic	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	6
-transunion	not BBP (VDP or other)	139
+transunion	not BBP (VDP or other)	142
 bybit_fintech	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	7
 vectra_ai_vdp	not BBP (VDP or other)	8
 3cx	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	1
@@ -533,7 +532,7 @@ hyland_software	not BBP (VDP or other)	1
 hex	not BBP (VDP or other)	3
 hotmartvdp	not BBP (VDP or other)	1
 dust	not BBP (VDP or other)	2
-ferrero	not BBP (VDP or other)	346
+ferrero	not BBP (VDP or other)	345
 msci	not BBP (VDP or other)	0
 hexagon_vdp	not BBP (VDP or other)	0
 experian	not BBP (VDP or other)	0
@@ -583,3 +582,4 @@ anthropic-cyber-jailbreak	not BBP (VDP or other)	0
 wolt	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	8
 assa_abloy_americas	not BBP (VDP or other)	22
 prism_vdp	not BBP (VDP or other)	19
+vercel_sandbox	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	0
