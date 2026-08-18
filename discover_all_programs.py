@@ -169,7 +169,7 @@ def check_safe_harbor(text):
     m = SAFE_HARBOR_PATTERN.search(text)
     if m:
         start = max(0, m.start() - 100)
-        end = min(len(text), m.end() + 100)
+        end = min(len(text), m.end() + 400)
         cleaned = re.sub(r"\s+", " ", text[start:end]).strip()
         return True, cleaned
     return False, None
@@ -1157,6 +1157,136 @@ def vet_yeswehack_program(program, results):
     })
 
 
+def discover_hackenproof():
+    programs = []
+    page = 1
+    auth_cookie = os.environ.get("HACKENPROOF_AUTH", "")
+    while True:
+        data, err = fetch_json(
+            f"https://dashboard.hackenproof.com/api/internal/user/opportunities"
+            f"?page={page}&per_page=50&not_audits=true&order_by%5Bpublished_date%5D=desc",
+            {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",
+                "Accept": "application/json, text/plain, */*",
+                "Accept-Language": "en-US,en;q=0.9",
+                "Referer": "https://dashboard.hackenproof.com/user/programs?tab=bounties",
+                "sec-ch-ua": '"Not=A?Brand";v="99", "Google Chrome";v="151", "Chromium";v="151"',
+                "sec-ch-ua-mobile": "?0",
+                "sec-ch-ua-platform": '"Windows"',
+                "sec-fetch-dest": "empty",
+                "sec-fetch-mode": "cors",
+                "sec-fetch-site": "same-origin",
+                "Cookie": auth_cookie,
+            },
+        )
+        if err:
+            log(f"[HackenProof] page {page} fetch failed: {err}")
+            break
+        batch = data.get("programs", [])
+        if not batch:
+            break
+        programs.extend(batch)
+        next_page = data.get("next_page")
+        if not next_page:
+            break
+        page = next_page
+        time.sleep(0.3)
+    log(f"[HackenProof] discovered {len(programs)} total programs")
+    return programs
+
+
+def vet_hackenproof_program(program, results):
+    slug = program["slug"]
+    if program.get("state") != "published":
+        results["excluded"].append((slug, f"not open (state={program.get('state')})", 0))
+        return
+    if (program.get("status") or {}).get("name") != "Active":
+        results["excluded"].append((slug, f"not active (status={(program.get('status') or {}).get('name')})", 0))
+        return
+    if program.get("private") is True:
+        results["excluded"].append((slug, "not public", 0))
+        return
+    if program.get("audit_program") is True:
+        results["excluded"].append((slug, "audit program, not BBP", 0))
+        return
+    auth_cookie = os.environ.get("HACKENPROOF_AUTH", "")
+    data, err = fetch_json(
+        f"https://dashboard.hackenproof.com/api/internal/user/opportunities/{slug}",
+        {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",
+                "Accept": "application/json, text/plain, */*",
+                "Accept-Language": "en-US,en;q=0.9",
+                "Referer": "https://dashboard.hackenproof.com/user/programs?tab=bounties",
+                "sec-ch-ua": '"Not=A?Brand";v="99", "Google Chrome";v="151", "Chromium";v="151"',
+                "sec-ch-ua-mobile": "?0",
+                "sec-ch-ua-platform": '"Windows"',
+                "sec-fetch-dest": "empty",
+                "sec-fetch-mode": "cors",
+                "sec-fetch-site": "same-origin",
+                "Cookie": auth_cookie,
+            },
+    )
+    time.sleep(0.3)
+    if err:
+        results["skipped"].append((slug, err, 0))
+        return
+    scopes = data.get("scopes", [])
+    domains = sorted(set(
+        d for s in scopes if not s.get("out_of_scope")
+        for d in [extract_root_domain(s.get("target", ""))] if d
+    ))
+    out_domains = sorted(set(
+        d for s in scopes if s.get("out_of_scope")
+        for d in [extract_root_domain(s.get("target", ""))] if d
+    ))
+    if out_domains:
+        domains = sorted(set(domains) - set(out_domains))
+    domain_count = len(domains)
+    # kyc_required is a structured field HackenProof exposes directly, so trust it
+    # instead of text-parsing for ID verification (more reliable than the other 3
+    # platforms, which only have prose to go on).
+    if program.get("kyc_required") is True:
+        results["excluded"].append((slug, "requires KYC (kyc_required=true)", domain_count))
+        return
+    rules = " ".join(filter(None, [
+        data.get("program_rules", ""),
+        data.get("focus_area", ""),
+        data.get("eligibility_and_coordinate_disclosure", ""),
+        data.get("disclosure_guidelines", ""),
+    ]))
+    sh_ok, sh_snippet = check_safe_harbor_two_layer(rules, slug)
+    if sh_ok == "review":
+        results["skipped"].append((slug, f"safe harbor unresolved: {sh_snippet[:80]}", domain_count))
+        return
+    if not sh_ok:
+        sh_display = sh_snippet or "no safe-harbor language found in full policy text"
+        results["excluded"].append((slug, f"safe harbor not confirmed: {sh_display[:80]}", domain_count))
+        return
+    automation_status, snippet = check_automation_ban_two_layer(rules, slug)
+    if automation_status == "review":
+        results["skipped"].append((slug, snippet, domain_count))
+        return
+    if automation_status != "allowed":
+        reason = "automation ban" if automation_status == "banned" else "no explicit automation permission (silent)"
+        results["excluded"].append((slug, f"{reason}: {(snippet or '')[:80]}", domain_count))
+        return
+    rate, rate_status = check_rate_limit_two_layer(rules, slug)
+    if rate_status == "review":
+        results["skipped"].append((slug, "Mistral call failed on rate-limit check", domain_count))
+        return
+    if rate is not None and rate < MIN_RATE_LIMIT:
+        results["excluded"].append((slug, f"rate limit below {MIN_RATE_LIMIT}/s (found: {rate})", domain_count))
+        return
+    results["included"].append({
+        "slug": slug,
+        "bounty": True,
+        "safe_harbor": True,
+        "rate_limit": rate,
+        "domains": domains,
+        "out_domains": out_domains,
+    })
+
+
 def discover_bugcrowd():
     programs = []
     page = 1
@@ -1437,7 +1567,7 @@ def summarize(platform, results, total_discovered, write_files=True):
     log(f"  [STATS] appended to {stats_path}")
 
 
-def update_domain_program_map(h1_results, int_results, ywh_results, bc_results, ran_platforms, max_removal_pct=100):
+def update_domain_program_map(h1_results, int_results, ywh_results, bc_results, hp_results, ran_platforms, max_removal_pct=100):
     """Rebuild domain_program_map.csv rows for every platform that actually ran this
     invocation (dropping stale/removed programs for those platforms), while leaving
     rows for skipped platforms (e.g. a manual --platform test run, or no token set)
@@ -1459,6 +1589,7 @@ def update_domain_program_map(h1_results, int_results, ywh_results, bc_results, 
         ("intigriti", int_results, "handle"),
         ("yeswehack", ywh_results, "slug"),
         ("bugcrowd", bc_results, "slug"),
+        ("hackenproof", hp_results, "slug"),
     ]
     for platform_name, results, key_field in platform_sources:
         if platform_name not in ran_platforms:
@@ -1707,8 +1838,8 @@ def run_vet_pass(programs, vet_fn, results, key_fn, platform_name, max_wait=3900
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--platform", choices=["hackerone", "intigriti", "yeswehack", "bugcrowd"], default=None,
-                         help="Run only one platform instead of all four")
+    parser.add_argument("--platform", choices=["hackerone", "intigriti", "yeswehack", "bugcrowd", "hackenproof"], default=None,
+                         help="Run only one platform instead of all five")
     args = parser.parse_args()
     h1_token = os.environ.get("HACKERONE_TOKEN")
     int_token = os.environ.get("INTIGRITI_TOKEN")
@@ -1775,9 +1906,28 @@ def main():
         log(f"[Bugcrowd] merge result: {r}")
         if r["applied"]:
             applied_platforms.add("bugcrowd")
-    update_domain_program_map(h1_results, int_results, ywh_results, bc_results, applied_platforms)
+    hp_auth = os.environ.get("HACKENPROOF_AUTH")
+    hp_results = new_results()
+    if args.platform in (None, "hackenproof") and hp_auth:
+        ran_platforms.add("hackenproof")
+        programs = discover_hackenproof()
+        run_vet_pass(programs, lambda p: vet_hackenproof_program(p, hp_results),
+                     hp_results, lambda p: p["slug"], "HackenProof")
+        summarize("HackenProof", hp_results, len(programs))
+        r = merge_scope_file(os.path.join(OUTPUT_DIR, "hackenproof_scope.txt"), hp_results["included"])
+        log(f"[HackenProof] merge result: {r}")
+        if r["applied"]:
+            applied_platforms.add("hackenproof")
+    else:
+        if args.platform not in (None, "hackenproof"):
+            log("[HackenProof] skipped due to --platform filter")
+        else:
+            log("[HackenProof] no HACKENPROOF_AUTH set, skipping platform")
+            summarize("HackenProof", hp_results, 0, write_files=False)
+
+    update_domain_program_map(h1_results, int_results, ywh_results, bc_results, hp_results, applied_platforms)
     scope_paths = [os.path.join(OUTPUT_DIR, f"{p}_scope.txt")
-                   for p in ("hackerone", "intigriti", "yeswehack", "bugcrowd")]
+                   for p in ("hackerone", "intigriti", "yeswehack", "bugcrowd", "hackenproof")]
     r = rebuild_domains_txt(scope_paths)
     log(f"[domains.txt] rebuild result: {r}")
 
