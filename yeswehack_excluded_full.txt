@@ -1,5 +1,7 @@
-vfs-global-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	27
+vincisa-public-program	safe harbor not confirmed: no safe-harbor language found in full policy text	18
+telenor-sweden-public-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	22
 infomaniak-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	40
+vfs-global-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	27
 bind-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	1
 expressvpn-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	25
 programmes-de-primes-aux-bogues-du-gouvernement-du-quebec-cgcd	safe harbor not confirmed: no safe-harbor language found in full policy text	2
@@ -18,7 +20,6 @@ dojo	not BBP (VDP or other)	0
 cryptobox-bug-bounty	safe harbor not confirmed: no safe-harbor language found in full policy text	1
 doctolib-public-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	4
 teamviewer-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	4
-telenor-sweden-public-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	23
 mediamarktsaturn-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	11
 dana-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	2
 cyberghost-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	6
@@ -48,7 +49,6 @@ digital-flanders-vulnerability-disclosure-program	not BBP (VDP or other)	0
 xelians-blackbox-program	safe harbor not confirmed: no safe-harbor language found in full policy text	2
 grw-trading-fze-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	2
 vidaxl-services-open-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	39
-vincisa-public-program	safe harbor not confirmed: no safe-harbor language found in full policy text	19
 ezviz-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	9
 swapcard	safe harbor not confirmed: no safe-harbor language found in full policy text	10
 paddle-com-public-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	12
