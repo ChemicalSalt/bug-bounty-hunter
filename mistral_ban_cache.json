@@ -2695,6 +2695,10 @@
     "rate": null,
     "reason": "no rate limit or scanning throttle is mentioned"
   },
+  "4979142731cc929c26ee5806de0c5a209602cdf0c90b6c30cb5040dabf8c0b96": {
+    "is_out": true,
+    "reason": "XSS vulnerabilities on www.vinci.com are explicitly stated as out of scope temporarily."
+  },
   "49a585bead9168ef19602e42ebc8da697b4c27db5b6bdf7878ddff0852382fc0": {
     "is_ban": false,
     "reason": "The snippet does not explicitly restrict the act of using automated scanners/tools."
@@ -4558,6 +4562,10 @@
   "7764cbebca5b2eb5111ae271a05f6a2411c3c03e20037e567ebe454838d93975": {
     "is_ban": true,
     "reason": "The snippet explicitly restricts the act of using testing tools or scanners that automatically generate significant volumes of traffic."
+  },
+  "77a35c5a772a32d731fa3dff4c2327b967cc244313c3532c871de3ec2d4f49cc": {
+    "is_out": false,
+    "reason": "The wildcard pattern suggests storage subdomains are in scope unless explicitly excluded elsewhere."
   },
   "77b979deacadbcd3ee25f55b0cbd534c7dc6493304118ac8c20631893ddb0201": {
     "rate": null,
