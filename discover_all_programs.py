@@ -1270,7 +1270,7 @@ def discover_bugcrowd():
     total_pages = None
     while total_pages is None or page <= total_pages:
         data, err = fetch_json(
-            f"https://bugcrowd.com/engagements?category=bug_bounty&page={page}",
+            f"https://bugcrowd.com/engagements?page={page}",
             {"User-Agent": "Mozilla/5.0", "Accept": "application/json"},
         )
         if err:
