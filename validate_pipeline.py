@@ -30,6 +30,7 @@ RAW_SCOPE_FILES = [
     "intigriti_scope.txt",
     "yeswehack_scope.txt",
     "bugcrowd_scope.txt",
+    "hackenproof_scope.txt",
 ]
 
 BAD_CHARS = ("*", "[", "]")
@@ -109,7 +110,7 @@ def check_file(path, is_root_domain_file):
     return (len(problems) == 0), problems
 
 
-EXPECTED_PLATFORMS = ["hackerone", "intigriti", "yeswehack", "bugcrowd"]
+EXPECTED_PLATFORMS = ["hackerone", "intigriti", "yeswehack", "bugcrowd", "hackenproof"]
 
 
 def check_skip_rate(csv_path="discovery_stats.csv", expected_run_id=None, only_platform=None):
@@ -164,7 +165,7 @@ def check_skip_rate(csv_path="discovery_stats.csv", expected_run_id=None, only_p
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--platform", choices=["hackerone", "intigriti", "yeswehack", "bugcrowd"], default=None,
+    parser.add_argument("--platform", choices=["hackerone", "intigriti", "yeswehack", "bugcrowd", "hackenproof"], default=None,
                          help="Validate only one platform instead of all four")
     args = parser.parse_args()
     overall_ok = True
