@@ -12327,6 +12327,10 @@
     "has_safe_harbor": false,
     "reason": "The policy does not explicitly grant legal safe harbor or promise not to pursue legal action against good-faith researchers."
   },
+  "c560a2e84748ea348bb36f10e0e723ec16eeec238612c6483a66c25ff164ac6f": {
+    "has_safe_harbor": false,
+    "reason": "The policy does not explicitly grant legal safe harbor or promise not to pursue legal action against good-faith researchers."
+  },
   "c5910488522b7930952628fe358ddff2cd7131b2e8297848343801323ea6d19f": {
     "has_safe_harbor": false,
     "reason": "The policy does not explicitly grant legal safe harbor or promise not to pursue legal action against good-faith researchers."
