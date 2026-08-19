@@ -359,6 +359,10 @@
     "rate": null,
     "reason": "No rate limit or scanning throttle is mentioned in the policy text."
   },
+  "062aa7b71414f2ebe9702c8043a2a8842cd5a45b07c6ebd4ba03760ff1edaa8d": {
+    "is_allowed": false,
+    "reason": "The snippet does not explicitly grant permission for the use of automated scanners/tools."
+  },
   "063bea9fe3b6c69df7afa586d230136c9f3a017b7095fb01daad45f8903339b9": {
     "is_ban": false,
     "reason": "The snippet does not explicitly restrict the act of using automated scanners/tools; it focuses on guidelines for testing and report submission."
@@ -1011,6 +1015,10 @@
     "is_allowed": false,
     "reason": "The snippet does not explicitly grant permission for the use of automated scanners or tools."
   },
+  "0f40a4f5062eef86bafe4fb9a8a7ebd6b742c96ae2421e080ef60ce04357a0e6": {
+    "is_ban": false,
+    "reason": "The snippet restricts AI-generated or unverified submissions, not the act of using automated scanners/tools."
+  },
   "0f4ae5dbdb9c06503359fe418999c08714f9a518e3160e511e31f3d2bffc55fd": {
     "is_ban": true,
     "reason": "The snippet explicitly restricts the act of using automated testing tools against their systems."
@@ -1090,6 +1098,10 @@
   "10d613affd699fa8cfa5175f847abb1f711d3c636ef135112e8698760fb3c2d6": {
     "is_out": true,
     "reason": "The domain 'e.g' is an example placeholder and not a valid domain owned by Doctolib."
+  },
+  "10ea634c1aba66a829d50b377452ebc1158e61088114b98374270a224e0b071e": {
+    "is_ban": true,
+    "reason": "The snippet explicitly prohibits the act of using automated scanners."
   },
   "10ebc06f89e4884fec15a7bd34d102a35476b3efe139b89412ee1f7c29c1c009": {
     "is_ban": false,
@@ -1287,6 +1299,10 @@
     "is_ban": false,
     "reason": "No personal identity verification is required to participate or receive rewards."
   },
+  "14130dacc5040038c6bdc39c5151e90a392c9b07171d34377bc4b4aa3c984385": {
+    "has_safe_harbor": true,
+    "reason": "The policy explicitly grants safe harbor and states the company will not initiate legal action for good faith research."
+  },
   "141b8fbc92e0bde0e0c2b9bec9903cd1fe9996a7672eb6ebfcff25f8a22406db": {
     "rate": null,
     "reason": "No rate limit or scanning throttle is mentioned in the text."
@@ -1350,6 +1366,10 @@
   "150408b2c5b70079751156124434be15a2c5a7448c8fac70bfa5c425b18b2696": {
     "is_ban": false,
     "reason": "The text does not require personal identity verification for participation or payment."
+  },
+  "151d54959a6512c272c2c2d4c23ea716f7fbdac223d41aaf8797ec9585c09fb1": {
+    "is_ban": false,
+    "reason": "The snippet does not explicitly restrict the act of using automated scanners/tools against their systems."
   },
   "151fe49869aa6d3d3dbfd77cd3c37c8f5783631697b1819da36521654090e46b": {
     "is_ban": false,
@@ -2706,6 +2726,10 @@
   "2aec95f0fc8a2b2cd69e25a1ce42818273df536543859f1d8cf70afeebf6b945": {
     "is_allowed": false,
     "reason": "The snippet does not explicitly grant permission for using automated scanners/tools."
+  },
+  "2b0db9e4036641fc243d956eae0e9518c193e3cabb03874bd9ed78f8eb25589d": {
+    "is_ban": true,
+    "reason": "The snippet explicitly prohibits the act of using automated scanners/tools against their systems."
   },
   "2b2a709be2f18a53f34dde7c317692f5203ad177241e6a5b9ed69f0b0c96b883": {
     "is_ban": false,
@@ -4679,6 +4703,10 @@
     "is_ban": false,
     "reason": "The text does not require personal identity verification for participation or payment."
   },
+  "4d23024c649eec6b42fd3b78d9a94aef32ea2a05568a3be69a02f0deb01f81c9": {
+    "has_safe_harbor": true,
+    "reason": "The policy explicitly states authorization under CFAA, exemption from DMCA, and a promise not to pursue legal action for good faith research."
+  },
   "4d4cbec3c0c2a9e34a6a44a2ef049a60fc6368993a98b16f3174de1a52b12cae": {
     "is_ban": false,
     "reason": "The policy does not require personal identity verification for participation or payout."
@@ -4951,6 +4979,10 @@
     "is_allowed": false,
     "reason": "The snippet does not explicitly grant permission for the act of using automated scanners/tools."
   },
+  "5190971f6d119155d9620e26920230bbb7516af142b5b32a267ee67ad3eee79a": {
+    "has_safe_harbor": true,
+    "reason": "The policy explicitly states authorization under the CFAA and a promise not to initiate or support legal action for compliant research."
+  },
   "51b28938f46d77351f7f69207e9d0b07984b811cddba6f9c42ce1fd956146966": {
     "has_safe_harbor": false,
     "reason": "The policy does not explicitly grant legal safe harbor or promise not to pursue legal action against good-faith researchers."
@@ -5119,9 +5151,17 @@
     "is_ban": false,
     "reason": "The snippet does not explicitly restrict the act of using automated scanners/tools, only implies submission or testing requirements."
   },
+  "5526f314590fee0a80aa14a6a1a9db58754c11f924c9c9e5467edf9c23036b1e": {
+    "has_safe_harbor": true,
+    "reason": "The policy explicitly states authorization under CFAA, exemption from DMCA, and a promise not to pursue legal action for good faith research."
+  },
   "55320e321a9012a6b415f67e706e60bef75fe2554eed1a7f06bcc2d5021e028f": {
     "is_ban": true,
     "reason": "The snippet explicitly prohibits the act of using automated scanners."
+  },
+  "55331a29d6f978110fca64033a5f6c4a8b947dc85afe89e80493859fb2d7733f": {
+    "has_safe_harbor": true,
+    "reason": "The policy explicitly states authorization under CFAA, exemption from DMCA, and a promise not to initiate legal action for good faith research."
   },
   "5559378c6ac3d6fd61d5dacbbddaef6253f9ff49ee81ea893952d29cfc520e7d": {
     "is_ban": false,
@@ -6047,6 +6087,10 @@
     "is_allowed": false,
     "reason": "The snippet does not explicitly grant permission for automated scanning tools."
   },
+  "61ef56df957dc7cbe9f75d7084018194c23959f2c2f3b6ea2650b122886803ec": {
+    "is_allowed": false,
+    "reason": "The snippet does not explicitly grant permission for the use of automated scanners or tools."
+  },
   "61f97d9627c24c7dd6a28ed9e3ff3c9afb8fa99c601ca90aa701b7a01f1fa76c": {
     "is_ban": false,
     "reason": "No personal identity verification or documents are required to participate or get paid."
@@ -6539,6 +6583,10 @@
     "is_allowed": false,
     "reason": "The snippet does not explicitly grant permission for the use of automated scanners/tools."
   },
+  "6a1b7bdcfb648ffac41e79b6950f44d7542e1198d95d40237e1b862e67d52d76": {
+    "is_ban": true,
+    "reason": "The snippet explicitly prohibits the act of using automated scanners."
+  },
   "6a2338b6571168e386b54646b76c6a8300d218f3da5aee80249fefb4f03f4895": {
     "is_ban": true,
     "reason": "The snippet explicitly restricts the act of using automated scanning tools against their systems."
@@ -7023,6 +7071,10 @@
     "is_ban": false,
     "reason": "The snippet does not restrict the act of using automated scanners/tools; it focuses on submission rules and out-of-scope activities."
   },
+  "706511ad9859e1473b8cd36cb1f2dce97ccf46b58541dcbca07b3a307c70524a": {
+    "is_ban": false,
+    "reason": "The snippet does not restrict the act of using automated scanners/tools; it focuses on out-of-scope activities and report quality."
+  },
   "706518158f6973f4fda6df7b258a90dcfa5f259833d9547881561bcf8b96e2c2": {
     "is_allowed": false,
     "reason": "The snippet does not explicitly grant permission to use automated scanners/tools; it only mentions output from them in a submission rule."
@@ -7343,6 +7395,10 @@
     "is_ban": false,
     "reason": "The snippet does not explicitly restrict the act of using automated scanners/tools."
   },
+  "754c8752e83ce989c92116190af84d0fc6e6687f965b172e7e4f1f1d1da74f96": {
+    "is_ban": true,
+    "reason": "The snippet explicitly restricts the act of using automated scanning tools with excessive aggression."
+  },
   "7551ee40d20afe223d48bee2594e113bb7a8c950161bc05bfdb14fc3d594508b": {
     "is_ban": false,
     "reason": "The snippet restricts automated tooling to a rate limit (5 requests/sec) but does not ban the act of using automated scanners."
@@ -7446,6 +7502,10 @@
   "7692b5c6f4f2e38dbf1097f4ecdce3fdbb7ac832d3d78bd39e4a060f8752cdf2": {
     "is_ban": false,
     "reason": "The text does not require personal identity verification for participation or payment."
+  },
+  "7699ab1d614cbb0e9cc3e9ab3adb6f21d0b2fab0aa5bf9f2dadfaad4e7608c93": {
+    "has_safe_harbor": true,
+    "reason": "The policy explicitly states authorization under CFAA and exemption from DMCA, with a promise not to pursue legal action for good faith research."
   },
   "76a2ef9591fd1bf59821f7df6bf82a46d0b8f7baf8d05c2ec06c62d988e71f31": {
     "is_allowed": false,
@@ -8347,6 +8407,10 @@
     "is_allowed": false,
     "reason": "The snippet explicitly lists 'Reports from automated tools or scans' as out of scope, which implies no permission to run automated scanning tools."
   },
+  "844dba76231ecd27d1a44fdfb320470c4247d249bba36e7a93733ce77d3bf55d": {
+    "has_safe_harbor": true,
+    "reason": "The policy explicitly states authorization under CFAA and promises no legal action for good faith research."
+  },
   "8451476e8734ac1b8d2311f403552e12dc9e06f4e18c07ef43c9729392d68bdf": {
     "is_allowed": true,
     "reason": "The snippet explicitly grants permission for automated scanning tools with a rate limit requirement."
@@ -8891,6 +8955,10 @@
     "rate": null,
     "reason": "No rate limit or scanning throttle is mentioned in the text."
   },
+  "8d9349ac3ce8ad1e02546bb8fdc73ff1ec8e88935f2571079718259e9a29a570": {
+    "has_safe_harbor": true,
+    "reason": "The policy explicitly states authorization under the CFAA, exemption from the DMCA, and a promise not to initiate legal action for good faith research."
+  },
   "8d9f36aa45211f5fd9e72a9d8af81bac9d3aaccdb877f3364332c9079d47d5f1": {
     "is_ban": false,
     "reason": "The policy does not require personal identity verification for participation or payment."
@@ -8942,6 +9010,10 @@
   "8e4fe3da3e2ebc376464c73a08313ec6424a21d8ee2dc18be4d890ef456fea3b": {
     "has_safe_harbor": false,
     "reason": "The policy does not explicitly mention legal safe harbor or protection from legal action for good faith research."
+  },
+  "8e5195093566dee775e7b100597061fdf9c2dc1fb70b0ff7b024646d43b4798a": {
+    "is_ban": true,
+    "reason": "The snippet explicitly prohibits the act of using automated scanners."
   },
   "8e52d2caa7f1605ded24dba311953772e0927a3722bd4b7a4596d346e8bf854b": {
     "is_ban": false,
@@ -9190,6 +9262,10 @@
   "9254e106ca8bfb18a8a2588b9414ae6c03426f0743975ca976a8a851abeeee10": {
     "is_allowed": false,
     "reason": "The snippet does not explicitly grant permission for the use of automated scanners or tools."
+  },
+  "927182234d8cf30a3b65cb1b74df1560c91a6f8e3c7a53523425ecf165d1a215": {
+    "has_safe_harbor": true,
+    "reason": "The policy explicitly states authorization under CFAA, exemption from DMCA, and a promise not to pursue legal action for good faith research."
   },
   "928252b2d48ac0be06b56770b9c28b04665aabb2d30482942dcd26f423781969": {
     "has_safe_harbor": false,
@@ -9598,6 +9674,10 @@
   "97e64cbaa1af04b2ae1a3c11d37618abe50bdcfe7dcdac0a6a38efaffd3d3625": {
     "rate": null,
     "reason": "No rate limit or scanning throttle is mentioned in the text."
+  },
+  "97e815a753f6e19f34ebc0f168c68fb68ea863cb562f1d0d505d6164ed9bc2a0": {
+    "is_ban": true,
+    "reason": "The snippet explicitly prohibits the use of automated scanners as part of the testing rules."
   },
   "980e8fb03ec9bc69b8b71f32fa8d7edf46d20b87652a02510d512ce8ef0cc750": {
     "is_ban": false,
@@ -10447,6 +10527,10 @@
     "is_ban": true,
     "reason": "The snippet explicitly restricts the act of using automated scanners ('Please do *not* use automatic scanners')."
   },
+  "a6d3305c25bf7020fd441d07d97a3b2910f8025cb2fb1d00af4f61323303837d": {
+    "is_ban": false,
+    "reason": "The snippet does not restrict the act of using automated scanners/tools; it only outlines submission and testing guidelines."
+  },
   "a6d534886bd8f561f2e6134b2f610cd763a1b7fa8630a59ef6d3ac28cc1b0828": {
     "is_allowed": false,
     "reason": "The snippet does not explicitly grant permission for the use of automated scanners/tools."
@@ -11174,6 +11258,10 @@
   "b4828e82ee825922681b7d69b2d5f9b334f00865123ab5b40b973cc9df2fe1d7": {
     "rate": null,
     "reason": "No rate limit or scanning throttle is mentioned in the text."
+  },
+  "b48f8cd1cb523b7acaf2a3f19caadc89ff3514a3e47cd1e946658bb23e72a643": {
+    "has_safe_harbor": true,
+    "reason": "The policy explicitly states authorization under CFAA, exemption from DMCA, and a promise not to pursue legal action for good faith research."
   },
   "b4991bdf4e7cca545f97d74c0a2137b5d61ef6fce3041f51fdfad1939ab570b5": {
     "is_allowed": false,
@@ -12050,6 +12138,10 @@
   "c25d69abb5058e84613cdee4cd8bf48585f63588d844f8a72e99d75917748a62": {
     "is_ban": false,
     "reason": "The policy does not require personal identity verification for participation or payout."
+  },
+  "c26afa4f8439f85e1036912bc4c5924751a42997357d5b00c3f910f97d6c3e50": {
+    "is_ban": true,
+    "reason": "The snippet explicitly restricts the act of using vulnerability scanners on the program."
   },
   "c294cd98e680708d406a290d828f3427b39cab35d419871a9e8f6f499720c147": {
     "has_safe_harbor": true,
@@ -12939,6 +13031,10 @@
     "has_safe_harbor": true,
     "reason": "The policy explicitly states that activities conducted in compliance with the policy will be considered authorized and that the company will not initiate legal action."
   },
+  "cfd8c0acd32e04b85c918ce4b7df19ae80d85f8ee2a4ce7cbf2e8470f313f6a7": {
+    "has_safe_harbor": true,
+    "reason": "The policy explicitly states authorization under the CFAA and promises not to initiate legal action for good faith research."
+  },
   "cfeb5c63bedd72a84addfbcb1950ef812667ad52c929320ecb4bb3f20c517da9": {
     "is_ban": false,
     "reason": "The policy does not require personal identity verification for participation or payout."
@@ -13086,6 +13182,10 @@
   "d22cfb5534ad52f996d0ffd1f05d9b3c3474215d39d23556c7581305d6eabffd": {
     "is_ban": false,
     "reason": "The policy does not require personal identity verification for participation or payment."
+  },
+  "d27214393c03d3171c3903d28bae5140c546fc9ca0e2fcfe97d23980a2f4d583": {
+    "is_ban": false,
+    "reason": "The snippet does not restrict the act of using automated scanners/tools; it focuses on disclosure, rewards, and scope."
   },
   "d272a2cc1642ae5f2ef2f2abce3c8cfde0a97897b4d0138df9c0cd10769d9d8c": {
     "has_safe_harbor": false,
@@ -13987,6 +14087,10 @@
     "is_ban": true,
     "reason": "The snippet explicitly prohibits 'Performing automated security testing or scanning' as a prohibited action."
   },
+  "dfbe6a570089d74001e3a5ce81d32595a24a7e3e9724eab1cf4886becda6953a": {
+    "has_safe_harbor": true,
+    "reason": "The policy explicitly states authorization under CFAA, exemption from DMCA, and a promise not to pursue legal action for good faith research."
+  },
   "dfcdf9dbdfa860dce54c0cc408ca8d422e79246b0771c6c6d001ac22f2f15ca3": {
     "is_ban": false,
     "reason": "The snippet does not explicitly restrict the act of using automated scanners/tools; it only lists exclusions like brute force and DoS."
@@ -14055,6 +14159,10 @@
     "is_ban": false,
     "reason": "The snippet restricts submissions from automated scanners without manual verification, not the act of scanning itself."
   },
+  "e12202967675de30587506d62922edd77e17ca0b79426ba00747d1d5e5165ddb": {
+    "is_ban": true,
+    "reason": "The snippet explicitly prohibits the act of using automated scanners."
+  },
   "e126bc228d3069fb1ea6b092d76438358a05ef065d9d4e41cc05192116aec064": {
     "is_ban": false,
     "reason": "The snippet does not restrict the act of using automated scanners/tools; it only outlines program rules and out-of-scope vulnerabilities."
@@ -14102,6 +14210,10 @@
   "e1a4dbfd20ee3ab40b420792a8a46add50f853a7386ef223d539dc71dd1be959": {
     "rate": null,
     "reason": "No rate limit or scanning throttle is mentioned in the text."
+  },
+  "e1ad5266dfa3e5c1df5d70155cc3333b1fb9cb30d6f62dc318051627b809adcc": {
+    "is_ban": true,
+    "reason": "The snippet explicitly restricts the act of using noisy automated tools for testing."
   },
   "e1c658182040e026f36423a62cdf2b8e097cfe8dd4d9176a68c5f43b5682cfd3": {
     "is_ban": true,
@@ -14298,6 +14410,10 @@
   "e50e3c4ce92a7d8923eb0eac85c50957fea18b269719c39a7d8a96306156ea4a": {
     "is_ban": true,
     "reason": "The snippet explicitly restricts the act of automated scanning, DAST, and fuzzing against their API and endpoints."
+  },
+  "e524cdae1300e2c35710a2a02faa09bab89bbaa507275ccb572cf2e2ffb48d27": {
+    "is_ban": false,
+    "reason": "The snippet does not restrict the act of using automated scanners/tools; it only mentions DoS testing and destructive actions."
   },
   "e53e73b4b033fc0d567a45053bcf737c94df5f2a9d645527d09a414b9b88f561": {
     "rate": null,
@@ -14902,6 +15018,10 @@
   "eff22f5f3ecdfc1a5751774fdf466031192a0bdb65951929e41fde51c2fdb7ee": {
     "is_ban": false,
     "reason": "No personal identity verification is required to participate or get paid."
+  },
+  "efffbd54bd38e937da9c40232cebcc071c267b1b0e944807d92d1a727bf51e00": {
+    "is_allowed": false,
+    "reason": "The snippet does not explicitly grant permission for the use of automated scanners or tools."
   },
   "f02e344873accdeabc49ebe0cf219548afa78aa04006c2127d87d9ee4870cc43": {
     "is_allowed": false,
@@ -15918,6 +16038,10 @@
   "ffa8d989f7162f98d7fe54243b59ed4796c593655658f78e8e2b1f4ce3e7ad64": {
     "is_allowed": false,
     "reason": "The snippet does not explicitly grant permission for using automated scanners/tools."
+  },
+  "ffbe417d22190cdd4d0f7fd686428ee88d04c5ec48f290002e960540d01c50e2": {
+    "is_ban": true,
+    "reason": "The snippet explicitly prohibits the act of using automated scanners."
   },
   "ffd81c93f6638ff8afb8a3a3057b23eae670445e0cf024749b516c06ab0ee0d4": {
     "is_allowed": false,
