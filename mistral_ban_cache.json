@@ -8863,6 +8863,10 @@
     "has_safe_harbor": false,
     "reason": "The text is incomplete and does not explicitly grant legal safe harbor or promise protection from legal action."
   },
+  "8d154b511d7035697aad52032ee8c1a82d84c070c2e4fe0d95aa990686ca6a9c": {
+    "is_ban": false,
+    "reason": "The snippet does not explicitly restrict the act of using automated scanners/tools against their systems."
+  },
   "8d5b5c81b69702f681e15d6e298a9c6313285f7ec423d8b6cb7a19b936da6d6c": {
     "is_ban": false,
     "reason": "The text does not require researchers to submit personal identity documents or undergo identity verification."
@@ -11566,6 +11570,10 @@
   "bb90a6d36b7517366834ac7781f1529c86984ce9e9dc65f978734095ff0f0f5e": {
     "is_ban": false,
     "reason": "The snippet does not restrict the act of using automated scanners/tools; it only outlines program rules and submission requirements."
+  },
+  "bb98278e6484ee1299124f949f03d8bf06f301a4a89ff4f1638baf838062fb67": {
+    "is_allowed": false,
+    "reason": "The snippet does not explicitly grant permission for automated scanning tools."
   },
   "bbb810c7b102355e95093029dbf868a952fab40d82fa520e10d7a74c31890a47": {
     "is_ban": false,
