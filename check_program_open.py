@@ -119,6 +119,33 @@ def check_bugcrowd(slug):
         return ("error", str(e))
 
 
+def check_hackenproof(slug):
+    auth_cookie = os.environ.get("HACKENPROOF_AUTH", "")
+    if not auth_cookie:
+        return ("error", "no HACKENPROOF_AUTH set")
+    url = f"https://dashboard.hackenproof.com/api/internal/user/opportunities/{slug}"
+    req = urllib.request.Request(url, headers={
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",
+        "Accept": "application/json, text/plain, */*",
+        "Referer": "https://dashboard.hackenproof.com/user/programs?tab=bounties",
+        "Cookie": auth_cookie,
+    })
+    try:
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            data = json.loads(resp.read().decode())
+        if data.get("state") != "published":
+            return ("blocked", f"state={data.get('state')}")
+        if (data.get("status") or {}).get("name") != "Active":
+            return ("blocked", f"status={(data.get('status') or {}).get('name')}")
+        if data.get("private") is True:
+            return ("blocked", "private")
+        return ("open", "published/active/public")
+    except urllib.error.HTTPError as e:
+        return ("error", f"HTTP {e.code}")
+    except Exception as e:
+        return ("error", str(e))
+
+
 def main():
     try:
         h1_token = get_token("HACKERONE_TOKEN", os.path.join(HOME, ".hackerone_token"))
@@ -167,6 +194,8 @@ def main():
             status, detail = check_yeswehack(keyword)
         elif platform == "bugcrowd":
             status, detail = check_bugcrowd(keyword)
+        elif platform == "hackenproof":
+            status, detail = check_hackenproof(keyword)
         else:
             programs = h1_programs if platform == "hackerone" else intigriti_programs
             matches = find_match(programs, keyword, platform)

@@ -1,7 +1,7 @@
 import os
 #!/usr/bin/env python3
 import csv, json, urllib.request, urllib.error, re, os, sys, base64, time
-from discover_all_programs import extract_ywh_domains, extract_ywh_out_of_scope_domains, check_automation_ban_two_layer, check_rate_limit_two_layer, check_safe_harbor_two_layer, check_id_verification_two_layer, MISTRAL_API_KEY
+from discover_all_programs import extract_ywh_domains, extract_ywh_out_of_scope_domains, extract_root_domain, check_automation_ban_two_layer, check_rate_limit_two_layer, check_safe_harbor_two_layer, check_id_verification_two_layer, MISTRAL_API_KEY
 
 HOME = os.path.expanduser("~")
 MAPPING_PATH = os.environ.get("MAPPING_CSV_PATH") or os.path.join(HOME, "bug-bounty-hunter", "domain_program_map.csv")
@@ -238,6 +238,37 @@ def fetch_bugcrowd_scope(slug):
     participation = engagement_config.get("participation")
     return {"scope": sorted(set(domains)), "out_scope": sorted(set(out_domains)), "policy": policy_text, "participation": participation, "error": None}
 
+def check_hackenproof(slug):
+    auth_cookie = os.environ.get("HACKENPROOF_AUTH", "")
+    url = f"https://dashboard.hackenproof.com/api/internal/user/opportunities/{slug}"
+    req = urllib.request.Request(url, headers={
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",
+        "Accept": "application/json, text/plain, */*",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Referer": "https://dashboard.hackenproof.com/user/programs?tab=bounties",
+        "sec-ch-ua": '"Not=A?Brand";v="99", "Google Chrome";v="151", "Chromium";v="151"',
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-platform": '"Windows"',
+        "sec-fetch-dest": "empty",
+        "sec-fetch-mode": "cors",
+        "sec-fetch-site": "same-origin",
+        "Cookie": auth_cookie,
+    })
+    try:
+        body = urlopen_with_retry(req, timeout=15, max_retries=3)
+        data = json.loads(body)
+    except Exception as e:
+        return "error", str(e), None
+    if data.get("state") != "published":
+        return "blocked", f"state={data.get('state')}", data
+    if (data.get("status") or {}).get("name") != "Active":
+        return "blocked", f"status={(data.get('status') or {}).get('name')}", data
+    if data.get("private") is True:
+        return "blocked", "private", data
+    if data.get("audit_program") is True:
+        return "blocked", "audit program, not BBP", data
+    return "open", "published/active/public", data
+
 def main():
     try:
         h1_token = get_token("HACKERONE_TOKEN", os.path.join(HOME, ".hackerone_token"))
@@ -281,6 +312,8 @@ def main():
     yeswehack_out_lines = []
     bugcrowd_scope_lines = []
     bugcrowd_out_lines = []
+    hackenproof_scope_lines = []
+    hackenproof_out_lines = []
 
     for (platform, keyword), domains in sorted(groups.items()):
         if platform == "yeswehack":
@@ -312,7 +345,7 @@ def main():
                     rate_ok = rate_result is None or rate_result >= FLAT_RATE_LIMIT
                     sh_ok = sh_result[0] is True
                     id_ok = id_result[0] is not True
-                    eligible = has_scope and is_public and not is_demo and not is_vdp and ban_ok and rate_ok and sh_ok and id_ok
+                    eligible = has_scope and is_public and not is_demo and ban_ok and rate_ok and sh_ok and id_ok  # BBP-only gate removed - VDP included too
                     print(f"    [SCOPE] {len(ywh_domains)} in-scope | public={is_public} demo={is_demo} vdp={is_vdp} | ban={ban_result[0]} | rate={rate_result} | safe_harbor={sh_result[0]} | id_verification={id_result[0]} | eligible={eligible}")
                     if id_result[0] is True:
                         print(f"    [EXCLUDED] ID verification requirement detected - {id_result[1]}")
@@ -332,11 +365,8 @@ def main():
             else:
                 tag = "OPEN  " if status == "open" else "BLOCKED"
                 print(f"[{tag}]  {platform}/{keyword} -> state={detail} engagement_type={engagement_type} ({len(domains)} domain(s))")
-                is_bbp = engagement_type == "Bug Bounty"
+                # BBP-only gate removed - VDP included too
                 if status == "blocked":
-                    excluded_domains.extend(domains)
-                elif status == "open" and not is_bbp:
-                    print(f"    [EXCLUDED] not a Bug Bounty engagement (productLabel={engagement_type})")
                     excluded_domains.extend(domains)
                 elif status == "open":
                     scope_result = fetch_bugcrowd_scope(keyword)
@@ -371,6 +401,54 @@ def main():
                                 bugcrowd_out_lines.append(d)
                         print(f"    [SCOPE] {len(scope_result['scope'])} in-scope, {len(scope_result.get('out_scope', []))} out-of-scope asset(s) found")
             continue
+        if platform == "hackenproof":
+            status, detail, hp_data = check_hackenproof(keyword)
+            if status == "error":
+                print(f"[ERROR]   {platform}/{keyword} -> {detail} ({len(domains)} domain(s))")
+                no_match.append((platform, keyword, domains))
+            else:
+                tag = "OPEN  " if status == "open" else "BLOCKED"
+                print(f"[{tag}]  {platform}/{keyword} -> {detail} ({len(domains)} domain(s))")
+                if status == "blocked":
+                    excluded_domains.extend(domains)
+                elif status == "open":
+                    scopes = hp_data.get("scopes", [])
+                    hp_domains = sorted(set(
+                        d for sc in scopes if not sc.get("out_of_scope")
+                        for d in [extract_root_domain(sc.get("target", ""))] if d
+                    ))
+                    hp_out_domains = sorted(set(
+                        d for sc in scopes if sc.get("out_of_scope")
+                        for d in [extract_root_domain(sc.get("target", ""))] if d
+                    ))
+                    if hp_out_domains:
+                        hp_domains = sorted(set(hp_domains) - set(hp_out_domains))
+                        hackenproof_out_lines.extend(hp_out_domains)
+                    has_scope = len(hp_domains) > 0
+                    if hp_data.get("kyc_required") is True:
+                        print(f"    [EXCLUDED] requires KYC (kyc_required=true)")
+                        excluded_domains.extend(domains)
+                    else:
+                        rules = " ".join(filter(None, [
+                            hp_data.get("program_rules", ""),
+                            hp_data.get("focus_area", ""),
+                            hp_data.get("eligibility_and_coordinate_disclosure", ""),
+                            hp_data.get("disclosure_guidelines", ""),
+                        ]))
+                        ban_result = check_automation_ban_two_layer(rules, f"hackenproof/{keyword}")
+                        rate_result, _ = check_rate_limit_two_layer(rules, f"hackenproof/{keyword}")
+                        sh_result = check_safe_harbor_two_layer(rules, f"hackenproof/{keyword}")
+                        ban_ok = ban_result[0] == "allowed"
+                        rate_ok = rate_result is None or rate_result >= FLAT_RATE_LIMIT
+                        sh_ok = sh_result[0] is True
+                        eligible = has_scope and ban_ok and rate_ok and sh_ok
+                        print(f"    [SCOPE] {len(hp_domains)} in-scope | ban={ban_result[0]} | rate={rate_result} | safe_harbor={sh_result[0]} | eligible={eligible}")
+                        if not eligible:
+                            excluded_domains.extend(domains)
+                        else:
+                            for d in hp_domains:
+                                hackenproof_scope_lines.append(d)
+            continue
         programs = h1_programs if platform == "hackerone" else intigriti_programs
         matches = find_match(programs, keyword, platform)
 
@@ -399,7 +477,7 @@ def main():
                 sh_text = strip_html(m.get("policy") or "")
                 sh_result = check_safe_harbor_two_layer(sh_text, f"hackerone/{keyword}")
                 sh_ok = sh_result[0] is True
-            eligible = is_open and is_bbp and is_public and sh_ok
+            eligible = is_open and is_public and sh_ok  # BBP-only gate removed - VDP included too
             print(f"[{'OPEN  ' if is_open else 'BLOCKED'}]  {platform}/{keyword} -> '{m['name']}' status={m['status']} bbp={is_bbp} public={is_public} safe_harbor={sh_ok} eligible={eligible} ({len(domains)} domain(s))")
             print(f"    [NOTE] HackerOne API does not expose automated-tooling-allowed - covered by text-based check below")
             if not eligible:
@@ -437,7 +515,7 @@ def main():
             raw_type = (m.get("type") or "").lower()
             is_bbp = "bounty" in raw_type  # heuristic - VERIFY against printed raw values above
             print(f"[{'OPEN  ' if is_open else 'BLOCKED'}]  {platform}/{keyword} -> '{m['name']}' status={m['status']} raw_type='{m.get('type')}' bbp_guess={is_bbp} ({len(domains)} domain(s))")
-            if not is_open or not is_bbp:
+            if not is_open:  # BBP-only gate removed - VDP included too
                 excluded_domains.extend(domains)
                 continue
             scope_result = fetch_intigriti_scope(m["id"], intigriti_token)
@@ -555,6 +633,18 @@ def main():
             f.write(f"OUT:{asset}\n")
     os.replace(bugcrowd_tmp_path, bugcrowd_scope_output_path)
     print(f"Wrote {len(bugcrowd_scope_lines)} in-scope + {len(bugcrowd_out_lines)} out-of-scope Bugcrowd assets to {bugcrowd_scope_output_path}")
+
+    hackenproof_scope_lines = sorted(set(hackenproof_scope_lines))
+    hackenproof_out_lines = sorted(set(hackenproof_out_lines))
+    hackenproof_scope_output_path = os.environ.get("HACKENPROOF_SCOPE_OUTPUT_PATH") or os.path.join(HOME, "bug-bounty-hunter", "hackenproof_scope.txt")
+    hackenproof_tmp_path = f"{hackenproof_scope_output_path}.tmp"
+    with open(hackenproof_tmp_path, "w") as f:
+        for asset in hackenproof_scope_lines:
+            f.write(f"IN:{asset}\n")
+        for asset in hackenproof_out_lines:
+            f.write(f"OUT:{asset}\n")
+    os.replace(hackenproof_tmp_path, hackenproof_scope_output_path)
+    print(f"Wrote {len(hackenproof_scope_lines)} in-scope + {len(hackenproof_out_lines)} out-of-scope HackenProof assets to {hackenproof_scope_output_path}")
 
 if __name__ == "__main__":
     main()

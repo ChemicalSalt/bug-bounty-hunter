@@ -203,11 +203,12 @@ jobs:
             -itags 403 \
             -etags ssl,tls,http-missing-headers,tech,info,dns,helpers,passive \
             -severity medium,high,critical \
-            -H "User-Agent: Mozilla/5.0 BugBounty/42 (YWH) Chemical Oxidizer CS_YWH/BB" \
-            -H "X-Bug-Bounty: HackerOne-Chemical, HackerOne-Oxidizer" \
-            -H "X-Bugcrowd-Research: Chemical, Oxidizer" \
-            -H "X-Intigriti-Research: Chemical, Oxidizer" \
-            -H "X-YesWeHack-Research: Chemical, Oxidizer" \
+            -H "User-Agent: Mozilla/5.0 BugBounty/42 (YWH) Oxidizer CS_YWH/BB" \
+            -H "X-Bug-Bounty: HackerOne-Oxidizer" \
+            -H "X-Bugcrowd-Research: Oxidizer" \
+            -H "X-Intigriti-Research: Oxidizer" \
+            -H "X-YesWeHack-Research: Oxidizer" \
+            -H "X-HackenProof-Research: Oxidizer" \
             -silent -retries 0 -timeout 3 -bulk-size 5 -concurrency 5 \
             -rate-limit 5 -fhr -max-host-error 30 \
             -no-color -o results.txt -je nuclei_findings.json -irr

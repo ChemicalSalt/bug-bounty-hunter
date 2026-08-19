@@ -233,11 +233,12 @@ jobs:
           timeout 20700 nuclei -l input.txt \
             -t custom-templates \
             -severity medium,high,critical \
-            -H "User-Agent: Mozilla/5.0 BugBounty/42 (YWH) Chemical Oxidizer CS_YWH/BB" \
-            -H "X-Bug-Bounty: HackerOne-Chemical, HackerOne-Oxidizer" \
-            -H "X-Bugcrowd-Research: Chemical, Oxidizer" \
-            -H "X-Intigriti-Research: Chemical, Oxidizer" \
-            -H "X-YesWeHack-Research: Chemical, Oxidizer" \
+            -H "User-Agent: Mozilla/5.0 BugBounty/42 (YWH) Oxidizer CS_YWH/BB" \
+            -H "X-Bug-Bounty: HackerOne-Oxidizer" \
+            -H "X-Bugcrowd-Research: Oxidizer" \
+            -H "X-Intigriti-Research: Oxidizer" \
+            -H "X-YesWeHack-Research: Oxidizer" \
+            -H "X-HackenProof-Research: Oxidizer" \
             -silent -retries 0 -timeout 3 \
             -bulk-size 5 -concurrency 5 \
             -rate-limit 5 -fhr -max-host-error 30 \

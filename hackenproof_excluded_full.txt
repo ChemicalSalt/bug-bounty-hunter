@@ -1,0 +1,321 @@
+adi-predictstreet-smart-contracts	requires KYC (kyc_required=true)	1
+zynk-protocol	not open (state=paused)	0
+starknet-staking	requires KYC (kyc_required=true)	1
+starknet-web-and-sc	requires KYC (kyc_required=true)	2
+starknet-blockchain-slash-dlt	requires KYC (kyc_required=true)	1
+arcadia-finance-company-smart-contracts	requires KYC (kyc_required=true)	0
+zeko-protocol	not open (state=paused)	0
+superearn-web-and-smart-contracts	not open (state=paused)	0
+hyperbridge-protocol	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+cetus-web	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+ample-smart-contracts	safe harbor not confirmed: no safe-harbor language found in full policy text	4
+dexalot-smart-contracts-2	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+lendvest-smart-contracts	not open (state=paused)	0
+amlbot-kyt-web	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+idos-apps-and-sc-1	safe harbor not confirmed: no safe-harbor language found in full policy text	2
+pumb-web	requires KYC (kyc_required=true)	1
+the-flipcash-reserve-contract-bug-bounty	not active (status=Completed)	0
+ember-evm-smart-contracts	requires KYC (kyc_required=true)	1
+near-intents-bridges	requires KYC (kyc_required=true)	1
+multipli-smart-contracts	safe harbor not confirmed: no safe-harbor language found in full policy text	2
+multipli-web	safe harbor not confirmed: no safe-harbor language found in full policy text	0
+near-intents-sdk	requires KYC (kyc_required=true)	1
+alphasec-web-and-smart-contracts	requires KYC (kyc_required=true)	2
+mybucks-dot-online-wallet-cracking-challenge	not active (status=Completed)	0
+citrea-protocol-and-smart-contracts	requires KYC (kyc_required=true)	5
+citrea-web-and-apps	requires KYC (kyc_required=true)	0
+cex-dot-io-web-and-mobile	safe harbor not confirmed: no safe-harbor language found in full policy text	2
+monday-trade-web	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+meest-poshta-mobile	not open (state=paused)	0
+solv-smart-contracts	requires KYC (kyc_required=true)	1
+gate-us	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+zetachain-web-apps	not active (status=Completed)	0
+whitechain-bridge	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+solv-web-and-infrastructure	requires KYC (kyc_required=true)	2
+bitkan-web-and-mobile	safe harbor not confirmed: no safe-harbor language found in full policy text	2
+amlbot-web	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+adi-foundation-zkvm-verification	requires KYC (kyc_required=true)	1
+adi-foundation-smart-contracts	requires KYC (kyc_required=true)	0
+zo-finance-web	not open (state=paused)	0
+zo-finance-smart-contracts	not open (state=paused)	0
+kaia-web	not active (status=Completed)	0
+kaia-protocol	requires KYC (kyc_required=true)	1
+1inch-aqua	safe harbor not confirmed: no safe-harbor language found in full policy text	0
+nado-smart-contracts	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+nado-web	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+phemex-web-and-mobile	safe harbor not confirmed: no safe-harbor language found in full policy text	3
+doubleup-smart-contracts	not open (state=paused)	0
+doubleup-web	not open (state=paused)	0
+bitkub-capital-group-holdings	safe harbor not confirmed: no safe-harbor language found in full policy text	4
+deepfi-games	not active (status=Completed)	0
+deepfi-trade	not active (status=Completed)	0
+stbl-smart-contracts	requires KYC (kyc_required=true)	2
+stbl-web	requires KYC (kyc_required=true)	1
+astros-web	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+astros-smart-contracts	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+volo-web	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+volo-smart-contracts	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+navi-protocol-web	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+navi-protocol	safe harbor not confirmed: no safe-harbor language found in full policy text	0
+momentum-smart-contracts	requires KYC (kyc_required=true)	1
+ember-vaults-smart-contracts	requires KYC (kyc_required=true)	1
+flowx-clmm-smart-contracts	requires KYC (kyc_required=true)	1
+calyx-smart-contract	not open (state=paused)	0
+snowbridge-web	not active (status=Completed)	0
+flow-wallet	not open (state=paused)	0
+turbos-finance-smart-contracts	requires KYC (kyc_required=true)	1
+snowbridge-on-chain-code	requires KYC (kyc_required=true)	1
+near-intents-smart-contracts	requires KYC (kyc_required=true)	0
+sweed-web	safe harbor not confirmed: no safe-harbor language found in full policy text	2
+bluefin-dex-contracts	requires KYC (kyc_required=true)	1
+rtree-finance-web	not open (state=paused)	0
+kai-finance-yield-protocol	not open (state=paused)	0
+bucket-protocol-smart-contracts	requires KYC (kyc_required=true)	1
+haedal-smart-contracts	requires KYC (kyc_required=true)	1
+btcturk-hack-recovery-program	not active (status=Completed)	0
+ofza-web	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+kub-chain-and-ecosystem	requires KYC (kyc_required=true)	2
+bitkub-blockchain-technology	safe harbor not confirmed: no safe-harbor language found in full policy text	6
+bag-labs-web	not active (status=Completed)	0
+layer3-web	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+coindcx-recovery-bounty-program	not active (status=Completed)	0
+aptos-function-values	not active (status=Completed)	0
+bigone-hack-bounty-program	not active (status=Completed)	0
+arcadia-finance-hack-recovery-program	not active (status=Completed)	0
+noones-web-and-mobile	safe harbor not confirmed: no safe-harbor language found in full policy text	0
+noya-dot-ai-smart-contracts	not active (status=Completed)	0
+nonkyc-dot-io	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+cetus-smart-contracts	requires KYC (kyc_required=true)	1
+zetachain-smart-contracts	not open (state=paused)	0
+zetachain-blockchain-software	not open (state=paused)	0
+fmcpay-web-and-mobile	not open (state=paused)	0
+zoomex-web-and-mobile	safe harbor not confirmed: no safe-harbor language found in full policy text	3
+tapbit-web-and-mobile	safe harbor not confirmed: no safe-harbor language found in full policy text	3
+1inch-infrastructure	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+1inch-business	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+1inch-web	safe harbor not confirmed: no safe-harbor language found in full policy text	2
+1inch-wallet	safe harbor not confirmed: no safe-harbor language found in full policy text	2
+nicehash-mining-platform	safe harbor not confirmed: no safe-harbor language found in full policy text	3
+synfutures-dapp	requires KYC (kyc_required=true)	1
+bluefin-coin-contracts	requires KYC (kyc_required=true)	1
+flow-web	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+grovex-web-and-mobile	not open (state=paused)	0
+kcex	safe harbor not confirmed: no safe-harbor language found in full policy text	4
+flipster-web-and-mobile	safe harbor not confirmed: no safe-harbor language found in full policy text	3
+coinmetro-exchange	not open (state=paused)	0
+flow-protocol	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	1
+detee-hackers-challenge	not active (status=Completed)	0
+ston-dot-fi-dex-smart-contracts-v2	requires KYC (kyc_required=true)	1
+blockchain-dot-com	safe harbor not confirmed: no safe-harbor language found in full policy text	3
+ascendex-web-and-mobile	not active (status=Completed)	0
+bitmart-post-incident-forensics-bounty-hunt	not open (state=paused)	0
+levex-web-and-mobile	safe harbor not confirmed: no safe-harbor language found in full policy text	3
+walrus-protocol	not open (state=paused)	0
+celestia	requires KYC (kyc_required=true)	0
+emojicoin-dot-fun-frontend	not active (status=Completed)	0
+gmgn-web-and-mobile	safe harbor not confirmed: no safe-harbor language found in full policy text	3
+sg-forge-smart-contracts	not open (state=paused)	0
+gear-protocol	not active (status=Completed)	0
+cube-exchange-web	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+scallop-protocol-smart-contract	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+dexx-web-and-mobile	not active (status=Completed)	0
+swap-dot-io-smart-contracts	not active (status=Completed)	0
+parity-polkadot-release-infrastructure	requires KYC (kyc_required=true)	0
+polkadot-sdk-runtime-by-parity	requires KYC (kyc_required=true)	1
+polkadot-bridge	not open (state=paused)	0
+tickets-travel-network-slash-mobile	safe harbor not confirmed: no safe-harbor language found in full policy text	2
+risc-zero-blockchain-verifiers	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+hacken-web-and-apps	requires KYC (kyc_required=true)	3
+bitunix-web	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+weex-web-and-app	safe harbor not confirmed: no safe-harbor language found in full policy text	4
+bluefin-spot-contracts	requires KYC (kyc_required=true)	1
+atomone	requires KYC (kyc_required=true)	1
+tothemoon-web	safe harbor not confirmed: no safe-harbor language found in full policy text	2
+inceptionlrt-smart-contracts	not active (status=Completed)	0
+alfred-telegram-trading-bot	not active (status=Completed)	0
+cronos-zkevm-smart-contracts	requires KYC (kyc_required=true)	3
+cryptology	not active (status=Completed)	0
+asphere-web	safe harbor not confirmed: no safe-harbor language found in full policy text	2
+treehouse-smart-contracts	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+treehouse-web	safe harbor not confirmed: no safe-harbor language found in full policy text	0
+inheriti-r-app	not open (state=paused)	0
+safeswap-app	not open (state=paused)	0
+account-abstraction-bugs	requires KYC (kyc_required=true)	1
+camino-network-protocol	not active (status=Completed)	0
+0g-labs-smart-contracts	not active (status=Completed)	0
+layer3-smart-contracts	requires KYC (kyc_required=true)	2
+dop-protocol	not active (status=Completed)	0
+linear-protocol	not open (state=paused)	0
+backpack-web-and-api	safe harbor not confirmed: no safe-harbor language found in full policy text	0
+dione-protocol	not active (status=Completed)	0
+biconomy-web-and-mobile	safe harbor not confirmed: no safe-harbor language found in full policy text	2
+init-capital-smart-contracts	not active (status=Completed)	0
+init-capital-web	not active (status=Completed)	0
+internet-computer-protocol-icp	requires KYC (kyc_required=true)	4
+payhub-web	not active (status=Completed)	0
+pumb-tacsk	not active (status=Completed)	0
+bluefin-web	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+goby-wallet	not active (status=Completed)	0
+aptos-network	requires KYC (kyc_required=true)	0
+coinex-web-and-mobile	safe harbor not confirmed: no safe-harbor language found in full policy text	3
+ton	not active (status=Completed)	0
+telegram-apps-center	not active (status=Completed)	0
+kucoin	not active (status=Completed)	0
+unitus-v2-smart-contracts	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+dexe-protocol-smart-contracts	requires KYC (kyc_required=true)	1
+superposition-finance-web	safe harbor not confirmed: no safe-harbor language found in full policy text	0
+govgen-governance-dapp	not active (status=Completed)	0
+slex-web	not active (status=Completed)	0
+hack-to-the-future-2024-icp-dot-hub-ae-hackathon	not active (status=Completed)	0
+assetmantle	not active (status=Completed)	0
+risc-zero-zkvm	not open (state=paused)	0
+cronos-web	requires KYC (kyc_required=true)	11
+cronos-blockchain-protocols	requires KYC (kyc_required=true)	1
+cronos-smart-contracts	requires KYC (kyc_required=true)	4
+zest-protocol-smart-contracts	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+metamask-validator-staking-smart-contracts	not open (state=paused)	0
+smilee-smart-contracts	not active (status=Completed)	0
+poloniex-web-and-api	safe harbor not confirmed: no safe-harbor language found in full policy text	2
+tokenize-xchange-web-and-mobile	not active (status=Completed)	0
+oort-protocol	not active (status=Completed)	0
+u2staking-web	not active (status=Completed)	0
+ton-diamonds-web	not active (status=Completed)	0
+shido-network-protocol	not active (status=Completed)	0
+deepcoin-web-and-mobile	not open (state=paused)	0
+civic-smart-contracts	not active (status=Completed)	0
+slush-wallet	requires KYC (kyc_required=true)	2
+raiffeisen-web-and-mobile	not active (status=Completed)	0
+alphax-exchange	not active (status=Completed)	0
+impermax-finance-smart-contracts	not active (status=Completed)	0
+blofin-web-and-mobile	safe harbor not confirmed: no safe-harbor language found in full policy text	3
+1inch-smart-contract	requires KYC (kyc_required=true)	1
+fitburn-web-and-mobile	not active (status=Completed)	0
+horizon-protocol-smart-contracts	not active (status=Completed)	0
+kinza-smart-contracts	not active (status=Completed)	0
+pionex-app-and-api	safe harbor not confirmed: no safe-harbor language found in full policy text	3
+coinw-web-and-mobile	safe harbor not confirmed: no safe-harbor language found in full policy text	3
+pallets	not active (status=Completed)	0
+ternoa-enclaves	not active (status=Completed)	0
+smardex-smart-contracts	not active (status=Completed)	0
+pointpay-web-and-mobile	safe harbor not confirmed: no safe-harbor language found in full policy text	3
+humanode-competitive-developer-initiative-program	not active (status=Completed)	0
+serenity-shield-testnet-campain	not active (status=Completed)	0
+sui-protocol	requires KYC (kyc_required=true)	0
+trustee-plus-mobile	safe harbor not confirmed: no safe-harbor language found in full policy text	2
+bitstorage-web-and-api	not active (status=Completed)	0
+swisstronik-blockchain-stability	not active (status=Completed)	0
+swisstronik-core	not active (status=Completed)	0
+nxt-permission-smart-contract	not active (status=Completed)	0
+fastex-web	not active (status=Completed)	0
+toobit-web-and-mobile	safe harbor not confirmed: no safe-harbor language found in full policy text	3
+linen-api-and-mobile	not active (status=Completed)	0
+bitdelta	requires KYC (kyc_required=true)	3
+whitechain-network	not active (status=Completed)	0
+bitexen-smart-contracts	not open (state=paused)	0
+bitexen-web-and-app	not open (state=paused)	0
+bitrue	safe harbor not confirmed: no safe-harbor language found in full policy text	2
+near-foundation-web-low	requires KYC (kyc_required=true)	1
+letsexchange-web-and-api-and-widget-swap-bridge-dex	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+filmio-web-and-api	not active (status=Completed)	0
+filmio-smart-contracts	not active (status=Completed)	0
+enkrypt-wallet	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+myetherwallet	safe harbor not confirmed: no safe-harbor language found in full policy text	2
+envelop-smart-contracts	not active (status=Completed)	0
+bittrex	not active (status=Completed)	0
+citex-web-and-api	not active (status=Completed)	0
+local-traders-smart-contracts	not active (status=Completed)	0
+evaa-web	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+evaa-smart-contracts	not open (state=paused)	0
+deltaprime-smart-contracts	safe harbor not confirmed: no safe-harbor language found in full policy text	0
+latoken-exchange	not active (status=Completed)	0
+tetu-smart-contracts	not active (status=Completed)	0
+dexalot-web-and-mobile	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+near-web	requires KYC (kyc_required=true)	0
+bitcastle-web	not active (status=Completed)	0
+exzo-network-web-and-api	not active (status=Completed)	0
+exzo-network-protocol	not active (status=Completed)	0
+exzo-network-wallet	not active (status=Completed)	0
+fitburn-smart-contracts	not active (status=Completed)	0
+whitemarket-web	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+asymetrix-protocol	not active (status=Completed)	0
+asymetrix-web	not active (status=Completed)	0
+whitebit-blog	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+xt	safe harbor not confirmed: no safe-harbor language found in full policy text	3
+gridex-protocol-hacker-house-2023	not active (status=Completed)	0
+status	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	3
+aurora-web	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+aurora-smart-contract	requires KYC (kyc_required=true)	2
+dodo-v3	not active (status=Completed)	0
+vechainthor-wallet	not active (status=Completed)	0
+dodofeerouteproxy-smart-contract	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+dodolimitorder-smart-contract	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+uacatsdivision-web	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+uacatsdivision-smart-contracts	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+chainstack	safe harbor not confirmed: no safe-harbor language found in full policy text	2
+tickets-travel-network-slash-updated-ui	safe harbor not confirmed: no safe-harbor language found in full policy text	2
+near-smart-contracts-1	requires KYC (kyc_required=true)	1
+tidex-exchange	not active (status=Completed)	0
+dexalot-smart-contracts-archived	not active (status=Completed)	0
+jojo-web	not active (status=Completed)	0
+jojo-smart-contracts	not active (status=Completed)	0
+virtuswap-dex-app-1	not active (status=Completed)	0
+virtuswap-smart-contract	not active (status=Completed)	0
+coin98	safe harbor not confirmed: no safe-harbor language found in full policy text	2
+coinsbit	not active (status=Completed)	0
+near-protocol	requires KYC (kyc_required=true)	1
+shapeshift	not open (state=paused)	0
+bigone-global-exchange	safe harbor not confirmed: no safe-harbor language found in full policy text	4
+polkalokr-1	not active (status=Completed)	0
+allbridge	not open (state=paused)	0
+bingx-exchange	safe harbor not confirmed: no safe-harbor language found in full policy text	3
+logos	safe harbor not confirmed: no safe-harbor language found in full policy text	0
+bit-dot-com	not active (status=Completed)	0
+ternoa-smart-contracts	not active (status=Completed)	0
+ternoa-wallet	not active (status=Completed)	0
+bkex	not active (status=Completed)	0
+avalanche-bridge	not active (status=Completed)	0
+core	not active (status=Completed)	0
+bitmart-exchange	not open (state=paused)	0
+router-smart-contract	not active (status=Completed)	0
+router-web	not active (status=Completed)	0
+lachain-dot-io	not active (status=Completed)	0
+bitforex	not active (status=Completed)	0
+coinstore	safe harbor not confirmed: no safe-harbor language found in full policy text	4
+pandora-web	not active (status=Completed)	0
+pandora-smart-contract	not active (status=Completed)	0
+dex-trade	not active (status=Completed)	0
+okx	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+bitkub	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+openware	not active (status=Completed)	0
+exmo	not open (state=paused)	0
+btse-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	2
+lcx	automation ban: [Mistral-confirmed ban, no regex match]	0
+gate	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+htx	not open (state=paused)	0
+avalanche-websites-and-apis	not active (status=Completed)	0
+avalanche-protocol	not active (status=Completed)	0
+p2b-exchange	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+coingecko	safe harbor not confirmed: no safe-harbor language found in full policy text	3
+hotbit	not active (status=Completed)	0
+whitebit	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+kuna-crypto-exchange	not active (status=Completed)	0
+hackenproof	safe harbor not confirmed: no safe-harbor language found in full policy text	0
+vechainthor	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+crypviser-network	not active (status=Completed)	0
+dragon-king	not active (status=Completed)	0
+neverdie-web	not active (status=Completed)	0
+neverdie-smart-contract	not active (status=Completed)	0
+aax	not active (status=Completed)	0
+ttc-protocol	not active (status=Completed)	0
+ttc-sdk	not active (status=Completed)	0
+crypviser-secure-messenger	not active (status=Completed)	0
+unistake-smart-contracts	not active (status=Completed)	0
+ttc-mobile	not active (status=Completed)	0
+codex-exchange	not active (status=Completed)	0
+vechainthor-vip191	not active (status=Completed)	0
+ternoa-web-and-apps	not active (status=Completed)	0
+aex	not open (state=paused)	0
+polkalokr	not active (status=Completed)	0
+nimbus	not active (status=Completed)	0
+bunicorn-1	not active (status=Completed)	0
+kalmar	not active (status=Completed)	0

@@ -24,6 +24,7 @@ jobs:
     env:
       HACKERONE_TOKEN: ${{ secrets.HACKERONE_TOKEN }}
       INTIGRITI_TOKEN: ${{ secrets.INTIGRITI_TOKEN }}
+      HACKENPROOF_AUTH: ${{ secrets.HACKENPROOF_AUTH }}
     outputs:
       batches: ${{ steps.calc.outputs.batches }}
     steps:
@@ -44,9 +45,9 @@ jobs:
 
       - name: Use pre-vetted scope and exclusions from main (no API call, file-based only)
         run: |
-          touch excluded_domains.txt hackerone_scope.txt intigriti_scope.txt yeswehack_scope.txt bugcrowd_scope.txt
+          touch excluded_domains.txt hackerone_scope.txt intigriti_scope.txt yeswehack_scope.txt bugcrowd_scope.txt hackenproof_scope.txt
           grep -vEi "^#|^$" domains.txt | grep -v '^\*\.' | sort -u > domains_clean.txt
-          for f in hackerone_scope.txt intigriti_scope.txt yeswehack_scope.txt bugcrowd_scope.txt; do
+          for f in hackerone_scope.txt intigriti_scope.txt yeswehack_scope.txt bugcrowd_scope.txt hackenproof_scope.txt; do
             if [ -s "checker/$f" ]; then
               cp "checker/$f" "$f"
               echo "Using vetted $f from main ($(wc -l < $f) entries)"
@@ -76,6 +77,7 @@ jobs:
             intigriti_scope.txt
             yeswehack_scope.txt
             bugcrowd_scope.txt
+            hackenproof_scope.txt
           retention-days: 7
       - name: Calculate batch count
         id: calc
@@ -286,7 +288,7 @@ jobs:
       - name: Build and normalize scope.txt from platform scope files
         run: |
           > scope_raw.txt
-          for f in hackerone_scope.txt intigriti_scope.txt yeswehack_scope.txt bugcrowd_scope.txt; do
+          for f in hackerone_scope.txt intigriti_scope.txt yeswehack_scope.txt bugcrowd_scope.txt hackenproof_scope.txt; do
             if [ -s "$f" ]; then
               cat "$f" >> scope_raw.txt
             fi
@@ -505,11 +507,12 @@ jobs:
             -rl 5 \
             -threads 25 \
             -mc 200,201,301,302,303,401,403,404,405,500 \
-            -H "User-Agent: Mozilla/5.0 BugBounty/42 (YWH) Chemical Oxidizer CS_YWH/BB" \
-            -H "X-Bug-Bounty: HackerOne-Chemical, HackerOne-Oxidizer" \
-            -H "X-Bugcrowd-Research: Chemical, Oxidizer" \
-            -H "X-Intigriti-Research: Chemical, Oxidizer" \
-            -H "X-YesWeHack-Research: Chemical, Oxidizer" \
+            -H "User-Agent: Mozilla/5.0 BugBounty/42 (YWH) Oxidizer CS_YWH/BB" \
+            -H "X-Bug-Bounty: HackerOne-Oxidizer" \
+            -H "X-Bugcrowd-Research: Oxidizer" \
+            -H "X-Intigriti-Research: Oxidizer" \
+            -H "X-YesWeHack-Research: Oxidizer" \
+            -H "X-HackenProof-Research: Oxidizer" \
             -title \
             -status-code \
             -tech-detect \
@@ -568,11 +571,12 @@ jobs:
             -rl 5 \
             -threads 25 \
             -mc 200,201,301,302,303,401,403,404,405,500 \
-            -H "User-Agent: Mozilla/5.0 BugBounty/42 (YWH) Chemical Oxidizer CS_YWH/BB" \
-            -H "X-Bug-Bounty: HackerOne-Chemical, HackerOne-Oxidizer" \
-            -H "X-Bugcrowd-Research: Chemical, Oxidizer" \
-            -H "X-Intigriti-Research: Chemical, Oxidizer" \
-            -H "X-YesWeHack-Research: Chemical, Oxidizer" \
+            -H "User-Agent: Mozilla/5.0 BugBounty/42 (YWH) Oxidizer CS_YWH/BB" \
+            -H "X-Bug-Bounty: HackerOne-Oxidizer" \
+            -H "X-Bugcrowd-Research: Oxidizer" \
+            -H "X-Intigriti-Research: Oxidizer" \
+            -H "X-YesWeHack-Research: Oxidizer" \
+            -H "X-HackenProof-Research: Oxidizer" \
             -status-code \
             -hash sha256 \
             -no-color \
@@ -691,7 +695,7 @@ jobs:
         run: |
           cp main-branch/domain_program_map.csv domain_program_map.csv 2>/dev/null || touch domain_program_map.csv
           cp main-branch/filter_scope.py filter_scope.py
-          for f in hackerone_scope.txt intigriti_scope.txt yeswehack_scope.txt bugcrowd_scope.txt; do
+          for f in hackerone_scope.txt intigriti_scope.txt yeswehack_scope.txt bugcrowd_scope.txt hackenproof_scope.txt; do
             cp "main-branch/$f" "$f" 2>/dev/null || true
           done
           python3 filter_scope.py
