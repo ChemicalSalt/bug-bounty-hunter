@@ -4159,6 +4159,10 @@
     "is_ban": false,
     "reason": "The text does not require personal identity verification for participation or payment."
   },
+  "51831cd66b338314323ac71ba9a1f39b3306c0282b65085b8c88dcbe2eea18ad": {
+    "is_ban": false,
+    "reason": "The snippet restricts automated overload/DoS actions, not general scanning or tool use."
+  },
   "51849240e92edb4b0b28351a169b3207890044058521750c25e7a9c647fa5762": {
     "is_ban": false,
     "reason": "No personal identity verification (e.g. government ID, KYC) is required to participate or get paid."
@@ -4266,6 +4270,10 @@
   "53e4e55584bc95a80fe05f34b3b09ec12b2d8857ba96c52fe7b4972deb9fe64b": {
     "is_ban": false,
     "reason": "The policy only requires a testing IP address, not personal identity documents or verification."
+  },
+  "53e9efd214dec5779295496de8ea093d898ef7b51b0bac9f2813396563f8dba9": {
+    "is_allowed": false,
+    "reason": "The snippet does not explicitly grant permission for the use of automated scanners/tools."
   },
   "53ed7117c9e49e1e46cd9a6dc01ce5f41053ec0ce9a816e6dca7b14b3c931347": {
     "is_ban": false,
@@ -12539,6 +12547,10 @@
     "is_ban": false,
     "reason": "The text does not require personal identity verification for participation or payment."
   },
+  "ed26d61cd339bd594c872b906e1fc159feb697360affcc91343bbb1dfe9dd39e": {
+    "is_allowed": false,
+    "reason": "The snippet does not explicitly grant permission for automated scanning; it only prohibits 'automated overload' and DoS actions."
+  },
   "ed3c4f9da023bd7156c0b6690351f2dac4326d303f6356bf06b6c2d21d5b81ec": {
     "is_ban": false,
     "reason": "The snippet does not restrict the act of using automated scanners/tools."
@@ -12626,6 +12638,10 @@
   "ef15e1e74f1e9798819af23864937a38ea3bdc24e10f4c10ce0bd03fa8b466b0": {
     "rate": null,
     "reason": "No numeric rate limit or scanning throttle is mentioned."
+  },
+  "ef41009183adb1abafcfe47fa93e6d621d4486aba675636828032f95c42636c9": {
+    "is_ban": false,
+    "reason": "The snippet restricts report submissions (e.g., 'No AI Spam', 'runnable PoC required') rather than the act of using automated tools."
   },
   "ef4b4c1012a0e188a6be8fe453c9696ffe06820997023d89a297f62434d63cd5": {
     "is_ban": false,
