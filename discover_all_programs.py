@@ -706,27 +706,37 @@ def clean_asset_identifier(raw):
 
 
 def evaluate_policy_conditions(text, program_name, min_rate, safe_harbor_override=None):
-    """Runs ALL policy-text conditions (safe harbor, automation, ID
-    verification, rate limit) unconditionally - no short-circuit - so every
-    program gets a complete condition profile instead of just the first
-    failure found. Returns a dict:
-      {
-        "eligible": bool,
-        "hard_fail": bool,       # True if >=1 condition definitively failed
-        "needs_review": bool,    # True if any condition is stuck on "review"
-                                  # (Mistral call failed) with no hard fail yet
-        "reasons": [str, ...],   # every failing/review reason, in check order
-        "safe_harbor": True/False/"review",
-        "automation": "allowed"/"banned"/"silent"/"review",
-        "id_verification": True/False/"review",
-        "rate_limit": (value_or_None, "review"_or_None),
-      }
-    Caller decides include/exclude/skip from "hard_fail" / "needs_review" -
-    this function only evaluates and reports, it never returns early.
+    """Runs policy-text conditions (safe harbor, automation, ID verification,
+    rate limit) IN ORDER and stops at the first hard-fail or review - same
+    short-circuit behavior as the original per-platform vet functions.
+    Restored after the unconditional-all-4-checks version proved too slow:
+    at MISTRAL_MIN_INTERVAL_S=16s/call and up to 4 calls/program with no
+    short-circuit, 592 programs could take ~10.5h, past the job timeout.
+    Returns the same dict shape as before; any condition skipped because an
+    earlier one already stopped evaluation is left at a "not_checked"
+    sentinel (rate_limit: (None, "not_checked")) rather than a real result -
+    callers only read hard_fail/needs_review/reasons/rate_limit[0], so this
+    is safe.
     """
     reasons = []
     hard_fail = False
     any_review = False
+    automation_status = "not_checked"
+    id_req = "not_checked"
+    rate, rate_status = None, "not_checked"
+
+    def result():
+        eligible = (not hard_fail) and (not any_review)
+        return {
+            "eligible": eligible,
+            "hard_fail": hard_fail,
+            "needs_review": any_review and not hard_fail,
+            "reasons": reasons,
+            "safe_harbor": sh_ok,
+            "automation": automation_status,
+            "id_verification": id_req,
+            "rate_limit": (rate, rate_status),
+        }
 
     # --- Safe harbor ---
     if safe_harbor_override is not None:
@@ -739,6 +749,8 @@ def evaluate_policy_conditions(text, program_name, min_rate, safe_harbor_overrid
     elif not sh_ok:
         hard_fail = True
         reasons.append(f"safe harbor not confirmed: {(sh_snippet or 'no safe-harbor language found in full policy text')[:80]}")
+    if hard_fail or any_review:
+        return result()
 
     # --- Automation permission ---
     automation_status, auto_snippet = check_automation_ban_two_layer(text, program_name)
@@ -749,6 +761,8 @@ def evaluate_policy_conditions(text, program_name, min_rate, safe_harbor_overrid
         hard_fail = True
         reason = "automation ban" if automation_status == "banned" else "no explicit automation permission (silent)"
         reasons.append(f"{reason}: {(auto_snippet or '')[:80]}")
+    if hard_fail or any_review:
+        return result()
 
     # --- ID verification ---
     id_req, id_snippet = check_id_verification_two_layer(text, program_name)
@@ -758,6 +772,8 @@ def evaluate_policy_conditions(text, program_name, min_rate, safe_harbor_overrid
     elif id_req is True:
         hard_fail = True
         reasons.append(f"requires ID verification: {(id_snippet or '')[:80]}")
+    if hard_fail or any_review:
+        return result()
 
     # --- Rate limit ---
     rate, rate_status = check_rate_limit_two_layer(text, program_name)
@@ -768,17 +784,7 @@ def evaluate_policy_conditions(text, program_name, min_rate, safe_harbor_overrid
         hard_fail = True
         reasons.append(f"rate limit below {min_rate}/s (found: {rate})")
 
-    eligible = (not hard_fail) and (not any_review)
-    return {
-        "eligible": eligible,
-        "hard_fail": hard_fail,
-        "needs_review": any_review and not hard_fail,
-        "reasons": reasons,
-        "safe_harbor": sh_ok,
-        "automation": automation_status,
-        "id_verification": id_req,
-        "rate_limit": (rate, rate_status),
-    }
+    return result()
 
 
 def vet_hackerone_program(handle, auth, results):
