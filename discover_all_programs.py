@@ -604,7 +604,11 @@ def check_rate_limit_two_layer(text, program_name):
     if rate is not None:
         result = mistral_check_rate_limit(snippet, program_name)
         if result == "error":
-            return None, "review"
+            # Mistral confirmation failed transiently, but regex already
+            # found an explicit rate in the text - keep it rather than
+            # discarding a real detected limit and silently treating the
+            # program as having no rate limit at all (condition #2 fail).
+            return rate, "review"
         if result is not None:
             return min(rate, result), None
         return rate, "review"
@@ -701,6 +705,82 @@ def clean_asset_identifier(raw):
     return raw
 
 
+def evaluate_policy_conditions(text, program_name, min_rate, safe_harbor_override=None):
+    """Runs ALL policy-text conditions (safe harbor, automation, ID
+    verification, rate limit) unconditionally - no short-circuit - so every
+    program gets a complete condition profile instead of just the first
+    failure found. Returns a dict:
+      {
+        "eligible": bool,
+        "hard_fail": bool,       # True if >=1 condition definitively failed
+        "needs_review": bool,    # True if any condition is stuck on "review"
+                                  # (Mistral call failed) with no hard fail yet
+        "reasons": [str, ...],   # every failing/review reason, in check order
+        "safe_harbor": True/False/"review",
+        "automation": "allowed"/"banned"/"silent"/"review",
+        "id_verification": True/False/"review",
+        "rate_limit": (value_or_None, "review"_or_None),
+      }
+    Caller decides include/exclude/skip from "hard_fail" / "needs_review" -
+    this function only evaluates and reports, it never returns early.
+    """
+    reasons = []
+    hard_fail = False
+    any_review = False
+
+    # --- Safe harbor ---
+    if safe_harbor_override is not None:
+        sh_ok, sh_snippet = safe_harbor_override, "[structured API safe-harbor flag]"
+    else:
+        sh_ok, sh_snippet = check_safe_harbor_two_layer(text, program_name)
+    if sh_ok == "review":
+        any_review = True
+        reasons.append(f"safe harbor: review - {sh_snippet}")
+    elif not sh_ok:
+        hard_fail = True
+        reasons.append(f"safe harbor not confirmed: {(sh_snippet or 'no safe-harbor language found in full policy text')[:80]}")
+
+    # --- Automation permission ---
+    automation_status, auto_snippet = check_automation_ban_two_layer(text, program_name)
+    if automation_status == "review":
+        any_review = True
+        reasons.append(f"automation: review - {auto_snippet}")
+    elif automation_status != "allowed":
+        hard_fail = True
+        reason = "automation ban" if automation_status == "banned" else "no explicit automation permission (silent)"
+        reasons.append(f"{reason}: {(auto_snippet or '')[:80]}")
+
+    # --- ID verification ---
+    id_req, id_snippet = check_id_verification_two_layer(text, program_name)
+    if id_req == "review":
+        any_review = True
+        reasons.append(f"id verification: review - {id_snippet}")
+    elif id_req is True:
+        hard_fail = True
+        reasons.append(f"requires ID verification: {(id_snippet or '')[:80]}")
+
+    # --- Rate limit ---
+    rate, rate_status = check_rate_limit_two_layer(text, program_name)
+    if rate_status == "review":
+        any_review = True
+        reasons.append("rate limit: review - Mistral call failed on rate-limit check")
+    elif rate is not None and rate < min_rate:
+        hard_fail = True
+        reasons.append(f"rate limit below {min_rate}/s (found: {rate})")
+
+    eligible = (not hard_fail) and (not any_review)
+    return {
+        "eligible": eligible,
+        "hard_fail": hard_fail,
+        "needs_review": any_review and not hard_fail,
+        "reasons": reasons,
+        "safe_harbor": sh_ok,
+        "automation": automation_status,
+        "id_verification": id_req,
+        "rate_limit": (rate, rate_status),
+    }
+
+
 def vet_hackerone_program(handle, auth, results):
     headers = {"Authorization": f"Basic {auth}", "Accept": "application/json"}
     data, err = fetch_json(f"https://api.hackerone.com/v1/hackers/programs/{handle}", headers)
@@ -732,46 +812,19 @@ def vet_hackerone_program(handle, auth, results):
     if a.get("submission_state") != "open":
         results["excluded"].append((handle, f"not open (submission_state={a.get('submission_state')})", domain_count))
         return
-    if a.get("offers_bounties") is not True:
-        results["excluded"].append((handle, "not BBP (VDP or other)", domain_count))
+    sh_override = True if a.get("gold_standard_safe_harbor") is True else None
+    ev = evaluate_policy_conditions(policy, handle, MIN_RATE_LIMIT, safe_harbor_override=sh_override)
+    if ev["hard_fail"]:
+        results["excluded"].append((handle, " | ".join(ev["reasons"]), domain_count))
         return
-    if a.get("gold_standard_safe_harbor") is True:
-        sh_ok, sh_snippet = True, "[HackerOne gold-standard safe harbor flag]"
-    else:
-        sh_ok, sh_snippet = check_safe_harbor_two_layer(policy, handle)
-    if sh_ok == "review":
-        results["skipped"].append((handle, sh_snippet, domain_count))
-        return
-    if not sh_ok:
-        results["excluded"].append((handle, f"safe harbor not confirmed: {(sh_snippet or 'no safe-harbor language found in full policy text')[:80]}", domain_count))
-        return
-    automation_status, snippet = check_automation_ban_two_layer(policy, handle)
-    if automation_status == "review":
-        results["skipped"].append((handle, snippet, domain_count))
-        return
-    if automation_status != "allowed":
-        reason = "automation ban" if automation_status == "banned" else "no explicit automation permission (silent)"
-        results["excluded"].append((handle, f"{reason}: {(snippet or '')[:80]}", domain_count))
-        return
-    id_req, id_snippet = check_id_verification_two_layer(policy, handle)
-    if id_req is True:
-        results["excluded"].append((handle, f"requires ID verification: {id_snippet[:80]}", domain_count))
-        return
-    if id_req == "review":
-        results["skipped"].append((handle, id_snippet, domain_count))
-        return
-    # id_req is False (confirmed not required) -> proceed
-    rate, rate_status = check_rate_limit_two_layer(policy, handle)
-    if rate_status == "review":
-        results["skipped"].append((handle, "Mistral call failed on rate-limit check", domain_count))
-        return
-    if rate is not None and rate < MIN_RATE_LIMIT:
-        results["excluded"].append((handle, f"rate limit below {MIN_RATE_LIMIT}/s (found: {rate})", domain_count))
+    if ev["needs_review"]:
+        results["skipped"].append((handle, " | ".join(ev["reasons"]), domain_count))
         return
     results["included"].append({
         "handle": handle,
         "offers_bounties": a.get("offers_bounties"),
         "safe_harbor": True,
+        "rate_limit": ev["rate_limit"][0],
         "domains": domains,
         "out_domains": out_domains,
     })
@@ -800,9 +853,6 @@ def vet_intigriti_program(program, token, results):
     confidentiality = program.get("confidentialityLevel", {}).get("value")
     if confidentiality != "Public":
         results["excluded"].append((pid, f"{name}: not public (confidentialityLevel={confidentiality})", 0))
-        return
-    if program.get("type", {}).get("value") != "Bug Bounty":
-        results["excluded"].append((pid, f"{name}: not BBP (VDP or other)", 0))
         return
     headers = {"Authorization": f"Bearer {token}", "Accept": "application/json"}
     data, err = fetch_json(
@@ -839,54 +889,18 @@ def vet_intigriti_program(program, token, results):
     domain_count = len(domains)
     roe = data.get("rulesOfEngagement", {}).get("content", {})
     roe_text = json.dumps(roe)
-    if roe.get("safeHarbour") is True:
-        sh_ok, sh_snippet = True, "[Intigriti safeHarbour flag]"
-    else:
-        sh_ok, sh_snippet = check_safe_harbor_two_layer(roe_text, name)
-    if sh_ok == "review":
-        results["skipped"].append((pid, f"{name}: {sh_snippet}", domain_count))
+    sh_override = True if roe.get("safeHarbour") is True else None
+    ev = evaluate_policy_conditions(roe_text, name, MIN_RATE_LIMIT, safe_harbor_override=sh_override)
+    if ev["hard_fail"]:
+        results["excluded"].append((pid, f"{name}: " + " | ".join(ev["reasons"]), domain_count))
         return
-    if not sh_ok:
-        results["excluded"].append((pid, f"{name}: safe harbor not confirmed: {(sh_snippet or 'no safe-harbor language found')[:80]}", domain_count))
+    if ev["needs_review"]:
+        results["skipped"].append((pid, f"{name}: " + " | ".join(ev["reasons"]), domain_count))
         return
-    testing = roe.get("testingRequirements", {})
-    raw_rate = testing.get("automatedTooling")
-    if isinstance(raw_rate, (int, float)) and not isinstance(raw_rate, bool):
-        # API returned a clean numeric value (assumed requests/second).
-        rate, rate_status = raw_rate, None
-    else:
-        # automatedTooling is documented as a free-text testing requirement
-        # ("we advise to specify a rate limit"), not a guaranteed number -
-        # it may be a string, a bool flag, or absent. Fall back to the same
-        # regex+Mistral extraction the other 3 platforms use, against the
-        # full ROE text, instead of trusting/crashing on the raw field.
-        rate, rate_status = check_rate_limit_two_layer(roe_text, name)
-    if rate_status == "review":
-        results["skipped"].append((pid, f"{name}: Mistral call failed on rate-limit check", domain_count))
-        return
-    if rate is not None and rate < MIN_RATE_LIMIT:
-        results["excluded"].append((pid, f"{name}: rate limit below {MIN_RATE_LIMIT}/s (found: {rate})", domain_count))
-        return
-    automation_status, snippet = check_automation_ban_two_layer(roe_text, name)
-    if automation_status == "review":
-        results["skipped"].append((pid, f"{name}: {snippet}", domain_count))
-        return
-    if automation_status != "allowed":
-        reason = "automation ban" if automation_status == "banned" else "no explicit automation permission (silent)"
-        results["excluded"].append((pid, f"{name}: {reason}: {(snippet or '')[:80]}", domain_count))
-        return
-    id_req, id_snippet = check_id_verification_two_layer(roe_text, name)
-    if id_req is True:
-        results["excluded"].append((pid, f"{name}: requires ID verification: {id_snippet[:80]}", domain_count))
-        return
-    if id_req == "review":
-        results["skipped"].append((pid, f"{name}: {id_snippet}", domain_count))
-        return
-    # id_req is False (confirmed not required) -> proceed
     results["included"].append({
         "handle": pid,
         "safe_harbor": True,
-        "rate_limit": rate,
+        "rate_limit": ev["rate_limit"][0],
         "domains": domains,
         "out_domains": out_domains,
     })
@@ -1099,9 +1113,6 @@ def vet_yeswehack_program(program, results):
     if program.get("archived") is True:
         results["excluded"].append((slug, "archived program", 0))
         return
-    if program.get("bounty") is not True:
-        results["excluded"].append((slug, "not BBP (VDP or other)", 0))
-        return
     data, err = fetch_json(
         f"https://api.yeswehack.com/programs/{slug}",
         {"User-Agent": "Mozilla/5.0", "Accept": "application/json"},
@@ -1116,42 +1127,18 @@ def vet_yeswehack_program(program, results):
         domains = sorted(set(domains) - set(out_domains))
     domain_count = len(domains)
     rules = data.get("rules") or clean_html(data.get("rules_html", "")) or ""
-    sh_ok, sh_snippet = check_safe_harbor_two_layer(rules, slug)
-    if sh_ok == "review":
-        results["skipped"].append((slug, f"safe harbor unresolved: {sh_snippet[:80]}", domain_count))
+    ev = evaluate_policy_conditions(rules, slug, MIN_RATE_LIMIT)
+    if ev["hard_fail"]:
+        results["excluded"].append((slug, " | ".join(ev["reasons"]), domain_count))
         return
-    if not sh_ok:
-        sh_display = sh_snippet or "no safe-harbor language found in full policy text"
-        results["excluded"].append((slug, f"safe harbor not confirmed: {sh_display[:80]}", domain_count))
-        return
-    automation_status, snippet = check_automation_ban_two_layer(rules, slug)
-    if automation_status == "review":
-        results["skipped"].append((slug, snippet, domain_count))
-        return
-    if automation_status != "allowed":
-        reason = "automation ban" if automation_status == "banned" else "no explicit automation permission (silent)"
-        results["excluded"].append((slug, f"{reason}: {(snippet or '')[:80]}", domain_count))
-        return
-    id_req, id_snippet = check_id_verification_two_layer(rules, slug)
-    if id_req is True:
-        results["excluded"].append((slug, f"requires ID verification: {id_snippet[:80]}", domain_count))
-        return
-    if id_req == "review":
-        results["skipped"].append((slug, id_snippet, domain_count))
-        return
-    # id_req is False (confirmed not required) -> proceed
-    rate, rate_status = check_rate_limit_two_layer(rules, slug)
-    if rate_status == "review":
-        results["skipped"].append((slug, "Mistral call failed on rate-limit check", domain_count))
-        return
-    if rate is not None and rate < MIN_RATE_LIMIT:
-        results["excluded"].append((slug, f"rate limit below {MIN_RATE_LIMIT}/s (found: {rate})", domain_count))
+    if ev["needs_review"]:
+        results["skipped"].append((slug, " | ".join(ev["reasons"]), domain_count))
         return
     results["included"].append({
         "slug": slug,
         "bounty": program.get("bounty"),
         "safe_harbor": True,
-        "rate_limit": rate,
+        "rate_limit": ev["rate_limit"][0],
         "domains": domains,
         "out_domains": out_domains,
     })
@@ -1254,34 +1241,18 @@ def vet_hackenproof_program(program, results):
         data.get("eligibility_and_coordinate_disclosure", ""),
         data.get("disclosure_guidelines", ""),
     ]))
-    sh_ok, sh_snippet = check_safe_harbor_two_layer(rules, slug)
-    if sh_ok == "review":
-        results["skipped"].append((slug, f"safe harbor unresolved: {sh_snippet[:80]}", domain_count))
+    ev = evaluate_policy_conditions(rules, slug, MIN_RATE_LIMIT)
+    if ev["hard_fail"]:
+        results["excluded"].append((slug, " | ".join(ev["reasons"]), domain_count))
         return
-    if not sh_ok:
-        sh_display = sh_snippet or "no safe-harbor language found in full policy text"
-        results["excluded"].append((slug, f"safe harbor not confirmed: {sh_display[:80]}", domain_count))
-        return
-    automation_status, snippet = check_automation_ban_two_layer(rules, slug)
-    if automation_status == "review":
-        results["skipped"].append((slug, snippet, domain_count))
-        return
-    if automation_status != "allowed":
-        reason = "automation ban" if automation_status == "banned" else "no explicit automation permission (silent)"
-        results["excluded"].append((slug, f"{reason}: {(snippet or '')[:80]}", domain_count))
-        return
-    rate, rate_status = check_rate_limit_two_layer(rules, slug)
-    if rate_status == "review":
-        results["skipped"].append((slug, "Mistral call failed on rate-limit check", domain_count))
-        return
-    if rate is not None and rate < MIN_RATE_LIMIT:
-        results["excluded"].append((slug, f"rate limit below {MIN_RATE_LIMIT}/s (found: {rate})", domain_count))
+    if ev["needs_review"]:
+        results["skipped"].append((slug, " | ".join(ev["reasons"]), domain_count))
         return
     results["included"].append({
         "slug": slug,
         "bounty": True,
         "safe_harbor": True,
-        "rate_limit": rate,
+        "rate_limit": ev["rate_limit"][0],
         "domains": domains,
         "out_domains": out_domains,
     })
@@ -1338,9 +1309,7 @@ def vet_bugcrowd_program(program, results):
         results["excluded"].append((slug, f"not open (accessStatus={program.get('accessStatus')})", 0))
         return
     engagement_type = (program.get("productEngagementType") or {}).get("label")
-    if engagement_type != "Bug Bounty":
-        results["excluded"].append((slug, f"not BBP (type: {engagement_type})", 0))
-        return
+    # BBP-only gate removed: VDP programs are also researched now, not just paid BBPs.
     cl_data, err = fetch_json(
         f"https://bugcrowd.com/engagements/{slug}/changelog.json",
         {"User-Agent": "Mozilla/5.0", "Accept": "application/json"},
@@ -1368,18 +1337,13 @@ def vet_bugcrowd_program(program, results):
     overview = clean_html(brief.get("targetsOverview", ""))
     additional = clean_html(brief.get("additionalInformation", ""))
     text = desc + overview + additional
-    if sh_status is None:
-        sh_result, sh_note = check_safe_harbor_two_layer(text, slug)
-        if sh_result == "review":
-            results["skipped"].append((slug, sh_note or "safe harbor status unknown - needs review", 0))
-            return
-        if not sh_result:
-            results["excluded"].append((slug, "no safe harbor confirmed in policy text (status unset)", 0))
-            return
-        # sh_result is True: confirmed via text check, fall through
-    elif sh_status != "full":
+    if sh_status == "full":
+        sh_override = True
+    elif sh_status is not None:
         results["excluded"].append((slug, f"no full safe harbor (status: {sh_status})", 0))
         return
+    else:
+        sh_override = None  # unset - fall through to text-based check below
     safe_harbor = True
     skip_categories = ("android", "ios", "ip_address", "network")
     domains = []
@@ -1400,29 +1364,14 @@ def vet_bugcrowd_program(program, results):
         else:
             out_domains.extend(target_domains)
     domain_count = len(set(domains))
-    automation_status, snippet = check_automation_ban_two_layer(text, slug)
-    if automation_status == "review":
-        results["skipped"].append((slug, snippet, domain_count))
+    ev = evaluate_policy_conditions(text, slug, MIN_RATE_LIMIT, safe_harbor_override=sh_override)
+    if ev["hard_fail"]:
+        results["excluded"].append((slug, " | ".join(ev["reasons"]), domain_count))
         return
-    if automation_status != "allowed":
-        reason = "automation ban" if automation_status == "banned" else "no explicit automation permission (silent)"
-        results["excluded"].append((slug, f"{reason}: {(snippet or '')[:80]}", domain_count))
+    if ev["needs_review"]:
+        results["skipped"].append((slug, " | ".join(ev["reasons"]), domain_count))
         return
-    id_req, id_snippet = check_id_verification_two_layer(text, slug)
-    if id_req is True:
-        results["excluded"].append((slug, f"requires ID verification: {id_snippet[:80]}", domain_count))
-        return
-    if id_req == "review":
-        results["skipped"].append((slug, id_snippet, domain_count))
-        return
-    # id_req is False (confirmed not required) -> proceed
-    rate, rate_status = check_rate_limit_two_layer(text, slug)
-    if rate_status == "review":
-        results["skipped"].append((slug, "Mistral call failed on rate-limit check", domain_count))
-        return
-    if rate is not None and rate < MIN_RATE_LIMIT:
-        results["excluded"].append((slug, f"rate limit below {MIN_RATE_LIMIT}/s (found: {rate})", domain_count))
-        return
+    rate = ev["rate_limit"][0]
     results["included"].append({
         "slug": slug,
         "safe_harbor": True,
