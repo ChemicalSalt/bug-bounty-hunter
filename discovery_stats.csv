@@ -108,3 +108,4 @@ timestamp_utc,platform,total_discovered,included,excluded,skipped,excluded_domai
 2026-08-20T12:36:40Z,HackenProof,321,0,321,0,248,0,32365907009
 2026-08-20T16:13:21Z,HackerOne,590,15,575,0,37695,0,32387639827
 2026-08-20T16:15:32Z,Intigriti,215,1,214,0,953,0,32387639827
+2026-08-20T16:16:57Z,YesWeHack,63,0,63,0,609,0,32387639827
