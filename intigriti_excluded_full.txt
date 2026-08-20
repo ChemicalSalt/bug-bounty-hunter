@@ -27,7 +27,7 @@
 1430d211-837f-446c-978f-f818eb960405	Newpharma: not public (confidentialityLevel=Application)	0
 14b2f2ef-0c38-4da8-ae6d-c1e8fa663860	Salto CloudWorks: not public (confidentialityLevel=Registered)	0
 152bc833-04a4-40d2-bdaa-0b31f6161449	Social Deal: automation ban: [Mistral-confirmed ban] e vulnerability information without prior written consen	4
-18058413-5255-4f5c-a9db-c6ac027bb5d6	Soundtrack Technologies: not open (status=Suspended)	0
+18058413-5255-4f5c-a9db-c6ac027bb5d6	Soundtrack Technologies: no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	7
 196fa177-ac2d-41b0-91bb-07bc9db43b7a	SBB - Swiss Federal Railways: automation ban: [Mistral-confirmed ban, no regex match]	6
 1cf88d51-7927-4747-af33-204f6f1c161f	DHL Group Vulnerability Disclosure Program: no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	0
 1d157658-40d2-4472-89a3-b0cab2208220	Coveo VDP: private/invite-gated program, no API access	0
