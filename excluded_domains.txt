@@ -881,9 +881,7 @@
 *.wavecell.com
 *.weareone.world
 *.web3factory.consensys.net
-*.wellsfargo.com
 *.welt.de
-*.wf.com
 *.whatnot.com
 *.whois.eu
 *.wien.at
@@ -987,7 +985,6 @@ account.post.ch
 account.t-mobile.com
 account.ui.com
 account.withings.com
-accountoffers.wellsfargo.com
 accounts.cloud.com
 accounts.cloud.databricks.com
 accounts.cmp.optimizely.com
@@ -1733,7 +1730,6 @@ connect-sandbox.gocardless.com
 connect.8x8.com
 connect.identity.stagaws.visma.com
 connect.monash.edu
-connect.secure.wellsfargo.com
 connect.soundcloud.com
 consensus2026.sandbox.events.coindesk.com
 console-backend.truelayer[-sandbox].com
@@ -2166,7 +2162,6 @@ hmxservices.com
 hollisterco.com
 home.deriv.com
 home.privy.io
-homeloans.wellsfargo.com
 homes-and-villas.marriott.com
 horizonchase.com
 horizonchase.com.br
@@ -2236,8 +2231,6 @@ http://twilio.com/blog
 http://urc-auth-uefn.live.ucs.on.epicgames.com/
 http://urc-uefn.live.ucs.on.epicgames.com
 http://verified.clearme.com/dashboard
-http://wellsfargo.com
-http://wf.com
 http://www.bybit.com/en/alpha/overview/
 http://www.bybit.com/trade/tradfi/
 http://www.byreal.io
