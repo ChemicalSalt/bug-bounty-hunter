@@ -247,6 +247,10 @@
     "is_ban": false,
     "reason": "The snippet restricts the submission of copy/paste tool output, not the act of using automated scanners."
   },
+  "045f651ee690dede7aa4f27fa25db87df0fcc0937f8645552e6f1d24c4b78c3d": {
+    "is_ban": true,
+    "reason": "The snippet explicitly prohibits the act of using automated scanners/tools against their systems."
+  },
   "045ffe48cf3be5d3a1ba0b5bf503f3809079dcdd4eaa82cb2efb745ea57f9931": {
     "is_ban": false,
     "reason": "The snippet does not explicitly restrict the act of using automated scanners/tools; it focuses on submission requirements and prohibited actions like DoS or social engineering."
@@ -562,6 +566,10 @@
   "08b677cf9af6e6c8bb6efcabab3dca03b2f928698cb1d4537af58b5a2bcc26c5": {
     "is_ban": false,
     "reason": "The text does not require personal identity verification for participation or payment."
+  },
+  "08cdf3b34946fd3e6b3ce455fc52a2a1e01b47a57805dcf78586d6c00fa7a758": {
+    "is_ban": true,
+    "reason": "The snippet explicitly prohibits the act of using automated scanners."
   },
   "08d9a83e5c381dc575c78ba9533e8d5db16456b624c1131a3f06467d78fc5aeb": {
     "is_allowed": false,
@@ -2114,6 +2122,10 @@
   "225e18a898519c9cc591b7c7eeaa5ec25cc54baaa3ac0ca0e2d08d34422f1c1a": {
     "has_safe_harbor": true,
     "reason": "The policy explicitly states legal protection for good-faith research under its rules."
+  },
+  "2265bc3295ec9d68f97963ed43bf523a818d12537ea2d292cc371bff441236c4": {
+    "is_ban": true,
+    "reason": "The snippet explicitly prohibits the act of using automated scanners."
   },
   "22671a39abaaf2c2efe2935998fddb8e041f6100916cb9a7d7eaa73b3762c45e": {
     "is_ban": false,
@@ -3751,6 +3763,10 @@
     "is_ban": false,
     "reason": "The policy does not require personal identity verification for participation or payment."
   },
+  "3db98e06daea8c6fdd6bb8350a358aeb4a7ad30bc19e27e62e34ec05025b8a59": {
+    "is_ban": false,
+    "reason": "The snippet does not restrict the act of using automated scanners/tools; it only outlines scope, credentials, and instance creation rules."
+  },
   "3dbaa27b674a469fa59b0f41aa017be14c675beba11d44bb8cc70029345e1cff": {
     "is_ban": false,
     "reason": "The snippet does not mention or restrict the act of using automated scanners/tools."
@@ -4710,6 +4726,10 @@
   "4d4cbec3c0c2a9e34a6a44a2ef049a60fc6368993a98b16f3174de1a52b12cae": {
     "is_ban": false,
     "reason": "The policy does not require personal identity verification for participation or payout."
+  },
+  "4d617f69ebbb5f6c755baccd3ed81e33bfdd10e31556d7177ab73f1766e8d050": {
+    "is_ban": true,
+    "reason": "The snippet explicitly prohibits the act of using automated scanners."
   },
   "4d712ef1f03531f1c8f97ab217158f97616ee8e0ecd91c13893dc18561c732c3": {
     "is_ban": false,
@@ -5846,6 +5866,10 @@
   "5ea6b9f5b94f05aafefa674ed1da48da4e35253d200f9e39c04946285bf7a96c": {
     "is_allowed": false,
     "reason": "The snippet does not explicitly grant permission for the use of automated scanners or tools."
+  },
+  "5eaf1b8ce4ecebd9f047a4a3a51f044e106e22ec1a512b1bd5d572c54b23f4b2": {
+    "is_ban": true,
+    "reason": "The snippet explicitly prohibits the act of using automated scanners/tools against their systems."
   },
   "5ebe412523824aaaf3fabdf0903ca90cae767d3dca0c5712c3ae7968ffc73d3f": {
     "is_ban": false,
@@ -8603,6 +8627,10 @@
     "is_ban": false,
     "reason": "The policy does not require personal identity verification for participation or payment."
   },
+  "8728e3e3becde681925f8bfb3cf0f51b4472a06f0f6128c364282b5aa9f8b7ec": {
+    "is_ban": true,
+    "reason": "The snippet explicitly prohibits the act of using automated scanners/tools against their systems."
+  },
   "872d344022b059a870554ebe05d37a76c1b487980e33a5b66eb330fc89bb28c4": {
     "is_ban": false,
     "reason": "The restriction is scoped under service degradation/interruption context, not a blanket scanning ban."
@@ -8930,6 +8958,10 @@
   "8d154b511d7035697aad52032ee8c1a82d84c070c2e4fe0d95aa990686ca6a9c": {
     "is_ban": false,
     "reason": "The snippet does not explicitly restrict the act of using automated scanners/tools against their systems."
+  },
+  "8d35d9a05a1dd2f2a3e364703997a487b7d60cf92ed4843b8a0e29735ea0f4f3": {
+    "is_ban": false,
+    "reason": "The snippet does not restrict the act of using automated scanners/tools; it focuses on scope, testing rules, and submission guidelines."
   },
   "8d5b5c81b69702f681e15d6e298a9c6313285f7ec423d8b6cb7a19b936da6d6c": {
     "is_ban": false,
@@ -9390,6 +9422,10 @@
   "94164474f481ee7812bdd33670c188ae9b9da67852af48485f96959496201356": {
     "rate": null,
     "reason": "No rate limit or scanning throttle is mentioned in the text."
+  },
+  "941f130e2744ce3df828ae0f571d10436bf706d44f3b8af50f00530a9dbdeda5": {
+    "is_ban": true,
+    "reason": "The snippet explicitly prohibits the act of using automated scanners."
   },
   "9430f725e9d91dfc95eeb58dfc2e2110c1441740f8555f5b7d0a868b515354cc": {
     "rate": null,
@@ -9951,6 +9987,10 @@
     "is_ban": false,
     "reason": "The text does not require personal identity verification for participation or payment."
   },
+  "9d1adc9b71bf02bdd6eb72674078cf3f3a3178454be4bd4c5814ec7968053732": {
+    "is_ban": false,
+    "reason": "The snippet does not restrict the act of using automated scanners/tools; it only defines scope, focus areas, and testing procedures."
+  },
   "9d227e5ebae8c3bd1a733d647c23572c3f31f8b753ef4bc9ecdec26a10c8760c": {
     "has_safe_harbor": false,
     "reason": "The policy does not explicitly grant legal safe harbor or promise non-pursuit of legal action for good-faith researchers."
@@ -10242,6 +10282,10 @@
   "a1c6373a2c324465481524d9a0a699946be52fde7c86a6b234ef2fdd7092cd33": {
     "is_ban": false,
     "reason": "No personal identity verification is required to participate or get paid."
+  },
+  "a1d0faab9fc511b54524322ac4ed469d208a92c22551b5a313596e96e708add2": {
+    "is_ban": true,
+    "reason": "The snippet explicitly restricts the act of using automated scanners and tools for testing."
   },
   "a1dff4dfac900f87dbef53fb789e1f72bae394ec704b4432a4e9d8398eaf9b31": {
     "rate": null,
@@ -11186,6 +11230,10 @@
   "b30f8ce37dd480e77c19c54b19a203368725e45cccd9a03351cf23bbe457d4b1": {
     "is_allowed": false,
     "reason": "The snippet explicitly states 'Reports from automated tools or scans' are out of scope, which implies no permission to use automated scanning tools."
+  },
+  "b312e198d99d991124115c6cd93cf9852b42900dc273bc224c78ccbba8435be5": {
+    "is_ban": true,
+    "reason": "The snippet explicitly prohibits the act of using automated scanners/tools against their systems."
   },
   "b3375cdb3128238ddcec92d670415eccde7947c4f912e549c251195c6b4a8454": {
     "has_safe_harbor": true,
@@ -12166,6 +12214,10 @@
   "c2d5134e18f7c8317adc87f706c29f72afd49d23fc1bfe86f7ebbd13311b1462": {
     "is_allowed": false,
     "reason": "The snippet does not explicitly grant permission for using automated scanners/tools."
+  },
+  "c2e79f189737e0e4016fdfd52153a3db27a04d7e81d79606646d57d9a90b9aee": {
+    "is_ban": false,
+    "reason": "The snippet does not restrict the act of using automated scanners/tools; it focuses on scope, exclusions, and report quality."
   },
   "c2fe0a01fd66b0ff034a0e040039b2c980a9b1fd0d28d7735b903fe8ebd3011a": {
     "has_safe_harbor": false,
