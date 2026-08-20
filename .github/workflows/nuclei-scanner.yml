@@ -22,7 +22,7 @@ concurrency:
 jobs:
   prepare:
     if: github.event_name == 'workflow_dispatch'
-    runs-on: ${{ github.event.inputs.runner == 'github' && 'ubuntu-latest' || fromJson('["self-hosted","linux","x64"]') }}
+    runs-on: ${{ github.event.inputs.runner == 'self-hosted' && fromJson('["self-hosted","linux","x64"]') || 'ubuntu-latest' }}
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     outputs:
@@ -143,7 +143,7 @@ jobs:
   weekend_nuclei:
     needs: prepare
     if: needs.prepare.outputs.has_hosts == 'true' && needs.prepare.outputs.batches != '[]'
-    runs-on: ${{ github.event.inputs.runner == 'github' && 'ubuntu-latest' || fromJson('["self-hosted","linux","x64"]') }}
+    runs-on: ${{ github.event.inputs.runner == 'self-hosted' && fromJson('["self-hosted","linux","x64"]') || 'ubuntu-latest' }}
     timeout-minutes: 420
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -351,7 +351,7 @@ jobs:
   finalize_nuclei:
     needs: [prepare, weekend_nuclei]
     if: always()
-    runs-on: ${{ github.event.inputs.runner == 'github' && 'ubuntu-latest' || fromJson('["self-hosted","linux","x64"]') }}
+    runs-on: ${{ github.event.inputs.runner == 'self-hosted' && fromJson('["self-hosted","linux","x64"]') || 'ubuntu-latest' }}
     steps:
       - name: Checkout domains branch
         uses: actions/checkout@v4
