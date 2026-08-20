@@ -1027,6 +1027,10 @@
     "is_ban": false,
     "reason": "The snippet restricts AI-generated or unverified submissions, not the act of using automated scanners/tools."
   },
+  "0f4abf1568064ffe2f0a114c4f1185f5e3180c78151290349c44bf7a68a46343": {
+    "is_allowed": false,
+    "reason": "The snippet does not explicitly grant permission for the act of using automated scanners/tools."
+  },
   "0f4ae5dbdb9c06503359fe418999c08714f9a518e3160e511e31f3d2bffc55fd": {
     "is_ban": true,
     "reason": "The snippet explicitly restricts the act of using automated testing tools against their systems."
@@ -7034,6 +7038,10 @@
   "6f5c69d46d0fc4488ba92a8e45ab3e19937d19436ae90fed4c968fc2ccffa479": {
     "has_safe_harbor": true,
     "reason": "The policy explicitly states 'Ooredoo will not pursue legal action against researchers who report vulnerabilities within the terms of company\u2019s reporting mechanism'."
+  },
+  "6f5cc807e226933a77522bcfe9c2ec96ef61ea7faa7a870e6e1f30d72b3b3f77": {
+    "is_ban": false,
+    "reason": "The snippet does not explicitly restrict the act of using automated scanners/tools, only outlines general participation terms."
   },
   "6f7ab9fe47c215a96659bfef6334b3d29f892976cbd9e2f38dfbd48b6ab5b96e": {
     "is_ban": false,
