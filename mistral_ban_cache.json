@@ -11587,6 +11587,10 @@
     "rate": null,
     "reason": "no rate limit or scanning throttle is mentioned"
   },
+  "bad3f4cf15088aa000df288de5d78c0ca9f62c6a2916cafb921b084dbe0a13d1": {
+    "has_safe_harbor": false,
+    "reason": "The policy does not explicitly grant legal safe harbor or promise not to pursue legal action against good-faith researchers."
+  },
   "baef4471421cc10a8c9164f01d4a3fa20b93c81c4f3c483ff74c31097159717e": {
     "is_ban": false,
     "reason": "No personal identity verification or documents are required to participate or get paid."
