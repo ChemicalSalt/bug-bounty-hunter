@@ -82,7 +82,7 @@ coindcx-recovery-bounty-program	not active (status=Completed)	0
 aptos-function-values	not active (status=Completed)	0
 bigone-hack-bounty-program	not active (status=Completed)	0
 arcadia-finance-hack-recovery-program	not active (status=Completed)	0
-noones-web-and-mobile	safe harbor not confirmed: no safe-harbor language found in full policy text	0
+noones-web-and-mobile	not open (state=paused)	0
 noya-dot-ai-smart-contracts	not active (status=Completed)	0
 nonkyc-dot-io	safe harbor not confirmed: no safe-harbor language found in full policy text	1
 cetus-smart-contracts	requires KYC (kyc_required=true)	1
