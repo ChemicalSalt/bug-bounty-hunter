@@ -11,9 +11,6 @@ name: Weekend Recon
 
 on:
   workflow_dispatch:
-  workflow_run:
-    workflows: ["Weekend Vet"]
-    types: [completed]
 permissions:
   contents: write
   actions: write

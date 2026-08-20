@@ -10,8 +10,12 @@ on:
           - self-hosted
         default: github
 
+permissions:
+  contents: write
+  actions: write
+
 concurrency:
-  group: subzy-scanner-pipeline
+  group: bbh-pipeline
   cancel-in-progress: false
 
 jobs:
@@ -280,3 +284,9 @@ jobs:
           git add weekend_progress_subzy.txt weekend_offset_subzy.txt seen_findings_subzy.txt
           git diff --staged --quiet || git commit -m "Subzy progress update $(date +'%Y-%m-%d %H:%M')"
           git push origin data || (git pull --rebase origin data && git push origin data) || echo "::warning::push failed"
+
+      - name: Trigger Bypass Scanner (next cycle)
+        if: success()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow run "Bypass Scanner" --ref main

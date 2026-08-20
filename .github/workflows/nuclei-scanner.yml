@@ -7,12 +7,16 @@ on:
         description: 'Where to run'
         type: choice
         options:
-          - self-hosted
           - github
-        default: self-hosted
+          - self-hosted
+        default: github
+
+permissions:
+  contents: write
+  actions: write
 
 concurrency:
-  group: nuclei-scan-pipeline
+  group: bbh-pipeline
   cancel-in-progress: false
 
 jobs:
@@ -429,3 +433,9 @@ jobs:
           git add weekend_progress_nuclei.txt weekend_offset_nuclei.txt weekend_stall_count_nuclei.txt weekend_stuck_batches_nuclei.log seen_findings_nuclei.txt 2>/dev/null || git add weekend_progress_nuclei.txt weekend_offset_nuclei.txt weekend_stall_count_nuclei.txt seen_findings_nuclei.txt
           git diff --staged --quiet || git commit -m "Nuclei scan progress update $(date +'%Y-%m-%d')"
           git push origin data || (git pull --rebase origin data && git push origin data) || echo "::warning::Push failed for nuclei progress"
+
+      - name: Trigger JS Secrets Scanner
+        if: success()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow run "JS Secrets Scanner" --ref main

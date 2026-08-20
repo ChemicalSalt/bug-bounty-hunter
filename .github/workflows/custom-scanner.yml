@@ -7,12 +7,9 @@ on:
         description: 'Where to run'
         type: choice
         options:
-          - self-hosted
           - github
-        default: self-hosted
-  workflow_run:
-    workflows: ["Bypass Scanner"]
-    types: [completed]
+          - self-hosted
+        default: github
 
 permissions:
   contents: write
@@ -24,7 +21,7 @@ concurrency:
 
 jobs:
   prepare:
-    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ${{ github.event.inputs.runner == 'github' && 'ubuntu-latest' || fromJson('["self-hosted","linux","x64"]') }}
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -428,8 +425,8 @@ jobs:
           git diff --staged --quiet || git commit -m "Custom scan progress update $(date +'%Y-%m-%d')"
           git push origin data || (git pull --rebase origin data && git push origin data) || echo "::warning::Push failed for custom progress"
 
-      - name: Trigger Bypass Scanner
+      - name: Trigger Nuclei Scanner
         if: success()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh workflow run "Bypass Scanner" --ref main
+        run: gh workflow run "Nuclei Scanner" --ref main

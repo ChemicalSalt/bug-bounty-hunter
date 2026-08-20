@@ -9,9 +9,6 @@ on:
           - github
           - self-hosted
         default: github
-  workflow_run:
-    workflows: ["Weekend Recon", "Custom Scanner"]
-    types: [completed]
 
 permissions:
   contents: write
