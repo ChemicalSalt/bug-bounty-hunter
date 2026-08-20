@@ -178,7 +178,10 @@ def main():
             print(f"    - {p}")
         if not ok:
             overall_ok = False
-    for path in RAW_SCOPE_FILES:
+    scope_files_to_check = RAW_SCOPE_FILES
+    if args.platform is not None:
+        scope_files_to_check = [p for p in RAW_SCOPE_FILES if p.startswith(args.platform + "_")]
+    for path in scope_files_to_check:
         ok, problems = check_file(path, is_root_domain_file=False)
         status = "OK" if ok else "FAIL"
         print(f"[{status}] {path}")
