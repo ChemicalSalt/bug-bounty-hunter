@@ -1,3 +1,4 @@
 [spring-boot-actuator-exposed] [http] [high] https://wallet-api.moonpay.com/actuator
 [spring-boot-actuator-exposed] [http] [high] https://wallet-api.moonpay.com/actuator/beans
 [spring-boot-actuator-exposed] [http] [high] https://wallet-api.moonpay.com/actuator/env
+[swagger-unauthenticated-execution] [http] [high] https://360portal-cmsapi.allegion.com/swagger/ui/index
