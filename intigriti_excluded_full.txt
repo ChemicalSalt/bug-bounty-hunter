@@ -200,7 +200,7 @@ e8b2e8ca-1fb2-4c17-933f-2a1f5cfb7da7	Driessen Vulnerability Disclosure Program: 
 eb340a46-b5b8-4165-b8d8-bc032493e8a6	Ubisoft Responsible Disclosure Program: no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	0
 ecc515cc-c0c1-4a72-966a-ba2baef4d35f	Orbia Responsible Disclosure: no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	0
 ecf9c610-36eb-47df-8b25-bb496aff8015	Nexuzhealth Web PACS: no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	2
-ed04d1ef-1aa3-49dd-92f1-06f50f9756b9	TrueLayer: no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	24
+ed04d1ef-1aa3-49dd-92f1-06f50f9756b9	TrueLayer: not open (status=Suspended)	0
 ee2612e7-e188-492f-9bb2-ba48651523de	Intergamma: automation ban: [Mistral-confirmed ban, no regex match]	20
 ef919950-9ced-48c3-b1f4-2379c43c8ec5	Wärtsilä Vulnerability Disclosure Program: automation ban: [Mistral-confirmed ban, no regex match]	0
 efa92aaa-d683-4cf9-8834-a03cf864cc80	Trouw: automation ban: [Mistral-confirmed ban, no regex match]	6
