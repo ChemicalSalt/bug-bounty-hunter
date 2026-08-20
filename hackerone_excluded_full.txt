@@ -410,7 +410,6 @@ daimler_truck	safe harbor not confirmed: [Mistral did not confirm safe harbor] d
 resmed	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	61
 canada_goose_inc	automation ban: [Mistral-confirmed ban, no regex match]	3
 city_of_los_angeles_vdp	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	2
-fireblocks	not open (submission_state=paused)	4
 modern_treasury	safe harbor not confirmed: no safe-harbor language found in full policy text	2
 notion	automation ban: [Mistral-confirmed ban, no regex match]	2
 wisdomtree	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	4
@@ -457,7 +456,6 @@ oaknorth_bank	no explicit automation permission (silent): [No automation ban fou
 aven_response	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	4
 bykea	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	13
 aon	automation ban: [Mistral-confirmed ban] name> * Execute: id, hostname, pwd (though, technically 	251
-fireblocks_mpc	not open (submission_state=paused)	0
 inditex	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	0
 trip_com	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	13
 anthropic	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	6
