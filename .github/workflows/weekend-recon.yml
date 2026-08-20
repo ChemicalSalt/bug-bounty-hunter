@@ -14,6 +14,10 @@ on:
   workflow_run:
     workflows: ["Weekend Vet"]
     types: [completed]
+permissions:
+  contents: write
+  actions: write
+
 concurrency:
   group: bbh-pipeline
   cancel-in-progress: false
@@ -751,3 +755,9 @@ jobs:
             combined.txt || true
           git diff --staged --quiet || git commit -m "Weekly recon FINAL $(date +'%Y-%m-%d') — $(wc -l < live_hosts.txt) live | $(wc -l < new_live_hosts.txt) new live hosts"
           git push origin data || (git pull --rebase origin data && git push origin data) || echo "::warning::Push failed in finalize - live_hosts.txt may be stale, daily-scan/weekly-scan may run on old data"
+
+      - name: Trigger Bypass Scanner
+        if: success()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow run "Bypass Scanner" --ref main
