@@ -11,10 +11,11 @@ name: Weekend Recon
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '30 22 * * 5'   # Friday 22:30 UTC = Saturday 04:00 IST (after Monthly Vet slot)
+  workflow_run:
+    workflows: ["Weekend Vet"]
+    types: [completed]
 concurrency:
-  group: weekend-recon
+  group: bbh-pipeline
   cancel-in-progress: false
 
 jobs:
@@ -33,6 +34,16 @@ jobs:
         with:
           ref: data
           fetch-depth: 1
+
+      - name: Reset weekly lap-completion flags
+        run: |
+          git config --global user.email "bugbountybot@github.com"
+          git config --global user.name "BugBountyBot"
+          rm -f lap_done_bypass.txt lap_done_custom.txt lap_done_cve.txt lap_done_jssecrets.txt lap_done_nuclei.txt lap_done_takeover.txt lap_done_subzy.txt
+          git add -A -- lap_done_bypass.txt lap_done_custom.txt lap_done_cve.txt lap_done_jssecrets.txt lap_done_nuclei.txt lap_done_takeover.txt lap_done_subzy.txt 2>/dev/null || true
+          git diff --staged --quiet || git commit -m "Reset weekly scanner lap flags $(date +'%Y-%m-%d')"
+          git push origin data || (git pull --rebase origin data && git push origin data) || echo "::warning::lap flag reset push failed"
+
       - name: Checkout status checker from main
         uses: actions/checkout@v4
         with:

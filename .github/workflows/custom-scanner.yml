@@ -10,14 +10,17 @@ on:
           - self-hosted
           - github
         default: self-hosted
+  workflow_run:
+    workflows: ["Bypass Scanner"]
+    types: [completed]
 
 concurrency:
-  group: custom-scan-pipeline
+  group: bbh-pipeline
   cancel-in-progress: false
 
 jobs:
   prepare:
-    if: github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
     runs-on: ${{ github.event.inputs.runner == 'github' && 'ubuntu-latest' || fromJson('["self-hosted","linux","x64"]') }}
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -77,6 +80,13 @@ jobs:
           fi
           echo "Hosts after program-open recheck: $(wc -l < combined.txt)"
 
+          if [ -f lap_done_custom.txt ] && [ "$(cat lap_done_custom.txt)" = "$(date +'%Y-%U')" ]; then
+            echo "Lap already completed this week, skipping"
+            echo "has_hosts=false" >> $GITHUB_OUTPUT
+            echo "batches=[]" >> $GITHUB_OUTPUT
+            echo "num_batches=0" >> $GITHUB_OUTPUT
+            exit 0
+          fi
           full_total=$(wc -l < combined.txt)
           echo "Total hosts (full list): $full_total"
 
@@ -389,6 +399,7 @@ jobs:
             echo "$NEW_OFFSET" > weekend_offset_custom.txt
             > weekend_progress_custom.txt
             echo "0" > weekend_stall_count_custom.txt
+            if [ "$NEW_OFFSET" -eq 1 ]; then echo "$(date +'%Y-%U')" > lap_done_custom.txt; fi
           else
             STALL_COUNT=$(( STALL_COUNT + 1 ))
             echo "Chunk not yet complete ($done_count/$NUM_BATCHES) - stall count now $STALL_COUNT"
@@ -402,12 +413,13 @@ jobs:
               echo "$NEW_OFFSET" > weekend_offset_custom.txt
               > weekend_progress_custom.txt
               echo "0" > weekend_stall_count_custom.txt
+              if [ "$NEW_OFFSET" -eq 1 ]; then echo "$(date +'%Y-%U')" > lap_done_custom.txt; fi
               echo "$(date +'%Y-%m-%d'): force-advanced past stuck batch(es) $STUCK_BATCHES" >> weekend_stuck_batches_custom.log
             else
               echo "$STALL_COUNT" > weekend_stall_count_custom.txt
             fi
           fi
 
-          git add weekend_progress_custom.txt weekend_offset_custom.txt weekend_stall_count_custom.txt weekend_stuck_batches_custom.log seen_findings_custom.txt 2>/dev/null || git add weekend_progress_custom.txt weekend_offset_custom.txt weekend_stall_count_custom.txt seen_findings_custom.txt
+          git add weekend_progress_custom.txt weekend_offset_custom.txt weekend_stall_count_custom.txt weekend_stuck_batches_custom.log seen_findings_custom.txt lap_done_custom.txt 2>/dev/null || git add weekend_progress_custom.txt weekend_offset_custom.txt weekend_stall_count_custom.txt seen_findings_custom.txt
           git diff --staged --quiet || git commit -m "Custom scan progress update $(date +'%Y-%m-%d')"
           git push origin data || (git pull --rebase origin data && git push origin data) || echo "::warning::Push failed for custom progress"

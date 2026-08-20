@@ -13,7 +13,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: weekend-vet
+  group: bbh-pipeline
   cancel-in-progress: false
 
 env:
