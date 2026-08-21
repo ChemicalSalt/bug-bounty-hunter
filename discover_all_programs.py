@@ -818,6 +818,9 @@ def vet_hackerone_program(handle, auth, results):
     if a.get("submission_state") != "open":
         results["excluded"].append((handle, f"not open (submission_state={a.get('submission_state')})", domain_count))
         return
+    if a.get("state") != "public_mode":
+        results["excluded"].append((handle, f"not public (state={a.get('state')})", domain_count))
+        return
     sh_override = True if a.get("gold_standard_safe_harbor") is True else None
     ev = evaluate_policy_conditions(policy, handle, MIN_RATE_LIMIT, safe_harbor_override=sh_override)
     if ev["hard_fail"]:
