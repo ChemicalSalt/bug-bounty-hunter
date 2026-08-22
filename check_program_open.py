@@ -155,12 +155,20 @@ def main():
         sys.exit(1)
 
     print("Fetching HackerOne programs...")
-    h1_programs = fetch_hackerone_programs(h1_token)
-    print(f"  -> {len(h1_programs)} programs retrieved\n")
+    try:
+        h1_programs = fetch_hackerone_programs(h1_token)
+        print(f"  -> {len(h1_programs)} programs retrieved\n")
+    except Exception as e:
+        print(f"  -> ERROR fetching HackerOne programs: {e} - all H1 domains will be excluded this run\n")
+        h1_programs = []
 
     print("Fetching Intigriti programs...")
-    intigriti_programs = fetch_intigriti_programs(intigriti_token)
-    print(f"  -> {len(intigriti_programs)} programs retrieved\n")
+    try:
+        intigriti_programs = fetch_intigriti_programs(intigriti_token)
+        print(f"  -> {len(intigriti_programs)} programs retrieved\n")
+    except Exception as e:
+        print(f"  -> ERROR fetching Intigriti programs: {e} - all Intigriti domains will be excluded this run\n")
+        intigriti_programs = []
 
     rows = []
     with open(MAPPING_PATH) as f:
