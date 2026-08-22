@@ -1,0 +1,65 @@
+name: Pipeline Orchestrator
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '30 18 * * 5'
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  run_pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Weekend Vet
+        continue-on-error: true
+        run: |
+          gh workflow run weekend-vet.yml
+          sleep 30
+          RUN_ID=$(gh run list --workflow=weekend-vet.yml --limit 1 --json databaseId -q '.[0].databaseId')
+          gh run watch "$RUN_ID" --exit-status || echo "::warning::Weekend Vet failed, continuing anyway"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run Weekend Recon
+        continue-on-error: true
+        run: |
+          gh workflow run weekend-recon.yml
+          sleep 30
+          RUN_ID=$(gh run list --workflow=weekend-recon.yml --limit 1 --json databaseId -q '.[0].databaseId')
+          gh run watch "$RUN_ID" --exit-status || echo "::warning::Weekend Recon failed, continuing anyway"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run all scanners, repeat until all hosts covered
+        continue-on-error: true
+        run: |
+          SCANNERS="bypass-scanner.yml custom-scanner.yml cve-scanner.yml js-secrets-scanner.yml nuclei-scanner.yml nuclei-takeover-scanner.yml subzy-takeover-scanner.yml"
+          for SCANNER in $SCANNERS; do
+            LAP_DONE=0
+            ATTEMPTS=0
+            while [ "$LAP_DONE" -eq 0 ] && [ "$ATTEMPTS" -lt 5 ]; do
+              ATTEMPTS=$((ATTEMPTS + 1))
+              echo "Triggering $SCANNER (attempt $ATTEMPTS)"
+              gh workflow run "$SCANNER" -f runner=github
+              sleep 30
+              RUN_ID=$(gh run list --workflow="$SCANNER" --limit 1 --json databaseId -q '.[0].databaseId')
+              gh run watch "$RUN_ID" --exit-status || echo "::warning::$SCANNER cycle failed, retrying if lap not done"
+              git fetch origin data --quiet
+              LAP_FILE="lap_done_$(echo "$SCANNER" | sed 's/-scanner.yml//; s/-/_/g').txt"
+              CURRENT_WEEK=$(date +'%Y-%U')
+              LAP_CONTENT=$(git show "origin/data:$LAP_FILE" 2>/dev/null || echo "")
+              if [ "$LAP_CONTENT" = "$CURRENT_WEEK" ]; then
+                LAP_DONE=1
+                echo "$SCANNER completed full lap for this week"
+              else
+                echo "$SCANNER lap not yet complete, cycling again"
+              fi
+            done
+          done
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
