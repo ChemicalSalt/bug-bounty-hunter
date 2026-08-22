@@ -44,8 +44,8 @@ kaia-protocol	requires KYC (kyc_required=true)	1
 nado-smart-contracts	safe harbor not confirmed: no safe-harbor language found in full policy text	1
 nado-web	safe harbor not confirmed: no safe-harbor language found in full policy text	1
 phemex-web-and-mobile	safe harbor not confirmed: no safe-harbor language found in full policy text	3
-doubleup-smart-contracts	not open (state=paused)	0
-doubleup-web	not open (state=paused)	0
+doubleup-smart-contracts	not active (status=Completed)	0
+doubleup-web	not active (status=Completed)	0
 bitkub-capital-group-holdings	safe harbor not confirmed: no safe-harbor language found in full policy text	4
 deepfi-games	not active (status=Completed)	0
 deepfi-trade	not active (status=Completed)	0
