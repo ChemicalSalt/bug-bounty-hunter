@@ -75,6 +75,10 @@
     "has_safe_harbor": true,
     "reason": "The policy explicitly states it will not initiate legal action and will defend researchers' compliance with the policy."
   },
+  "018e3e7546414854d56119e394fad8842a03b379e843fbea67a725c0b73c966e": {
+    "is_ban": false,
+    "reason": "The snippet does not restrict the act of using automated scanners/tools; it focuses on game/business logic flaws and submission types."
+  },
   "0199c9713ff03b1cea1068650de6ddee3d768680afdb346fc57aa8581e99bbdd": {
     "has_safe_harbor": true,
     "reason": "The policy explicitly states that activities consistent with the policy will be considered authorized."
@@ -6674,6 +6678,10 @@
   "6a8eb02c8df1de3a72167fbaf7350aaad74e9282a8ce1cb880034132321f5408": {
     "is_ban": false,
     "reason": "The snippet does not explicitly restrict the act of using automated scanners/tools against systems."
+  },
+  "6aa8bb12733f94cc56af88d47d259215314efe54e03838849818d31f39b0562f": {
+    "is_allowed": false,
+    "reason": "The snippet does not explicitly grant permission for the use of automated scanners or tools."
   },
   "6af3b23b990aca3854992c8bbfae96f78f592cb245165323fd28e1676b21c8c7": {
     "is_allowed": false,
