@@ -447,7 +447,7 @@ jobs:
           git push origin data || (git pull --rebase origin data && git push origin data) || echo "::warning::Push failed for nuclei progress"
 
       - name: Trigger JS Secrets Scanner
-        if: success()
+        if: ${{ !cancelled() }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh workflow run "JS Secrets Scanner" --ref main

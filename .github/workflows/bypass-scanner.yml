@@ -350,7 +350,7 @@ jobs:
           git push origin data || (git pull --rebase origin data && git push origin data) || echo "::warning::push failed"
 
       - name: Trigger Custom Scanner
-        if: success()
+        if: ${{ !cancelled() }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh workflow run "Custom Scanner" --ref main

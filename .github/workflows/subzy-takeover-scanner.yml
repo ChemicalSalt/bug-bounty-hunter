@@ -305,7 +305,7 @@ jobs:
           git push origin data || (git pull --rebase origin data && git push origin data) || echo "::warning::push failed"
 
       - name: Close out scanner cycle (no re-trigger)
-        if: success()
+        if: ${{ !cancelled() }}
         run: |
           git config --global user.email "bugbountybot@github.com"
           git config --global user.name "BugBountyBot"

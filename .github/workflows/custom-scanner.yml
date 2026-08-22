@@ -431,7 +431,7 @@ jobs:
           git push origin data || (git pull --rebase origin data && git push origin data) || echo "::warning::Push failed for custom progress"
 
       - name: Trigger Nuclei Scanner
-        if: success()
+        if: ${{ !cancelled() }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh workflow run "Nuclei Scanner" --ref main
