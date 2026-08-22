@@ -304,8 +304,17 @@ jobs:
           git diff --staged --quiet || git commit -m "Subzy progress update $(date +'%Y-%m-%d %H:%M')"
           git push origin data || (git pull --rebase origin data && git push origin data) || echo "::warning::push failed"
 
-      - name: Trigger Bypass Scanner (next cycle)
+      - name: Close out scanner cycle (no re-trigger)
         if: success()
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh workflow run "Bypass Scanner" --ref main
+        run: |
+          git config --global user.email "bugbountybot@github.com"
+          git config --global user.name "BugBountyBot"
+          if [ -f weekend_scan_pendinghash.txt ]; then
+            cp weekend_scan_pendinghash.txt weekend_scan_lasthash.txt
+            git add weekend_scan_lasthash.txt
+            git diff --staged --quiet || git commit -m "Scanner cycle complete $(date +'%Y-%m-%d %H:%M') - marking host list as scanned"
+            git push origin data || (git pull --rebase origin data && git push origin data) || echo "::warning::push failed for cycle close-out"
+          else
+            echo "::warning::weekend_scan_pendinghash.txt not found - cycle close-out skipped, next recon run will re-trigger regardless"
+          fi
+          echo "Scanner chain complete for this cycle. Next chain run only fires when Weekend Recon detects new/changed hosts."
