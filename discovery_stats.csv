@@ -120,3 +120,4 @@ timestamp_utc,platform,total_discovered,included,excluded,skipped,excluded_domai
 2026-08-22T18:48:37Z,Intigriti,216,1,215,0,952,0,32590503800
 2026-08-22T18:50:09Z,YesWeHack,63,0,63,0,609,0,32590503800
 2026-08-22T18:56:12Z,Bugcrowd,260,5,255,0,1033,0,32590503800
+2026-08-22T18:58:41Z,HackenProof,321,0,321,0,248,0,32590503800
