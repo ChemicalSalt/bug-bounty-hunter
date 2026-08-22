@@ -81,13 +81,6 @@ jobs:
           fi
           echo "Hosts after program-open recheck: $(wc -l < combined.txt)"
 
-          if [ -f lap_done_custom.txt ] && [ "$(cat lap_done_custom.txt)" = "$(date +'%Y-%U')" ]; then
-            echo "Lap already completed this week, skipping"
-            echo "has_hosts=false" >> $GITHUB_OUTPUT
-            echo "batches=[]" >> $GITHUB_OUTPUT
-            echo "num_batches=0" >> $GITHUB_OUTPUT
-            exit 0
-          fi
           full_total=$(wc -l < combined.txt)
           echo "Total hosts (full list): $full_total"
 

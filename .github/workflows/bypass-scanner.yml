@@ -74,14 +74,17 @@ jobs:
           chunk_size=$(( target_per_batch * max_batches ))
           full_total=$(wc -l < live_hosts_403.txt)
           touch weekend_offset_bypass.txt weekend_progress_bypass.txt
-          if [ -f lap_done_bypass.txt ] && [ "$(cat lap_done_bypass.txt)" = "$(date +'%Y-%U')" ]; then
-            echo "Lap already completed this week, skipping"
+          if [ "$full_total" -eq 0 ]; then
             echo "has_hosts=false" >> $GITHUB_OUTPUT
             echo "batches=[]" >> $GITHUB_OUTPUT
             echo "num_batches=0" >> $GITHUB_OUTPUT
             exit 0
           fi
-          if [ "$full_total" -eq 0 ]; then
+          full_hash=$(sort live_hosts_403.txt | sha256sum | cut -d' ' -f1)
+          touch weekend_lasthash_bypass.txt
+          prior_done=$(cut -d: -f1 weekend_progress_bypass.txt | sort -un | grep -c .)
+          if [ "$full_total" -le "$chunk_size" ] && [ "$prior_done" -eq 0 ] && [ "$full_hash" = "$(cat weekend_lasthash_bypass.txt 2>/dev/null)" ]; then
+            echo "No new hosts since last full scan - skipping until recon finds new hosts"
             echo "has_hosts=false" >> $GITHUB_OUTPUT
             echo "batches=[]" >> $GITHUB_OUTPUT
             echo "num_batches=0" >> $GITHUB_OUTPUT
@@ -116,10 +119,10 @@ jobs:
             git config --global user.email "bugbountybot@github.com"
             git config --global user.name "BugBountyBot"
             if [ "$new_offset" -eq 1 ]; then
-              echo "$(date +'%Y-%U')" > lap_done_bypass.txt
-              echo "Full lap completed for bypass this week"
+              echo "$full_hash" > weekend_lasthash_bypass.txt
+              echo "Full lap completed for bypass - hash stamped, will skip until new hosts appear"
             fi
-            git add weekend_offset_bypass.txt weekend_progress_bypass.txt lap_done_bypass.txt 2>/dev/null || git add weekend_offset_bypass.txt weekend_progress_bypass.txt
+            git add weekend_offset_bypass.txt weekend_progress_bypass.txt weekend_lasthash_bypass.txt 2>/dev/null || git add weekend_offset_bypass.txt weekend_progress_bypass.txt
             git diff --staged --quiet || git commit -m "Advance bypass scan window $(date +'%Y-%m-%d %H:%M')"
             git push origin data || (git pull --rebase origin data && git push origin data) || echo "::warning::offset push failed for bypass"
           fi
