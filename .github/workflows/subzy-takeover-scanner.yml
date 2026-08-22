@@ -90,7 +90,7 @@ jobs:
           fi
           full_hash=$(sort combined_full.txt | sha256sum | cut -d' ' -f1)
           touch weekend_lasthash_subzy.txt
-          prior_done=$(cut -d: -f1 weekend_progress_subzy.txt | sort -un | grep -c .)
+          prior_done=$(cut -d: -f1 weekend_progress_subzy.txt | sort -un | grep -c . || true)
           if [ "$full_total" -le "$chunk_size" ] && [ "$prior_done" -eq 0 ] && [ "$full_hash" = "$(cat weekend_lasthash_subzy.txt 2>/dev/null)" ]; then
             echo "No new hosts since last full scan - skipping until recon finds new hosts"
             echo "has_hosts=false" >> $GITHUB_OUTPUT
