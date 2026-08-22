@@ -27,7 +27,7 @@
 1430d211-837f-446c-978f-f818eb960405	Newpharma: not public (confidentialityLevel=Application)	0
 14b2f2ef-0c38-4da8-ae6d-c1e8fa663860	Salto CloudWorks: not public (confidentialityLevel=Registered)	0
 152bc833-04a4-40d2-bdaa-0b31f6161449	Social Deal: automation ban: [Mistral-confirmed ban] e vulnerability information without prior written consen	4
-18058413-5255-4f5c-a9db-c6ac027bb5d6	Soundtrack Technologies: no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	7
+18058413-5255-4f5c-a9db-c6ac027bb5d6	Soundtrack Technologies: not open (status=Suspended)	0
 196fa177-ac2d-41b0-91bb-07bc9db43b7a	SBB - Swiss Federal Railways: automation ban: [Mistral-confirmed ban, no regex match]	6
 1cf88d51-7927-4747-af33-204f6f1c161f	DHL Group Vulnerability Disclosure Program: no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	0
 1d157658-40d2-4472-89a3-b0cab2208220	Coveo VDP: private/invite-gated program, no API access	0
@@ -91,7 +91,7 @@
 61e0e37c-19cc-4abe-af51-108a78bee995	BMW Group: automation ban: [Mistral-confirmed ban, no regex match]	6
 628aafa9-b3ef-4967-a783-2fe4803be088	Leapsome: not public (confidentialityLevel=Application)	0
 64990067-ee7f-45f0-8c75-34761f46a056	SolarWinds VDP: no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	1
-64f80113-969e-4c55-9649-8a044487941c	PDQ bug bounty program: automation ban: [Mistral-confirmed ban, no regex match]	5
+64f80113-969e-4c55-9649-8a044487941c	PDQ bug bounty program: not open (status=Suspended)	0
 6558543a-236f-4e98-91a3-4536e39b9c1e	intigriti: no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	5
 67d5a491-4baa-4565-bdc9-962bcd5f5ddd	Humo: automation ban: [Mistral-confirmed ban, no regex match]	6
 67f303d5-5c5b-44ec-a278-874f818fbc48	Nestlé VDP: no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	0
@@ -105,7 +105,7 @@
 6e7a62cb-e227-4280-8c34-81646485d899	Belfius: not public (confidentialityLevel=Application)	0
 6f24c2d0-b1f2-4c31-948d-eeba16e80099	Attentia VDP: no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	1
 7043a1a4-76cf-4fef-98a9-d5d2c84d1f05	Webnode: not open (status=Suspended)	0
-72251963-9df7-4fab-af7d-35d0305d63cc	Sqills S3 Passenger: not public (confidentialityLevel=Registered)	0
+72251963-9df7-4fab-af7d-35d0305d63cc	Sqills S3 Passenger: not open (status=Suspended)	0
 724ad196-90de-4ba8-bf21-dc114ab7fce4	Trusted Firmware: no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	0
 768ad323-335b-4710-9370-6b81925c122f	Kinepolis Group: not open (status=Suspended)	0
 784ffbc6-daaa-4e7e-8eba-c38a101d7b12	Voi Vulnerability Disclosure Program: no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	0
@@ -171,6 +171,7 @@ bdbdcb88-3242-4d0b-8926-38775bd262bf	Axel Springer SE Vulnerability Disclosure P
 bdcf0f7c-1562-4a8b-9a88-1c0fb477648a	UCB -External Perimeter: not public (confidentialityLevel=Registered)	0
 bef9d2e2-0e7c-49f7-82e3-81fd8f133225	UZ Brussel: not public (confidentialityLevel=Registered)	0
 c12292a3-d997-406f-863b-42d223dcbae6	Proof.com VDP: no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	0
+c1a89c7e-5de0-435d-a30f-a8c16e65ccfc	Adobe Public: not open (status=Suspended)	0
 c45fe6df-1e31-4701-8e75-e9f01919ea20	NVIDIA Vulnerability Disclosure Program: automation ban: [Mistral-confirmed ban, no regex match]	0
 c5a9bbd6-2139-4ec9-bdcc-8e2a5082fd7e	Venly: not open (status=Suspended)	0
 c7272420-0cef-4366-87d2-278c06591799	House of HR Vulnerability Disclosure Program: automation ban: [Mistral-confirmed ban, no regex match]	0
