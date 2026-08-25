@@ -623,6 +623,10 @@
     "is_allowed": false,
     "reason": "The snippet does not explicitly grant permission for the use of automated scanners or tools."
   },
+  "0926902a888844c81762171d6a6ea33061adc23509b5337b5c29e25cd8e20372": {
+    "has_safe_harbor": false,
+    "reason": "The policy does not explicitly grant legal safe harbor or promise not to pursue legal action against good-faith researchers."
+  },
   "093be3e2ff7d49135a17435ecec9ee94952be117f710e1cd9051bf54387926b7": {
     "is_allowed": false,
     "reason": "The snippet does not explicitly grant permission for automated scanning; it only mentions unconfirmed reports from automated scanners as ineligible."
