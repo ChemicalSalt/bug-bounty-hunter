@@ -10,6 +10,7 @@ SCOPE_FILES = [
     "intigriti_scope.txt",
     "yeswehack_scope.txt",
     "bugcrowd_scope.txt",
+    "hackenproof_scope.txt",
 ]
 FILES_TO_FILTER = [
     "live_hosts.txt",
