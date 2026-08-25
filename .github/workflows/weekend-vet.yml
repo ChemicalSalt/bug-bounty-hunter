@@ -6,8 +6,6 @@ name: Weekend Vet
 # ─────────────────────────────────────────────────────────────────────────────
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '30 18 * * 5'
 
 permissions:
   contents: write

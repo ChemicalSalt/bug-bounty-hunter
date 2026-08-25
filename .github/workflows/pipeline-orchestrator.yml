@@ -12,6 +12,7 @@ permissions:
 jobs:
   run_pipeline:
     runs-on: ubuntu-latest
+    timeout-minutes: 1440
     steps:
       - uses: actions/checkout@v4
 
