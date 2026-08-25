@@ -349,3 +349,13 @@ jobs:
           git add weekend_progress_bypass.txt weekend_offset_bypass.txt seen_findings_bypass.txt
           git diff --staged --quiet || git commit -m "Bypass scanner progress update $(date +'%Y-%m-%d %H:%M')"
           git push origin data || (git pull --rebase origin data && git push origin data) || echo "::warning::push failed"
+
+      - name: Chain next stage
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "$(cat lap_done_bypass.txt 2>/dev/null)" = "$(date +'%Y-%U')" ]; then
+            gh workflow run custom-scanner.yml -f runner=github
+          else
+            gh workflow run bypass-scanner.yml -f runner=github
+          fi

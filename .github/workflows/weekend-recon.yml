@@ -768,3 +768,9 @@ jobs:
           git diff --staged --quiet || git commit -m "Weekly recon FINAL $(date +'%Y-%m-%d') — $(wc -l < live_hosts.txt) live | $(wc -l < new_live_hosts.txt) new live hosts"
           git push origin data || (git pull --rebase origin data && git push origin data) || echo "::warning::Push failed in finalize - live_hosts.txt may be stale, daily-scan/weekly-scan may run on old data"
 
+      - name: Chain to first scanner if hosts changed
+        if: steps.gate.outputs.should_scan == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run bypass-scanner.yml -f runner=github
+

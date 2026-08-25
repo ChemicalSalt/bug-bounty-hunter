@@ -12,73 +12,9 @@ permissions:
 jobs:
   run_pipeline:
     runs-on: ubuntu-latest
-    timeout-minutes: 1440
     steps:
       - uses: actions/checkout@v4
-
-      - name: Run Weekend Vet
-        continue-on-error: true
-        run: |
-          DISPATCH_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-          gh workflow run weekend-vet.yml
-          RUN_ID=""
-          for i in $(seq 1 15); do
-            sleep 10
-            RUN_ID=$(gh run list --workflow=weekend-vet.yml --json databaseId,createdAt -q "[.[] | select(.createdAt > \"$DISPATCH_TIME\")] | sort_by(.createdAt) | .[0].databaseId")
-            [ -n "$RUN_ID" ] && break
-          done
-          if [ -z "$RUN_ID" ]; then echo "::error::Could not locate dispatched Weekend Vet run"; exit 1; fi
-          gh run watch "$RUN_ID" --exit-status || echo "::warning::Weekend Vet failed, continuing anyway"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Run Weekend Recon
-        continue-on-error: true
-        run: |
-          DISPATCH_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-          gh workflow run weekend-recon.yml
-          RUN_ID=""
-          for i in $(seq 1 15); do
-            sleep 10
-            RUN_ID=$(gh run list --workflow=weekend-recon.yml --json databaseId,createdAt -q "[.[] | select(.createdAt > \"$DISPATCH_TIME\")] | sort_by(.createdAt) | .[0].databaseId")
-            [ -n "$RUN_ID" ] && break
-          done
-          if [ -z "$RUN_ID" ]; then echo "::error::Could not locate dispatched Weekend Recon run"; exit 1; fi
-          gh run watch "$RUN_ID" --exit-status || echo "::warning::Weekend Recon failed, continuing anyway"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Run all scanners, repeat until all hosts covered
-        continue-on-error: true
-        run: |
-          SCANNERS="bypass-scanner.yml custom-scanner.yml cve-scanner.yml js-secrets-scanner.yml nuclei-scanner.yml nuclei-takeover-scanner.yml subzy-takeover-scanner.yml"
-          for SCANNER in $SCANNERS; do
-            LAP_DONE=0
-            ATTEMPTS=0
-            while [ "$LAP_DONE" -eq 0 ] && [ "$ATTEMPTS" -lt 5 ]; do
-              ATTEMPTS=$((ATTEMPTS + 1))
-              echo "Triggering $SCANNER (attempt $ATTEMPTS)"
-              DISPATCH_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-              gh workflow run "$SCANNER" -f runner=github
-              RUN_ID=""
-              for i in $(seq 1 15); do
-                sleep 10
-                RUN_ID=$(gh run list --workflow="$SCANNER" --json databaseId,createdAt -q "[.[] | select(.createdAt > \"$DISPATCH_TIME\")] | sort_by(.createdAt) | .[0].databaseId")
-                [ -n "$RUN_ID" ] && break
-              done
-              if [ -z "$RUN_ID" ]; then echo "::error::Could not locate dispatched $SCANNER run"; continue; fi
-              gh run watch "$RUN_ID" --exit-status || echo "::warning::$SCANNER cycle failed, retrying if lap not done"
-              git fetch origin data --quiet
-              LAP_FILE="lap_done_$(echo "$SCANNER" | sed 's/-scanner.yml//; s/-/_/g').txt"
-              CURRENT_WEEK=$(date +'%Y-%U')
-              LAP_CONTENT=$(git show "origin/data:$LAP_FILE" 2>/dev/null || echo "")
-              if [ "$LAP_CONTENT" = "$CURRENT_WEEK" ]; then
-                LAP_DONE=1
-                echo "$SCANNER completed full lap for this week"
-              else
-                echo "$SCANNER lap not yet complete, cycling again"
-              fi
-            done
-          done
+      - name: Trigger Weekly Vet (chains to recon, which chains to scanners)
+        run: gh workflow run weekly-vet.yml
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
