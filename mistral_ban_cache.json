@@ -927,6 +927,10 @@
     "rate": null,
     "reason": "No explicit rate limit or scanning throttle is mentioned in the text."
   },
+  "0e15d70d945fcb69e285d5a72d57d106a59a8bf1499cc068b5cae3aa45000922": {
+    "is_ban": false,
+    "reason": "The snippet restricts submissions from automated tools without manual verification, not the act of scanning itself."
+  },
   "0e1ca060d9f7e4c62c8a7cbef8563374fc258c671009fe30f5ac2baa2e93591b": {
     "is_allowed": false,
     "reason": "The snippet does not explicitly grant permission for the use of automated scanners or tools."
@@ -2910,6 +2914,10 @@
   "2da151a8ec0d7d55b9e2bc76cc6a00329273c390ed94ad960e1d611650ea9def": {
     "is_ban": false,
     "reason": "The snippet does not restrict the act of using automated scanners/tools; it focuses on report submission requirements."
+  },
+  "2da494cf3a6a745bf3e822e71baf147f825557e0893b4a696b91fc89b320858a": {
+    "is_ban": true,
+    "reason": "The snippet explicitly prohibits the act of using automated scanners/tools against their systems."
   },
   "2dbbf7b38a0bc9fad260876a97869cf3585c8c07064f5a8e6f288a4fb248f381": {
     "has_safe_harbor": true,
@@ -6614,6 +6622,10 @@
   "6972f25bbe44c1e2e2be18ccbd9a167a6a8f38e30ff2f243225d4a21fd9db8ff": {
     "is_allowed": false,
     "reason": "The snippet does not explicitly grant permission for automated scanning tools; it only mentions pacing them to avoid aggression."
+  },
+  "69822d6452d964936e89080cd472b108edd198e036de16a1ee5319e6d50c720a": {
+    "is_allowed": false,
+    "reason": "The snippet does not explicitly grant permission for the act of using automated scanners/tools."
   },
   "698eaa5437936af4488256954d732f123d20d1bf666b7c2af6fdeb40e17f14bc": {
     "is_out": false,
@@ -14390,6 +14402,10 @@
   "e18d49faff325214fbf974c11bf5c880626064da750dafe0234e78952586f8a0": {
     "is_allowed": false,
     "reason": "The snippet does not explicitly grant permission for the use of automated scanners/tools."
+  },
+  "e191fc95d00683f7cfe4cad381574874ce64a43be6500df47cfd377def3bd6c1": {
+    "is_ban": false,
+    "reason": "The snippet does not explicitly restrict the act of using automated scanners/tools against their systems."
   },
   "e1a22f28a86c7af98357daad64fc6e4cb4694fd4f2f2fa937b4e815a8cecf1ae": {
     "is_out": false,
