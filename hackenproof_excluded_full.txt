@@ -124,7 +124,7 @@ parity-polkadot-release-infrastructure	requires KYC (kyc_required=true)	0
 polkadot-sdk-runtime-by-parity	requires KYC (kyc_required=true)	1
 polkadot-bridge	not open (state=paused)	0
 tickets-travel-network-slash-mobile	safe harbor not confirmed: no safe-harbor language found in full policy text	2
-risc-zero-blockchain-verifiers	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+risc-zero-blockchain-verifiers	not open (state=paused)	0
 hacken-web-and-apps	not open (state=paused)	0
 bitunix-web	safe harbor not confirmed: no safe-harbor language found in full policy text	1
 weex-web-and-app	safe harbor not confirmed: no safe-harbor language found in full policy text	4
