@@ -348,9 +348,3 @@ jobs:
           git add weekend_progress_bypass.txt weekend_offset_bypass.txt seen_findings_bypass.txt
           git diff --staged --quiet || git commit -m "Bypass scanner progress update $(date +'%Y-%m-%d %H:%M')"
           git push origin data || (git pull --rebase origin data && git push origin data) || echo "::warning::push failed"
-
-      - name: Trigger Custom Scanner
-        if: ${{ !cancelled() }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh workflow run "Custom Scanner" --ref main
