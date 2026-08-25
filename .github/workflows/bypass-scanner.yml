@@ -121,8 +121,9 @@ jobs:
             if [ "$new_offset" -eq 1 ]; then
               echo "$full_hash" > weekend_lasthash_bypass.txt
               echo "Full lap completed for bypass - hash stamped, will skip until new hosts appear"
+              echo "$(date +'%Y-%U')" > lap_done_bypass.txt
             fi
-            git add weekend_offset_bypass.txt weekend_progress_bypass.txt weekend_lasthash_bypass.txt 2>/dev/null || git add weekend_offset_bypass.txt weekend_progress_bypass.txt
+            git add weekend_offset_bypass.txt weekend_progress_bypass.txt weekend_lasthash_bypass.txt lap_done_bypass.txt 2>/dev/null || git add weekend_offset_bypass.txt weekend_progress_bypass.txt lap_done_bypass.txt
             git diff --staged --quiet || git commit -m "Advance bypass scan window $(date +'%Y-%m-%d %H:%M')"
             git push origin data || (git pull --rebase origin data && git push origin data) || echo "::warning::offset push failed for bypass"
           fi
