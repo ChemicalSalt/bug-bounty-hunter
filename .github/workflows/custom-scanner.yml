@@ -82,6 +82,7 @@ jobs:
           echo "Hosts after program-open recheck: $(wc -l < combined.txt)"
 
           full_total=$(wc -l < combined.txt)
+          set -x
           echo "Total hosts (full list): $full_total"
 
           if [ "$full_total" -eq 0 ]; then
