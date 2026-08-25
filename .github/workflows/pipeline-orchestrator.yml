@@ -19,9 +19,15 @@ jobs:
       - name: Run Weekend Vet
         continue-on-error: true
         run: |
+          DISPATCH_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)
           gh workflow run weekend-vet.yml
-          sleep 30
-          RUN_ID=$(gh run list --workflow=weekend-vet.yml --limit 1 --json databaseId -q '.[0].databaseId')
+          RUN_ID=""
+          for i in $(seq 1 15); do
+            sleep 10
+            RUN_ID=$(gh run list --workflow=weekend-vet.yml --json databaseId,createdAt -q "[.[] | select(.createdAt > \"$DISPATCH_TIME\")] | sort_by(.createdAt) | .[0].databaseId")
+            [ -n "$RUN_ID" ] && break
+          done
+          if [ -z "$RUN_ID" ]; then echo "::error::Could not locate dispatched Weekend Vet run"; exit 1; fi
           gh run watch "$RUN_ID" --exit-status || echo "::warning::Weekend Vet failed, continuing anyway"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -29,9 +35,15 @@ jobs:
       - name: Run Weekend Recon
         continue-on-error: true
         run: |
+          DISPATCH_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)
           gh workflow run weekend-recon.yml
-          sleep 30
-          RUN_ID=$(gh run list --workflow=weekend-recon.yml --limit 1 --json databaseId -q '.[0].databaseId')
+          RUN_ID=""
+          for i in $(seq 1 15); do
+            sleep 10
+            RUN_ID=$(gh run list --workflow=weekend-recon.yml --json databaseId,createdAt -q "[.[] | select(.createdAt > \"$DISPATCH_TIME\")] | sort_by(.createdAt) | .[0].databaseId")
+            [ -n "$RUN_ID" ] && break
+          done
+          if [ -z "$RUN_ID" ]; then echo "::error::Could not locate dispatched Weekend Recon run"; exit 1; fi
           gh run watch "$RUN_ID" --exit-status || echo "::warning::Weekend Recon failed, continuing anyway"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -46,9 +58,15 @@ jobs:
             while [ "$LAP_DONE" -eq 0 ] && [ "$ATTEMPTS" -lt 5 ]; do
               ATTEMPTS=$((ATTEMPTS + 1))
               echo "Triggering $SCANNER (attempt $ATTEMPTS)"
+              DISPATCH_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)
               gh workflow run "$SCANNER" -f runner=github
-              sleep 30
-              RUN_ID=$(gh run list --workflow="$SCANNER" --limit 1 --json databaseId -q '.[0].databaseId')
+              RUN_ID=""
+              for i in $(seq 1 15); do
+                sleep 10
+                RUN_ID=$(gh run list --workflow="$SCANNER" --json databaseId,createdAt -q "[.[] | select(.createdAt > \"$DISPATCH_TIME\")] | sort_by(.createdAt) | .[0].databaseId")
+                [ -n "$RUN_ID" ] && break
+              done
+              if [ -z "$RUN_ID" ]; then echo "::error::Could not locate dispatched $SCANNER run"; continue; fi
               gh run watch "$RUN_ID" --exit-status || echo "::warning::$SCANNER cycle failed, retrying if lap not done"
               git fetch origin data --quiet
               LAP_FILE="lap_done_$(echo "$SCANNER" | sed 's/-scanner.yml//; s/-/_/g').txt"
