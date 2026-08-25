@@ -430,9 +430,3 @@ jobs:
           git add weekend_progress_custom.txt weekend_offset_custom.txt weekend_lasthash_custom.txt weekend_stall_count_custom.txt weekend_stuck_batches_custom.log seen_findings_custom.txt lap_done_custom.txt 2>/dev/null || git add weekend_progress_custom.txt weekend_offset_custom.txt weekend_lasthash_custom.txt weekend_stall_count_custom.txt seen_findings_custom.txt
           git diff --staged --quiet || git commit -m "Custom scan progress update $(date +'%Y-%m-%d')"
           git push origin data || (git pull --rebase origin data && git push origin data) || echo "::warning::Push failed for custom progress"
-
-      - name: Trigger Nuclei Scanner
-        if: ${{ !cancelled() }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh workflow run "Nuclei Scanner" --ref main
