@@ -19,6 +19,7 @@ SCOPE_FILES = [
     os.environ.get("INTIGRITI_SCOPE_OUTPUT_PATH", "intigriti_scope.txt"),
     os.environ.get("YESWEHACK_SCOPE_OUTPUT_PATH", "yeswehack_scope.txt"),
     os.environ.get("BUGCROWD_SCOPE_OUTPUT_PATH", "bugcrowd_scope.txt"),
+    os.environ.get("HACKENPROOF_SCOPE_OUTPUT_PATH", "hackenproof_scope.txt"),
 ]
 
 
