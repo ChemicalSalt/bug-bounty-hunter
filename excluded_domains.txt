@@ -1022,7 +1022,6 @@ admin.fr.cloud.gov
 admin.lastpass.com
 admin.shopify.com
 admin.stage.vismaonline.com
-admin.wickr.com
 admintool.lime.bike
 adobeid-na1.services.adobe.com
 ads-partners.tw.coupang.com
@@ -4235,7 +4234,6 @@ www.webmd.com
 www.weebly.com
 www.whatismode.com
 www.whatnot.com
-www.wickr.com
 www.wien.gv.at
 www.wotif.com
 www.wyze.com

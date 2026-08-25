@@ -451,7 +451,7 @@ brightspeed	no explicit automation permission (silent): [No automation ban found
 six-group	automation ban: [Mistral-confirmed ban, no regex match]	8
 toolsforhumanity	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	9
 alshaya	automation ban: [Mistral-confirmed ban] ibited. You must notify Alshaya immediately if you acces	161
-visa	safe harbor not confirmed: [Mistral did not confirm safe harbor] formation about potential vulnerabilities,	183
+visa	safe harbor not confirmed: [Mistral did not confirm safe harbor] formation about potential vulnerabilities,	175
 oaknorth_bank	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	7
 aven_response	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	4
 bykea	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	13
@@ -532,7 +532,7 @@ hertz	no explicit automation permission (silent): [No automation ban found, but 
 worldpay	automation ban: [Mistral-confirmed ban, no regex match]	3
 kong	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	6
 citi_group	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	0
-tbs-sct	automation ban: [Mistral-confirmed ban, no regex match]	15
+tbs-sct	automation ban: [Mistral-confirmed ban, no regex match]	16
 tucows_vdp	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	11
 meesho_bbp	automation ban: [Mistral-confirmed ban] vacy violations, service disruptions, and any actions th	8
 braze_inc	automation ban: [Mistral-confirmed ban] e *bug-bounty-*.braze-dev.com hosts listed below — **all	1
