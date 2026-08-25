@@ -2079,6 +2079,10 @@
     "is_ban": false,
     "reason": "The snippet does not restrict the act of using automated scanners/tools; it outlines out-of-scope vulnerabilities and submission requirements."
   },
+  "2138a13e0d4bf6342bfcfd2847e7f80d37aa7a0f3de2775c02f12b05ce54db1c": {
+    "has_safe_harbor": false,
+    "reason": "The policy does not explicitly grant legal safe harbor or promise protection from legal action for good-faith research."
+  },
   "21391127ca6cf577b2897bd518ed989392ca6936d053ff995e3b67a53c381654": {
     "is_ban": false,
     "reason": "The snippet restricts report submissions from automated tools without manual verification, not the act of scanning itself."
@@ -9878,6 +9882,10 @@
   "98f5a236cce96fe5dabfc2541534cd2665a3b8c4803663513bb647550f15d01a": {
     "is_ban": false,
     "reason": "The policy does not require personal identity verification for participation or payout."
+  },
+  "9915dbbca8168ccca2b57ebfc5dbef1c59c993ea6a9540a7d116524dc227965b": {
+    "has_safe_harbor": false,
+    "reason": "The policy does not explicitly grant legal safe harbor or promise not to pursue legal action against good-faith researchers."
   },
   "993bdeb110477b9aa0721233593b868d7fdc85e118ca8f5adbe22b297e4850be": {
     "is_ban": false,
