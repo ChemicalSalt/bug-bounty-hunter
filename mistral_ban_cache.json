@@ -1051,6 +1051,10 @@
     "is_ban": false,
     "reason": "The snippet does not mention or restrict the act of using automated scanners/tools."
   },
+  "0f8387cd0f064774436fff0ca28b3dbed7ca180749049e019103dc471234854a": {
+    "is_allowed": false,
+    "reason": "The snippet does not explicitly grant permission for automated scanning, only references a numeric value for 'automatedTooling'."
+  },
   "0f862f89fe391181990428950eca7bb53da33ce0cb36422364fa03429568f069": {
     "is_ban": false,
     "reason": "The snippet does not mention automated tools or scanning; it focuses on report submission and requirements."
@@ -2590,6 +2594,10 @@
   "2827cfabe42ed1f793d60b76e82242496bc97380ff3164fe5a55e29031daa3f8": {
     "is_ban": true,
     "reason": "The snippet explicitly restricts the act of using automatic scanners against their systems."
+  },
+  "2832b020d279ef37fe8fd505b544afd2a3758578b4fe73567a2d12a78dcded13": {
+    "is_ban": false,
+    "reason": "The snippet is a structured data field without explicit policy text restricting the act of scanning."
   },
   "283b9755be0361cb9b3bd62323ab9b6e3ceeda383045963bf03d02546e31595b": {
     "has_safe_harbor": true,
