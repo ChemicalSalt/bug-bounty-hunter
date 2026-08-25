@@ -1,10 +1,10 @@
+telenor-sweden-public-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	22
+infomaniak-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	40
+bind-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	1
 toom-baumarkt-gmbh-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	2
 expressvpn-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	25
 vincisa-public-program	safe harbor not confirmed: no safe-harbor language found in full policy text	18
-telenor-sweden-public-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	22
-infomaniak-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	40
 vfs-global-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	27
-bind-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	1
 programmes-de-primes-aux-bogues-du-gouvernement-du-quebec-cgcd	safe harbor not confirmed: no safe-harbor language found in full policy text	2
 deezer-bug-bounty-program-2019	safe harbor not confirmed: no safe-harbor language found in full policy text	11
 goto-financial-public-bounty-program	automation ban: [Mistral-confirmed ban, no regex match]	12
