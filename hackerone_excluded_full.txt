@@ -74,7 +74,7 @@ wealthsimple	automation ban: [Mistral-confirmed ban, no regex match]	2
 kiwi-ki	not open (submission_state=paused)	3
 owncloud	not open (submission_state=paused)	0
 versioncake	safe harbor not confirmed: no safe-harbor language found in full policy text	0
-homebargains	safe harbor not confirmed: no safe-harbor language found in full policy text	2
+homebargains	not open (submission_state=paused)	2
 quora	safe harbor not confirmed: [Mistral did not confirm safe harbor] lp Site ([https://help.poe.com/](https://h	2
 codeigniter	not open (submission_state=paused)	1
 equifax	safe harbor not confirmed: no safe-harbor language found in full policy text	232
@@ -86,7 +86,7 @@ bime	not open (submission_state=paused)	0
 gm	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	0
 ruby	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	0
 monero	safe harbor not confirmed: no safe-harbor language found in full policy text	0
-hyatt	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	57
+hyatt	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	56
 flipkart	automation ban: [Mistral-confirmed ban, no regex match]	8
 rubygems	safe harbor not confirmed: no safe-harbor language found in full policy text	2
 paragonie	not open (submission_state=paused)	0
@@ -118,7 +118,7 @@ portswigger	safe harbor not confirmed: no safe-harbor language found in full pol
 plaid	safe harbor not confirmed: no safe-harbor language found in full policy text	7
 cornershop	not open (submission_state=paused)	4
 shopify-scripts	not open (submission_state=paused)	0
-brave	not open (submission_state=paused)	0
+brave	safe harbor not confirmed: no safe-harbor language found in full policy text	0
 semrush	safe harbor not confirmed: [Mistral did not confirm safe harbor] says in Match 'leave blank to add a new he	11
 deptofdefense	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	0
 xiaomi	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	43
@@ -309,7 +309,7 @@ aig	no explicit automation permission (silent): [No automation ban found, but no
 dropcontact	not open (submission_state=paused)	1
 tiktok	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	24
 john-deere	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	1983
-8x8-bounty	automation ban: [Mistral-confirmed ban, no regex match]	83
+8x8-bounty	automation ban: [Mistral-confirmed ban, no regex match]	84
 hudapp	not open (submission_state=paused)	5
 cbre	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	8660
 freshworks	automation ban: [Mistral-confirmed ban] ing for a bug, please also keep in mind: Minimize the ma	6
@@ -376,7 +376,7 @@ blend-labs	automation ban: [Mistral-confirmed ban, no regex match]	1
 apnic	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	14
 pagerduty	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	9
 redis-vdp	automation ban: [Mistral-confirmed ban, no regex match]	6
-moonpay	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	15
+moonpay	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	16
 veeam	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	4
 godaddy-vdp	safe harbor not confirmed: no safe-harbor language found in full policy text	0
 clarivate	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	5027
@@ -388,7 +388,6 @@ mondelez	no explicit automation permission (silent): [No automation ban found, b
 amazonvrp-devices	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	14
 fresenius	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	0
 agoric	not open (submission_state=paused)	0
-wickr	not open (submission_state=paused)	2
 hilton	rate limit below 5/s (found: 1.6666666666666667)	9
 moov	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	7
 sidefx	not open (submission_state=paused)	1
@@ -452,7 +451,7 @@ brightspeed	no explicit automation permission (silent): [No automation ban found
 six-group	automation ban: [Mistral-confirmed ban, no regex match]	8
 toolsforhumanity	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	9
 alshaya	automation ban: [Mistral-confirmed ban] ibited. You must notify Alshaya immediately if you acces	161
-visa	safe harbor not confirmed: [Mistral did not confirm safe harbor] formation about potential vulnerabilities,	148
+visa	safe harbor not confirmed: [Mistral did not confirm safe harbor] formation about potential vulnerabilities,	183
 oaknorth_bank	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	7
 aven_response	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	4
 bykea	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	13
@@ -563,7 +562,9 @@ luminor	no explicit automation permission (silent): [No automation ban found, bu
 tines_automation_vdp	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	2
 taxwell-vdp	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	0
 discover-vdp	automation ban: [Mistral-confirmed ban] tems reside, (ii) data traffic is routed or (iii) the re	2
+essity	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	448
 coupang_tw	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	45
+vanguard	automation ban: [Mistral-confirmed ban, no regex match]	0
 getyourguide_vdp	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	8
 clear_street_vdp	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	1
 mcgrawhill	safe harbor not confirmed: [Mistral did not confirm safe harbor] edential dumps Vendors, third-party websit	8
@@ -572,5 +573,5 @@ epicgames-vdp	safe harbor not confirmed: no safe-harbor language found in full p
 omnicell	automation ban: [Mistral-confirmed ban, no regex match]	3
 anthropic-cyber-jailbreak	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	0
 wolt	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	8
-assa_abloy_americas	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	22
+assa_abloy_americas	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	21
 vercel_sandbox	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	0

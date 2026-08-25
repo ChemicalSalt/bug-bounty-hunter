@@ -31,6 +31,7 @@ IN:3s.mendixcloud.com
 IN:account.acronis.com
 IN:accountoffers.wellsfargo.com
 IN:admin.spoonflower.com
+IN:admin.wickr.com
 IN:allegion.ca
 IN:alm.mendixcloud.com
 IN:api-gateway.spoonflower.com
@@ -155,6 +156,7 @@ IN:www.simons-voss.com
 IN:www.specadsystems.com
 IN:www.spoonflower.com
 IN:www.trelock.com
+IN:www.wickr.com
 IN:www.yonomi.com
 IN:zentra.co
 IN:zeroplus.co.uk
@@ -205,6 +207,7 @@ OUT:spectrum.chat
 OUT:staebapp01.allegion.com
 OUT:stczpisupplier.allegion.com
 OUT:stisupplier.allegion.com
+OUT:support.wickr.com
 OUT:training.acronis.com
 OUT:www.audiblecareers.com
 OUT:www.gogo574.com
