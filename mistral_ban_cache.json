@@ -7551,6 +7551,10 @@
     "is_ban": true,
     "reason": "The snippet explicitly states 'Run automated scanning' as a prohibited action."
   },
+  "763b69154daacb5cfec95d8d6da441784f308446415b553e4502b26d009338d4": {
+    "is_out": false,
+    "reason": "The domain 'status.vimla.se' is implied to be in scope unless explicitly excluded."
+  },
   "764b213bdd2d0d1866f5363842c46d472ece4ab93fb9d66a029cb5bfcf71e77e": {
     "is_ban": true,
     "reason": "The snippet explicitly restricts the act of using testing tools or scanners that automatically generate significant volumes of traffic."
@@ -10082,6 +10086,10 @@
   "9ce2b64919fa9da03dd267b897725c8c2faa7fc188e1a21faf3c2cecf2173ce3": {
     "is_ban": false,
     "reason": "The text does not require personal identity verification for participation or payment."
+  },
+  "9cedf8222aacf0499960b89e01fd9e8d757c6b6f2506167547a45785c300f421": {
+    "has_safe_harbor": false,
+    "reason": "The policy does not explicitly grant legal safe harbor or promise protection from legal action for good-faith research."
   },
   "9d1adc9b71bf02bdd6eb72674078cf3f3a3178454be4bd4c5814ec7968053732": {
     "is_ban": false,
@@ -12875,6 +12883,10 @@
     "is_allowed": false,
     "reason": "The snippet does not explicitly grant permission for using automated scanners/tools."
   },
+  "cb09f49e02869324941228fbe67f5b9db850632d3f8f7cac863dd4ad61585c78": {
+    "has_safe_harbor": false,
+    "reason": "The policy does not explicitly grant legal safe harbor or promise not to pursue legal action against good-faith researchers."
+  },
   "cb12325d9a772728e87add4d7714a78e1f0f5ac72a2cd34b1fa37b726dd1c4ec": {
     "rate": null,
     "reason": "No rate limit or scanning throttle is mentioned in the text."
@@ -14463,6 +14475,10 @@
     "rate": 5.0,
     "reason": "explicit numeric rate limit stated for automated scanners"
   },
+  "e2d31ee73bcb89e21197e0686a8a68cb4bb5e0a370577363ef42081ef370fe75": {
+    "has_safe_harbor": false,
+    "reason": "The policy does not explicitly grant legal safe harbor or promise protection from legal action for good-faith research."
+  },
   "e2e9d9406256a357ec99d007470cdff7271fd675e0710ef07403530de64fd927": {
     "is_allowed": false,
     "reason": "The snippet does not explicitly grant permission for using automated scanners/tools."
@@ -15518,6 +15534,10 @@
   "f4153a9088f228b17fadf1b55db79ee5e4d812b9427a8509b8091f7f739ed7ca": {
     "is_ban": false,
     "reason": "The text does not require personal identity verification for participation or payout."
+  },
+  "f428d369c1a5e6867dcfdf6123f4e1a9c45b195e113443813864bc68b78436a1": {
+    "has_safe_harbor": false,
+    "reason": "The policy does not explicitly grant legal safe harbor or mention protection from legal action."
   },
   "f45d78a97e2cefed26733a731bc26129b98077cc0497c7cd24eff961c54af0d4": {
     "rate": null,
