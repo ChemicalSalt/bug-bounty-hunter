@@ -126,7 +126,7 @@ jobs:
             batches=$(seq 1 "$num_batches" | jq -R . | jq -sc .)
             echo "$full_hash" > weekend_lasthash_subzy.txt
             if [ "$new_offset" -eq 1 ]; then
-              echo "$(date +'%Y-%U')" > lap_done_subzy.txt
+              echo "$(date +'%Y-%U')" > lap_done_subzy_takeover.txt
             fi
           fi
           echo "has_hosts=true" >> $GITHUB_OUTPUT
@@ -138,7 +138,7 @@ jobs:
         run: |
           git config --global user.email "bugbountybot@github.com"
           git config --global user.name "BugBountyBot"
-          git add weekend_offset_subzy.txt weekend_progress_subzy.txt weekend_lasthash_subzy.txt lap_done_subzy.txt
+          git add weekend_offset_subzy.txt weekend_progress_subzy.txt weekend_lasthash_subzy.txt lap_done_subzy_takeover.txt
           git diff --staged --quiet || git commit -m "Subzy scanner cycle reset $(date +'%Y-%m-%d %H:%M')"
           git diff --staged --quiet || (git push origin data || (git pull --rebase origin data && git push origin data) || echo "::warning::reset push failed")
 
