@@ -117,6 +117,9 @@ jobs:
             > weekend_progress_takeover.txt
             batches=$(seq 1 "$num_batches" | jq -R . | jq -sc .)
             echo "$full_hash" > weekend_lasthash_takeover.txt
+            if [ "$new_offset" -eq 1 ]; then
+              echo "$(date +'%Y-%U')" > lap_done_nuclei_takeover.txt
+            fi
           fi
           echo "has_hosts=true" >> $GITHUB_OUTPUT
           echo "batches=$batches" >> $GITHUB_OUTPUT
@@ -127,7 +130,7 @@ jobs:
         run: |
           git config --global user.email "bugbountybot@github.com"
           git config --global user.name "BugBountyBot"
-          git add weekend_offset_takeover.txt weekend_progress_takeover.txt weekend_lasthash_takeover.txt
+          git add weekend_offset_takeover.txt weekend_progress_takeover.txt weekend_lasthash_takeover.txt lap_done_nuclei_takeover.txt
           git diff --staged --quiet || git commit -m "Takeover scanner cycle reset $(date +'%Y-%m-%d %H:%M')"
           git diff --staged --quiet || (git push origin data || (git pull --rebase origin data && git push origin data) || echo "::warning::reset push failed")
 
