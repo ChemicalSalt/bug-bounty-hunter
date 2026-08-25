@@ -15,6 +15,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Trigger Weekly Vet (chains to recon, which chains to scanners)
-        run: gh workflow run weekly-vet.yml
+        run: gh workflow run weekend-vet.yml
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
