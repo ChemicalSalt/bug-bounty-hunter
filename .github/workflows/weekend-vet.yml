@@ -6,6 +6,8 @@ name: Weekend Vet
 # ─────────────────────────────────────────────────────────────────────────────
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '30 18 * * 5'
 
 permissions:
   contents: write
@@ -332,3 +334,8 @@ jobs:
             mistral_429_debug.log
             mistral_parse_fail_debug.log
           retention-days: 30
+      - name: Chain to Weekend Recon
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run weekend-recon.yml
