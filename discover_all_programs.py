@@ -295,28 +295,123 @@ def _chunk_text(text, max_len=7500):
                 final.append(c[i:i + max_len])
     return final
 
+def mistral_check_implied_safe(text, program_name):
+    if not text:
+        return None
+    cache_key = hashlib.sha256(("impliedsafe:" + text[:8000]).encode()).hexdigest()
+    if cache_key in _MISTRAL_CACHE:
+        cached = _MISTRAL_CACHE[cache_key]
+        log_mistral_call(program_name, text[:200], cached.get("implied_safe"), cached["reason"] + " [CACHED]", error=None)
+        return cached.get("implied_safe")
+    if not MISTRAL_API_KEY:
+        return None
+    global _MISTRAL_QUOTA_EXHAUSTED_UNTIL, _MISTRAL_CALLS_SINCE_SAVE
+    if time.time() < _MISTRAL_QUOTA_EXHAUSTED_UNTIL:
+        return None
+    _mistral_pace()
+    prompt = (
+        "You are reviewing policy text from a bug bounty program. Answer "
+        "ONLY with valid JSON: " +
+        chr(123) + '"implied_safe": true or false, "reason": "one short sentence"' + chr(125) + "." +
+        "\n\n"
+        "This program has NO explicit legal safe-harbor promise. Question: "
+        "does the text still genuinely welcome security research - active "
+        "public program, defined scope, rewards/thanks for valid reports, "
+        "inviting language ('we welcome', 'responsible disclosure') - AND "
+        "contain no hostile or threatening language ('do not test', 'we "
+        "will pursue legal action', 'unauthorized access is a crime')? "
+        "Answer true only if welcoming AND not hostile. Answer false if "
+        "either hostile language is present, or the text is too thin/vague "
+        "to judge either way.\n\n"
+        f"Text:\n{text[:8000]}"
+    )
+    body = json.dumps({
+        "model": "mistral-large-latest",
+        "messages": [{"role": "user", "content": prompt}],
+        "temperature": 0,
+        "max_tokens": 700,
+    }).encode()
+    req = urllib.request.Request(
+        MISTRAL_URL, data=body,
+        headers={"Content-Type": "application/json",
+                 "Authorization": f"Bearer {MISTRAL_API_KEY}",
+                 "User-Agent": "bug-bounty-hunter-vet/1.0"},
+        method="POST",
+    )
+    last_err = None
+    for attempt in range(3):
+        try:
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                data = json.loads(resp.read().decode())
+            text_resp = data["choices"][0]["message"]["content"].strip().strip("`")
+            if text_resp.startswith("json"):
+                text_resp = text_resp[4:].strip()
+            m = re.search(r'"implied_safe"\s*:\s*(true|false)', text_resp, re.IGNORECASE)
+            if not m:
+                raise ValueError(f"could not find implied_safe in response: {text_resp[:150]}")
+            is_safe = m.group(1).lower() == "true"
+            rm = re.search(r'"reason"\s*:\s*"(.*?)"\s*}', text_resp, re.DOTALL)
+            reason = rm.group(1) if rm else text_resp[:150]
+            log_mistral_call(program_name, text[:200], is_safe, reason, error=None)
+            _MISTRAL_CACHE[cache_key] = {"implied_safe": is_safe, "reason": reason}
+            _MISTRAL_CALLS_SINCE_SAVE += 1
+            if _MISTRAL_CALLS_SINCE_SAVE >= 50:
+                save_mistral_cache(_MISTRAL_CACHE)
+                _MISTRAL_CALLS_SINCE_SAVE = 0
+            return is_safe
+        except urllib.error.HTTPError as e:
+            last_err = e
+            if e.code == 429:
+                try:
+                    retry_after = e.headers.get("Retry-After") if e.headers else None
+                    ra_val = float(retry_after) if retry_after is not None else None
+                except (TypeError, ValueError):
+                    ra_val = None
+                if ra_val is not None and ra_val > 300:
+                    _MISTRAL_QUOTA_EXHAUSTED_UNTIL = time.time() + ra_val
+                    break
+            if e.code in (503, 429) and attempt < 2:
+                time.sleep(5 * (attempt + 1))
+                continue
+            break
+        except Exception as e:
+            last_err = e
+            if attempt < 2:
+                time.sleep(5 * (attempt + 1))
+                continue
+            break
+    log_mistral_call(program_name, text[:200], None, None, error=str(last_err))
+    return None
+
+
 def check_safe_harbor_two_layer(text, program_name):
     found, snippet = check_safe_harbor(text)
     if found:
         result = mistral_check_safe_harbor(snippet, program_name)
         if result is None:
-            return "review", f"[Mistral call failed — queued for retry] {snippet[:80]}"
+            return "review", f"[Mistral call failed — queued for retry] {snippet[:80]}", "explicit"
         if result:
-            return True, f"[Mistral-confirmed safe harbor] {snippet[:80]}"
-        return False, f"[Mistral did not confirm safe harbor] {snippet[:80]}"
-    if not text:
-        return False, None
-    any_review = False
-    for chunk in _chunk_text(text)[:MAX_FULLTEXT_FALLBACK_CHUNKS]:
-        result = mistral_check_safe_harbor(chunk, program_name)
-        if result is None:
-            any_review = True
-            continue
-        if result:
-            return True, "[Mistral-confirmed safe harbor, no regex match]"
-    if any_review:
-        return "review", "[Mistral call failed on full-text check — queued for retry]"
-    return False, None
+            return True, f"[Mistral-confirmed safe harbor] {snippet[:80]}", "explicit"
+    else:
+        if not text:
+            return False, None, "none"
+        any_review = False
+        for chunk in _chunk_text(text)[:MAX_FULLTEXT_FALLBACK_CHUNKS]:
+            result = mistral_check_safe_harbor(chunk, program_name)
+            if result is None:
+                any_review = True
+                continue
+            if result:
+                return True, "[Mistral-confirmed safe harbor, no regex match]", "explicit"
+        if any_review:
+            return "review", "[Mistral call failed on full-text check — queued for retry]", "explicit"
+
+    implied = mistral_check_implied_safe(text, program_name)
+    if implied is None:
+        return "review", "[Mistral call failed on implied-safe check — queued for retry]", "implied"
+    if implied:
+        return True, "[Mistral-confirmed implied-safe: welcoming, no hostile language]", "implied"
+    return False, None, "none"
 
 
 def check_id_verification_required(text):
@@ -434,6 +529,93 @@ def mistral_check_id_verification(snippet, program_name):
     log_mistral_call(program_name, snippet, None, None, error=str(last_err))
     return None
 
+def mistral_check_implied_id_required(text, program_name):
+    if not text:
+        return None
+    cache_key = hashlib.sha256(("impliedid:" + text[:8000]).encode()).hexdigest()
+    if cache_key in _MISTRAL_CACHE:
+        cached = _MISTRAL_CACHE[cache_key]
+        log_mistral_call(program_name, text[:200], cached.get("implied_id_required"), cached["reason"] + " [CACHED]", error=None)
+        return cached.get("implied_id_required")
+    if not MISTRAL_API_KEY:
+        return None
+    global _MISTRAL_QUOTA_EXHAUSTED_UNTIL, _MISTRAL_CALLS_SINCE_SAVE
+    if time.time() < _MISTRAL_QUOTA_EXHAUSTED_UNTIL:
+        return None
+    _mistral_pace()
+    prompt = (
+        "You are reviewing policy text from a bug bounty program. Answer "
+        "ONLY with valid JSON: "
+        + chr(123) + '"implied_id_required": true or false, "reason": "one short sentence"' + chr(125) + "."
+        + "\n\n"
+        "This program has NO explicit ID-verification requirement phrase. "
+        "Question: does the text still genuinely imply researchers must "
+        "prove their real-world identity to participate - even without "
+        "exact words like 'KYC' or 'government ID' - e.g. requiring legal "
+        "name registration, background checks, signed contracts tied to "
+        "identity, or account verification steps that reveal who you are? "
+        "Answer true only if identity verification is clearly implied. "
+        "Answer false if the text is silent, vague, or only mentions "
+        "unrelated account signup.\n\n"
+        f"Text:\n{text[:8000]}"
+    )
+    body = json.dumps({
+        "model": "mistral-large-latest",
+        "messages": [{"role": "user", "content": prompt}],
+        "temperature": 0,
+        "max_tokens": 700,
+    }).encode()
+    req = urllib.request.Request(
+        MISTRAL_URL, data=body,
+        headers={"Content-Type": "application/json", "Authorization": f"Bearer {MISTRAL_API_KEY}", "User-Agent": "bug-bounty-hunter-vet/1.0"},
+        method="POST",
+    )
+    last_err = None
+    for attempt in range(3):
+        try:
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                data = json.loads(resp.read().decode())
+            text_resp = data["choices"][0]["message"]["content"].strip().strip("`")
+            if text_resp.startswith("json"):
+                text_resp = text_resp[4:].strip()
+            m = re.search(r'"implied_id_required"\s*:\s*(true|false)', text_resp, re.IGNORECASE)
+            if not m:
+                raise ValueError(f"could not find implied_id_required in response: {text_resp[:150]}")
+            is_required = m.group(1).lower() == "true"
+            rm = re.search(r'"reason"\s*:\s*"(.*?)"\s*}', text_resp, re.DOTALL)
+            reason = rm.group(1) if rm else text_resp[:150]
+            log_mistral_call(program_name, text[:200], is_required, reason, error=None)
+            _MISTRAL_CACHE[cache_key] = {"implied_id_required": is_required, "reason": reason}
+            _MISTRAL_CALLS_SINCE_SAVE += 1
+            if _MISTRAL_CALLS_SINCE_SAVE >= 50:
+                save_mistral_cache(_MISTRAL_CACHE)
+                _MISTRAL_CALLS_SINCE_SAVE = 0
+            return is_required
+        except urllib.error.HTTPError as e:
+            last_err = e
+            if e.code == 429:
+                try:
+                    retry_after = e.headers.get("Retry-After") if e.headers else None
+                    ra_val = float(retry_after) if retry_after is not None else None
+                except (TypeError, ValueError):
+                    ra_val = None
+                if ra_val is not None and ra_val > 300:
+                    _MISTRAL_QUOTA_EXHAUSTED_UNTIL = time.time() + ra_val
+                    break
+            if e.code in (503, 429) and attempt < 2:
+                time.sleep(5 * (attempt + 1))
+                continue
+            break
+        except Exception as e:
+            last_err = e
+            if attempt < 2:
+                time.sleep(5 * (attempt + 1))
+                continue
+            break
+    log_mistral_call(program_name, text[:200], None, None, error=str(last_err))
+    return None
+
+
 def check_id_verification_two_layer(text, program_name):
     matched, snippet = check_id_verification_required(text)
     if matched:
@@ -455,6 +637,11 @@ def check_id_verification_two_layer(text, program_name):
             return True, "[Mistral-confirmed ID requirement, no regex match]"
     if any_review:
         return "review", "[Mistral call failed on full-text check — queued for retry]"
+    implied = mistral_check_implied_id_required(text, program_name)
+    if implied is None:
+        return "review", "[Mistral call failed on implied check — queued for retry]"
+    if implied:
+        return True, "[Mistral-implied ID requirement, no explicit language]"
     return False, None
 
 
@@ -733,6 +920,7 @@ def evaluate_policy_conditions(text, program_name, min_rate, safe_harbor_overrid
             "needs_review": any_review and not hard_fail,
             "reasons": reasons,
             "safe_harbor": sh_ok,
+            "safe_harbor_basis": sh_basis,
             "automation": automation_status,
             "id_verification": id_req,
             "rate_limit": (rate, rate_status),
@@ -740,9 +928,9 @@ def evaluate_policy_conditions(text, program_name, min_rate, safe_harbor_overrid
 
     # --- Safe harbor ---
     if safe_harbor_override is not None:
-        sh_ok, sh_snippet = safe_harbor_override, "[structured API safe-harbor flag]"
+        sh_ok, sh_snippet, sh_basis = safe_harbor_override, "[structured API safe-harbor flag]", "structured"
     else:
-        sh_ok, sh_snippet = check_safe_harbor_two_layer(text, program_name)
+        sh_ok, sh_snippet, sh_basis = check_safe_harbor_two_layer(text, program_name)
     if sh_ok == "review":
         any_review = True
         reasons.append(f"safe harbor: review - {sh_snippet}")
@@ -1348,11 +1536,8 @@ def vet_bugcrowd_program(program, results):
     text = desc + overview + additional
     if sh_status == "full":
         sh_override = True
-    elif sh_status is not None:
-        results["excluded"].append((slug, f"no full safe harbor (status: {sh_status})", 0))
-        return
     else:
-        sh_override = None  # unset - fall through to text-based check below
+        sh_override = None  # unset (includes "partial" and missing) - fall through to text-based check below
     safe_harbor = True
     skip_categories = ("android", "ios", "ip_address", "network")
     domains = []
