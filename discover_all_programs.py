@@ -616,33 +616,37 @@ def mistral_check_implied_id_required(text, program_name):
     return None
 
 
-def check_id_verification_two_layer(text, program_name):
+def check_id_verification_two_layer(text, program_name, id_verification_override=None):
+    if id_verification_override is not None:
+        if id_verification_override:
+            return True, "[structured API kyc_required=true]", "structured"
+        return False, "[structured API kyc_required=false]", "structured"
     matched, snippet = check_id_verification_required(text)
     if matched:
         result = mistral_check_id_verification(snippet, program_name)
         if result is None:
-            return "review", f"[Mistral call failed — queued for retry] {snippet[:80]}"
+            return "review", f"[Mistral call failed — queued for retry] {snippet[:80]}", "explicit"
         if result:
-            return True, f"[Mistral-confirmed ID requirement] {snippet[:80]}"
-        return False, None
-    if not text:
-        return False, None
-    any_review = False
-    for chunk in _chunk_text(text)[:MAX_FULLTEXT_FALLBACK_CHUNKS]:
-        result = mistral_check_id_verification(chunk, program_name)
-        if result is None:
-            any_review = True
-            continue
-        if result:
-            return True, "[Mistral-confirmed ID requirement, no regex match]"
-    if any_review:
-        return "review", "[Mistral call failed on full-text check — queued for retry]"
+            return True, f"[Mistral-confirmed ID requirement] {snippet[:80]}", "explicit"
+    else:
+        if not text:
+            return False, None, "none"
+        any_review = False
+        for chunk in _chunk_text(text)[:MAX_FULLTEXT_FALLBACK_CHUNKS]:
+            result = mistral_check_id_verification(chunk, program_name)
+            if result is None:
+                any_review = True
+                continue
+            if result:
+                return True, "[Mistral-confirmed ID requirement, no regex match]", "explicit"
+        if any_review:
+            return "review", "[Mistral call failed on full-text check — queued for retry]", "explicit"
     implied = mistral_check_implied_id_required(text, program_name)
     if implied is None:
-        return "review", "[Mistral call failed on implied check — queued for retry]"
+        return "review", "[Mistral call failed on implied check — queued for retry]", "implied"
     if implied:
-        return True, "[Mistral-implied ID requirement, no explicit language]"
-    return False, None
+        return True, "[Mistral-implied ID requirement, no explicit language]", "implied"
+    return False, None, "none"
 
 
 def check_rate_limit(text):
@@ -892,7 +896,7 @@ def clean_asset_identifier(raw):
     return raw
 
 
-def evaluate_policy_conditions(text, program_name, min_rate, safe_harbor_override=None):
+def evaluate_policy_conditions(text, program_name, min_rate, safe_harbor_override=None, id_verification_override=None):
     """Runs policy-text conditions (safe harbor, automation, ID verification,
     rate limit) IN ORDER and stops at the first hard-fail or review - same
     short-circuit behavior as the original per-platform vet functions.
@@ -910,6 +914,7 @@ def evaluate_policy_conditions(text, program_name, min_rate, safe_harbor_overrid
     any_review = False
     automation_status = "not_checked"
     id_req = "not_checked"
+    id_basis = "not_checked"
     rate, rate_status = None, "not_checked"
 
     def result():
@@ -923,6 +928,7 @@ def evaluate_policy_conditions(text, program_name, min_rate, safe_harbor_overrid
             "safe_harbor_basis": sh_basis,
             "automation": automation_status,
             "id_verification": id_req,
+            "id_verification_basis": id_basis,
             "rate_limit": (rate, rate_status),
         }
 
@@ -953,7 +959,7 @@ def evaluate_policy_conditions(text, program_name, min_rate, safe_harbor_overrid
         return result()
 
     # --- ID verification ---
-    id_req, id_snippet = check_id_verification_two_layer(text, program_name)
+    id_req, id_snippet, id_basis = check_id_verification_two_layer(text, program_name, id_verification_override)
     if id_req == "review":
         any_review = True
         reasons.append(f"id verification: review - {id_snippet}")
@@ -1426,19 +1432,14 @@ def vet_hackenproof_program(program, results):
     if out_domains:
         domains = sorted(set(domains) - set(out_domains))
     domain_count = len(domains)
-    # kyc_required is a structured field HackenProof exposes directly, so trust it
-    # instead of text-parsing for ID verification (more reliable than the other 3
-    # platforms, which only have prose to go on).
-    if program.get("kyc_required") is True:
-        results["excluded"].append((slug, "requires KYC (kyc_required=true)", domain_count))
-        return
+    id_verification_override = program.get("kyc_required")
     rules = " ".join(filter(None, [
         data.get("program_rules", ""),
         data.get("focus_area", ""),
         data.get("eligibility_and_coordinate_disclosure", ""),
         data.get("disclosure_guidelines", ""),
     ]))
-    ev = evaluate_policy_conditions(rules, slug, MIN_RATE_LIMIT)
+    ev = evaluate_policy_conditions(rules, slug, MIN_RATE_LIMIT, id_verification_override=id_verification_override)
     if ev["hard_fail"]:
         results["excluded"].append((slug, " | ".join(ev["reasons"]), domain_count))
         return
