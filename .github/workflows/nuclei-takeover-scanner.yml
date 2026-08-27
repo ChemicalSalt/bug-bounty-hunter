@@ -347,6 +347,7 @@ jobs:
           git push origin data || (git pull --rebase origin data && git push origin data) || echo "::warning::push failed"
 
       - name: Chain next stage
+        if: ${{ !cancelled() }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
