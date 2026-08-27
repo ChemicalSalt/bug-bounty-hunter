@@ -104,7 +104,7 @@ def log(msg):
     print(msg, flush=True)
 
 
-def fetch_json(url, headers=None, timeout=15, max_retries=5):
+def fetch_json(url, headers=None, timeout=40, max_retries=5):
     req = urllib.request.Request(url, headers=headers or {})
     for attempt in range(max_retries):
         try:
@@ -223,7 +223,7 @@ def mistral_check_safe_harbor(text, program_name):
     last_err = None
     for attempt in range(3):
         try:
-            with urllib.request.urlopen(req, timeout=15) as resp:
+            with urllib.request.urlopen(req, timeout=40) as resp:
                 data = json.loads(resp.read().decode())
             text_resp = data["choices"][0]["message"]["content"].strip()
             text_resp = text_resp.strip("`")
@@ -341,7 +341,7 @@ def mistral_check_implied_safe(text, program_name):
     last_err = None
     for attempt in range(3):
         try:
-            with urllib.request.urlopen(req, timeout=15) as resp:
+            with urllib.request.urlopen(req, timeout=40) as resp:
                 data = json.loads(resp.read().decode())
             text_resp = data["choices"][0]["message"]["content"].strip().strip("`")
             if text_resp.startswith("json"):
@@ -471,7 +471,7 @@ def mistral_check_id_verification(snippet, program_name):
     last_err = None
     for attempt in range(3):
         try:
-            with urllib.request.urlopen(req, timeout=15) as resp:
+            with urllib.request.urlopen(req, timeout=40) as resp:
                 data = json.loads(resp.read().decode())
             text = data["choices"][0]["message"]["content"].strip().strip("`")
             if text.startswith("json"):
@@ -573,7 +573,7 @@ def mistral_check_implied_id_required(text, program_name):
     last_err = None
     for attempt in range(3):
         try:
-            with urllib.request.urlopen(req, timeout=15) as resp:
+            with urllib.request.urlopen(req, timeout=40) as resp:
                 data = json.loads(resp.read().decode())
             text_resp = data["choices"][0]["message"]["content"].strip().strip("`")
             if text_resp.startswith("json"):
@@ -715,7 +715,7 @@ def mistral_check_rate_limit(text, program_name):
     last_err = None
     for attempt in range(3):
         try:
-            with urllib.request.urlopen(req, timeout=15) as resp:
+            with urllib.request.urlopen(req, timeout=40) as resp:
                 data = json.loads(resp.read().decode())
             content = data["choices"][0]["message"]["content"].strip().strip("`")
             if content.startswith("json"):
@@ -1191,7 +1191,7 @@ def mistral_check_out_of_scope_negation(entry_text, domain, program_name):
     last_err = None
     for attempt in range(3):
         try:
-            with urllib.request.urlopen(req, timeout=15) as resp:
+            with urllib.request.urlopen(req, timeout=40) as resp:
                 data = json.loads(resp.read().decode())
             content = data["choices"][0]["message"]["content"].strip().strip("`")
             if content.startswith("json"):
@@ -2203,7 +2203,7 @@ def mistral_check_ban(snippet, program_name):
     last_err = None
     for attempt in range(3):
         try:
-            with urllib.request.urlopen(req, timeout=15) as resp:
+            with urllib.request.urlopen(req, timeout=40) as resp:
                 data = json.loads(resp.read().decode())
             finish_reason = data["choices"][0].get("finish_reason")
             if finish_reason and finish_reason != "stop":
@@ -2324,7 +2324,7 @@ def mistral_check_automation_allowed(snippet, program_name):
     last_err = None
     for attempt in range(3):
         try:
-            with urllib.request.urlopen(req, timeout=15) as resp:
+            with urllib.request.urlopen(req, timeout=40) as resp:
                 data = json.loads(resp.read().decode())
             text = data["choices"][0]["message"]["content"].strip()
             text = text.strip("`")
