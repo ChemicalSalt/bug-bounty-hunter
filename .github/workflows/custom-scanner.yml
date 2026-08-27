@@ -383,7 +383,7 @@ jobs:
         run: |
           git config --global user.email "bugbountybot@github.com"
           git config --global user.name "BugBountyBot"
-          touch weekend_lasthash_custom.txt weekend_progress_custom.txt weekend_offset_custom.txt weekend_stall_count_custom.txt seen_findings_custom.txt
+          touch weekend_lasthash_custom.txt weekend_progress_custom.txt weekend_offset_custom.txt weekend_stall_count_custom.txt seen_findings_custom.txt lap_done_custom.txt weekend_total_custom.txt
 
           for d in batch_findings/batch-findings-custom-*; do
             [ -d "$d" ] && [ -f "$d/results.txt" ] && cat "$d/results.txt" >> seen_findings_custom.txt

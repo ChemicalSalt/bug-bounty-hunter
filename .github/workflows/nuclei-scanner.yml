@@ -390,7 +390,7 @@ jobs:
         run: |
           git config --global user.email "bugbountybot@github.com"
           git config --global user.name "BugBountyBot"
-          touch weekend_progress_nuclei.txt weekend_offset_nuclei.txt weekend_stall_count_nuclei.txt seen_findings_nuclei.txt
+          touch weekend_progress_nuclei.txt weekend_offset_nuclei.txt weekend_stall_count_nuclei.txt seen_findings_nuclei.txt weekend_lasthash_nuclei.txt lap_done_nuclei.txt
 
           for d in batch_findings/batch-findings-nuclei-*; do
             [ -d "$d" ] && [ -f "$d/results.txt" ] && cat "$d/results.txt" >> seen_findings_nuclei.txt
