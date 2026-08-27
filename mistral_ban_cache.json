@@ -2775,6 +2775,10 @@
     "is_ban": false,
     "reason": "The text does not require personal identity verification for participation or payment."
   },
+  "2aa8c9ba67e1c9a6158a17ede1dc59c1e2ba1ef94030e6c4b645e30f24db3310": {
+    "implied_id_required": false,
+    "reason": "The text only requires an @intigriti.me email address and contactability, with no mention of legal name registration, background checks, or identity verification."
+  },
   "2ab0fe73071daa964cf974335b6f0ecd5b45bb2afd4e5f6eb853cc7b3961ce52": {
     "is_allowed": false,
     "reason": "The snippet does not explicitly grant permission for the use of automated scanners or tools."
@@ -6087,6 +6091,10 @@
     "is_out": false,
     "reason": "The domain 'cloud.tencent.com' is explicitly included in the scope as part of '*.tencent.com'."
   },
+  "6093c78b7f5073dc22bb6bb34c09147e8843e23394a731248edbadf50b9059cb": {
+    "implied_safe": false,
+    "reason": "Text contains explicit hostile language ('Attacking our production platform can end in... legal consequences')."
+  },
   "60b7d9c267e06ce445d1cc1f3fe99841eed7e28a52e89461444f3305629e2802": {
     "is_ban": true,
     "reason": "The snippet explicitly restricts the act of using automatic scanners against their systems."
@@ -8655,6 +8663,10 @@
     "is_ban": true,
     "reason": "The snippet explicitly restricts the act of using automated scanning tools against Plaid properties."
   },
+  "86378d7c412902fcf152af4bac9f14ef724cc8e9d5d8cbaf1e16f0cd4b45b9fc": {
+    "is_allowed": false,
+    "reason": "The snippet does not explicitly grant permission for using automated scanners/tools."
+  },
   "8663f50171ec593b3886aefb1d0ee0b0f99c107fcb20a965f6852933a781cf0f": {
     "has_safe_harbor": true,
     "reason": "The policy explicitly states it will not initiate legal action and will defend researchers' authorized conduct."
@@ -9046,6 +9058,10 @@
   "8d154b511d7035697aad52032ee8c1a82d84c070c2e4fe0d95aa990686ca6a9c": {
     "is_ban": false,
     "reason": "The snippet does not explicitly restrict the act of using automated scanners/tools against their systems."
+  },
+  "8d263a80fdf7914afbf1e1d3956720b7861116a6a1e5a7ebae1835dec51ca738": {
+    "implied_safe": true,
+    "reason": "The text is welcoming, defines clear scope and rules, and contains no hostile or threatening language."
   },
   "8d35d9a05a1dd2f2a3e364703997a487b7d60cf92ed4843b8a0e29735ea0f4f3": {
     "is_ban": false,
@@ -10418,6 +10434,10 @@
   "a1dff4dfac900f87dbef53fb789e1f72bae394ec704b4432a4e9d8398eaf9b31": {
     "rate": null,
     "reason": "No rate limit or scanning throttle is mentioned in the text."
+  },
+  "a1e8050f63ff72f0e9bfd92f992d390df28c0e2ae5b7994f38f22d3eead68b85": {
+    "is_ban": false,
+    "reason": "The snippet does not mention any restriction on the act of using automated scanners or tools."
   },
   "a1e9d2d96d613a049ca6aab7becabcc37ca8c7eb7ee0df0dd0ca4f9a66ef3651": {
     "is_allowed": false,
@@ -12047,6 +12067,10 @@
     "rate": null,
     "reason": "No rate limit or scanning throttle is mentioned in the provided text."
   },
+  "be2a71d3f2a7ad4a0c76ab658edf63ecae67427ef3e9b4bcd380f65aaa34e14e": {
+    "is_ban": true,
+    "reason": "The snippet explicitly restricts the act of using automatic scanners against their systems."
+  },
   "be378ede7c89836a9c6116f060882a07c6b4cb6fc2143cb1c614451ced6fbaeb": {
     "rate": null,
     "reason": "No rate limit or scanning throttle is mentioned in the text."
@@ -13322,6 +13346,10 @@
   "d0d9476a51bf96a6f8e7753eb7534ef1ce455e4786d499238c66f7981eba8bf3": {
     "is_ban": false,
     "reason": "The policy does not require personal identity verification for participation or payment."
+  },
+  "d0ddafa913eb22ce4c5a3f5bb250061b485af1f312367dcc3ce91b47b4404fa9": {
+    "implied_safe": true,
+    "reason": "The text is welcoming, defines clear expectations, and contains no hostile or threatening language."
   },
   "d0f1e2582f98126e9d8b36f93a43683835d2b565970208fd7868171d258f5d23": {
     "has_safe_harbor": true,
