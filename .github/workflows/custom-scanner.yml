@@ -105,27 +105,37 @@ jobs:
             exit 0
           fi
 
-          touch weekend_offset_custom.txt
+          touch weekend_offset_custom.txt weekend_total_custom.txt
           offset=$(cat weekend_offset_custom.txt 2>/dev/null)
           if [ -z "$offset" ] || [ "$offset" -gt "$full_total" ]; then
             offset=1
           fi
 
-          chunk_end=$(( offset + chunk_size - 1 ))
-          if [ "$chunk_end" -gt "$full_total" ]; then
-            chunk_end=$full_total
+          frozen=$(cat weekend_total_custom.txt 2>/dev/null)
+          if [ "$prior_done" -gt 0 ] && [ -n "$frozen" ]; then
+            total=$(echo "$frozen" | cut -d: -f1)
+            num_batches=$(echo "$frozen" | cut -d: -f2)
+            chunk_end=$(( offset + total - 1 ))
+            sed -n "${offset},${chunk_end}p" combined.txt > combined_chunk.txt
+            mv combined_chunk.txt combined.txt
+          else
+            chunk_end=$(( offset + chunk_size - 1 ))
+            if [ "$chunk_end" -gt "$full_total" ]; then
+              chunk_end=$full_total
+            fi
+
+            sed -n "${offset},${chunk_end}p" combined.txt > combined_chunk.txt
+            mv combined_chunk.txt combined.txt
+
+            total=$(wc -l < combined.txt)
+            num_batches=$(( (total + target_per_batch - 1) / target_per_batch ))
+            if [ "$num_batches" -gt $max_batches ]; then num_batches=$max_batches; fi
+            if [ "$num_batches" -lt 1 ]; then num_batches=1; fi
+            echo "${total}:${num_batches}" > weekend_total_custom.txt
           fi
 
-          sed -n "${offset},${chunk_end}p" combined.txt > combined_chunk.txt
-          mv combined_chunk.txt combined.txt
-
-          total=$(wc -l < combined.txt)
           echo "Chunk: hosts $offset-$chunk_end of $full_total (this trigger: $total hosts)"
-
           echo "has_hosts=true" >> $GITHUB_OUTPUT
-          num_batches=$(( (total + target_per_batch - 1) / target_per_batch ))
-          if [ "$num_batches" -gt $max_batches ]; then num_batches=$max_batches; fi
-          if [ "$num_batches" -lt 1 ]; then num_batches=1; fi
           echo "Batches: $num_batches (~$(( (total + num_batches - 1) / num_batches )) hosts each)"
           echo "num_batches=$num_batches" >> $GITHUB_OUTPUT
           echo "chunk_end=$chunk_end" >> $GITHUB_OUTPUT
@@ -405,6 +415,7 @@ jobs:
             echo "Chunk complete ($done_count/$NUM_BATCHES) - advancing offset to $NEW_OFFSET"
             echo "$NEW_OFFSET" > weekend_offset_custom.txt
             > weekend_progress_custom.txt
+            > weekend_total_custom.txt
             echo "0" > weekend_stall_count_custom.txt
             if [ "$NEW_OFFSET" -eq 1 ]; then echo "$(date +'%Y-%U')" > lap_done_custom.txt; fi
           else
@@ -419,6 +430,7 @@ jobs:
               fi
               echo "$NEW_OFFSET" > weekend_offset_custom.txt
               > weekend_progress_custom.txt
+              > weekend_total_custom.txt
               echo "0" > weekend_stall_count_custom.txt
               if [ "$NEW_OFFSET" -eq 1 ]; then echo "$(date +'%Y-%U')" > lap_done_custom.txt; fi
               echo "$(date +'%Y-%m-%d'): force-advanced past stuck batch(es) $STUCK_BATCHES" >> weekend_stuck_batches_custom.log
@@ -427,11 +439,12 @@ jobs:
             fi
           fi
 
-          git add weekend_progress_custom.txt weekend_offset_custom.txt weekend_lasthash_custom.txt weekend_stall_count_custom.txt weekend_stuck_batches_custom.log seen_findings_custom.txt lap_done_custom.txt 2>/dev/null || git add weekend_progress_custom.txt weekend_offset_custom.txt weekend_lasthash_custom.txt weekend_stall_count_custom.txt seen_findings_custom.txt
+          git add weekend_progress_custom.txt weekend_offset_custom.txt weekend_lasthash_custom.txt weekend_stall_count_custom.txt weekend_stuck_batches_custom.log seen_findings_custom.txt lap_done_custom.txt weekend_total_custom.txt 2>/dev/null || git add weekend_progress_custom.txt weekend_offset_custom.txt weekend_lasthash_custom.txt weekend_stall_count_custom.txt seen_findings_custom.txt weekend_total_custom.txt
           git diff --staged --quiet || git commit -m "Custom scan progress update $(date +'%Y-%m-%d')"
           git push origin data || (git pull --rebase origin data && git push origin data) || echo "::warning::Push failed for custom progress"
 
       - name: Chain next stage
+        if: ${{ !cancelled() }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
