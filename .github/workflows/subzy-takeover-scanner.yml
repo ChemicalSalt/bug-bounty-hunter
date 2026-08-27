@@ -102,15 +102,25 @@ jobs:
           if [ -z "$offset" ] || [ "$offset" -gt "$full_total" ]; then
             offset=1
           fi
-          chunk_end=$(( offset + chunk_size - 1 ))
-          if [ "$chunk_end" -gt "$full_total" ]; then
-            chunk_end=$full_total
+          touch weekend_total_subzy.txt
+          frozen=$(cat weekend_total_subzy.txt 2>/dev/null)
+          if [ "$prior_done" -gt 0 ] && [ -n "$frozen" ]; then
+            total=$(echo "$frozen" | cut -d: -f1)
+            num_batches=$(echo "$frozen" | cut -d: -f2)
+            chunk_end=$(( offset + total - 1 ))
+          else
+            chunk_end=$(( offset + chunk_size - 1 ))
+            if [ "$chunk_end" -gt "$full_total" ]; then
+              chunk_end=$full_total
+            fi
+            sed -n "${offset},${chunk_end}p" combined_full.txt > subzy_chunk.txt
+            total=$(wc -l < subzy_chunk.txt)
+            num_batches=$(( (total + target_per_batch - 1) / target_per_batch ))
+            if [ "$num_batches" -gt $max_batches ]; then num_batches=$max_batches; fi
+            if [ "$num_batches" -lt 1 ]; then num_batches=1; fi
+            echo "${total}:${num_batches}" > weekend_total_subzy.txt
           fi
           sed -n "${offset},${chunk_end}p" combined_full.txt > subzy_chunk.txt
-          total=$(wc -l < subzy_chunk.txt)
-          num_batches=$(( (total + target_per_batch - 1) / target_per_batch ))
-          if [ "$num_batches" -gt $max_batches ]; then num_batches=$max_batches; fi
-          if [ "$num_batches" -lt 1 ]; then num_batches=1; fi
           done_batches=$(cut -d: -f1 weekend_progress_subzy.txt | sort -un)
           if [ -z "$done_batches" ]; then
             batches=$(seq 1 "$num_batches" | jq -R . | jq -sc .)
@@ -123,6 +133,7 @@ jobs:
             if [ "$new_offset" -gt "$full_total" ]; then new_offset=1; fi
             echo "$new_offset" > weekend_offset_subzy.txt
             > weekend_progress_subzy.txt
+            > weekend_total_subzy.txt
             batches=$(seq 1 "$num_batches" | jq -R . | jq -sc .)
             echo "$full_hash" > weekend_lasthash_subzy.txt
             if [ "$new_offset" -eq 1 ]; then
@@ -138,7 +149,7 @@ jobs:
         run: |
           git config --global user.email "bugbountybot@github.com"
           git config --global user.name "BugBountyBot"
-          git add weekend_offset_subzy.txt weekend_progress_subzy.txt weekend_lasthash_subzy.txt lap_done_subzy_takeover.txt
+          git add weekend_offset_subzy.txt weekend_progress_subzy.txt weekend_lasthash_subzy.txt lap_done_subzy_takeover.txt weekend_total_subzy.txt
           git diff --staged --quiet || git commit -m "Subzy scanner cycle reset $(date +'%Y-%m-%d %H:%M')"
           git diff --staged --quiet || (git push origin data || (git pull --rebase origin data && git push origin data) || echo "::warning::reset push failed")
 
