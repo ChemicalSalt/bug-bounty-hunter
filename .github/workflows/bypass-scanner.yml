@@ -73,7 +73,7 @@ jobs:
           max_batches=256
           chunk_size=$(( target_per_batch * max_batches ))
           full_total=$(wc -l < live_hosts_403.txt)
-          touch weekend_offset_bypass.txt weekend_progress_bypass.txt
+          touch weekend_offset_bypass.txt weekend_progress_bypass.txt weekend_total_bypass.txt weekend_lasthash_bypass.txt
           if [ "$full_total" -eq 0 ]; then
             echo "has_hosts=false" >> $GITHUB_OUTPUT
             echo "batches=[]" >> $GITHUB_OUTPUT
@@ -345,7 +345,7 @@ jobs:
         run: |
           git config --global user.email "bugbountybot@github.com"
           git config --global user.name "BugBountyBot"
-          touch weekend_progress_bypass.txt weekend_offset_bypass.txt seen_findings_bypass.txt
+          touch weekend_progress_bypass.txt weekend_offset_bypass.txt seen_findings_bypass.txt weekend_total_bypass.txt
           for d in markers/batch-marker-bypass-*; do
             [ -d "$d" ] || continue
             num=$(basename "$d" | sed -E 's/^batch-marker-bypass-([0-9]+)$/\1/')

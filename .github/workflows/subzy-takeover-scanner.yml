@@ -81,7 +81,7 @@ jobs:
           max_batches=256
           chunk_size=$(( target_per_batch * max_batches ))
           full_total=$(wc -l < combined_full.txt)
-          touch weekend_offset_subzy.txt weekend_progress_subzy.txt
+          touch weekend_offset_subzy.txt weekend_progress_subzy.txt weekend_lasthash_subzy.txt weekend_total_subzy.txt
           if [ "$full_total" -eq 0 ]; then
             echo "has_hosts=false" >> $GITHUB_OUTPUT
             echo "batches=[]" >> $GITHUB_OUTPUT
