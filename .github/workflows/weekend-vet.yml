@@ -13,7 +13,7 @@ permissions:
 
 concurrency:
   group: bbh-pipeline
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 env:
   HACKERONE_TOKEN: ${{ secrets.HACKERONE_TOKEN }}
