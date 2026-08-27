@@ -1689,26 +1689,29 @@ def summarize(platform, results, total_discovered, write_files=True):
         for name, reason, domain_count in results["skipped"][:10]:
             log(f"    - {name}: {reason} (domains: {domain_count})")
 
-    stats_path = os.path.join(OUTPUT_DIR, "discovery_stats.csv")
-    is_new = not os.path.exists(stats_path)
-    with open(stats_path, "a", newline="") as sf:
-        w = csv.writer(sf)
-        if is_new:
-            w.writerow(["timestamp_utc", "platform", "total_discovered", "included", "excluded", "skipped", "excluded_domains", "skipped_domains", "run_id"])
-        excluded_domains = sum(d for _, _, d in results["excluded"])
-        skipped_domains = sum(d for _, _, d in results["skipped"])
-        w.writerow([
-            datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-            platform,
-            total_discovered,
-            len(results["included"]),
-            n_excluded,
-            n_skipped,
-            excluded_domains,
-            skipped_domains,
-            os.environ.get("GITHUB_RUN_ID", "local"),
-        ])
-    log(f"  [STATS] appended to {stats_path}")
+    if write_files:
+        stats_path = os.path.join(OUTPUT_DIR, "discovery_stats.csv")
+        is_new = not os.path.exists(stats_path)
+        with open(stats_path, "a", newline="") as sf:
+            w = csv.writer(sf)
+            if is_new:
+                w.writerow(["timestamp_utc", "platform", "total_discovered", "included", "excluded", "skipped", "excluded_domains", "skipped_domains", "run_id"])
+            excluded_domains = sum(d for _, _, d in results["excluded"])
+            skipped_domains = sum(d for _, _, d in results["skipped"])
+            w.writerow([
+                datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+                platform,
+                total_discovered,
+                len(results["included"]),
+                n_excluded,
+                n_skipped,
+                excluded_domains,
+                skipped_domains,
+                os.environ.get("GITHUB_RUN_ID", "local"),
+            ])
+        log(f"  [STATS] appended to {stats_path}")
+    else:
+        log(f"  [SKIP] not appending to discovery_stats.csv (platform not run)")
 
 
 def update_domain_program_map(h1_results, int_results, ywh_results, bc_results, hp_results, ran_platforms, max_removal_pct=100):
