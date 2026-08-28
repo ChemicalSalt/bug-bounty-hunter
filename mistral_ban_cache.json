@@ -3067,6 +3067,10 @@
     "rate": null,
     "reason": "No rate limit or scanning throttle is mentioned in the text."
   },
+  "2b33c7ebb8f8856c5483116b110e7ab1e5b08b94a29efe3554a1bd69dc3e7456": {
+    "has_safe_harbor": false,
+    "reason": "The policy does not explicitly grant legal safe harbor or promise protection from legal action for good-faith research."
+  },
   "2b42304d627d1fb5542b6356282070d7c810e617b5773bda5f2c281bce1f0f29": {
     "has_safe_harbor": true,
     "reason": "The policy explicitly mentions a 'Safe Harbor Policy' protecting good faith security research."
@@ -3474,6 +3478,10 @@
   "31d8207ece6457e39a8109857a75b6ec43c7f3f532439926ff1878e7571541df": {
     "has_safe_harbor": false,
     "reason": "The policy only addresses third-party legal action, not the company's own legal stance against researchers."
+  },
+  "31df9c522ca66a5c28b12a78410de9895af65e6960c86c41a3e5f9eee4d61be8": {
+    "has_safe_harbor": false,
+    "reason": "The policy does not mention legal protection or safe harbor for researchers."
   },
   "322c40f3f32bf1b6c9f47181dee074d4e01eebf439300ecbb44c70134051d02d": {
     "is_ban": false,
@@ -7951,6 +7959,10 @@
     "is_ban": false,
     "reason": "The snippet restricts excessive load from automated tools but allows their use with adjusted settings, focusing on rate-limiting rather than a blanket ban."
   },
+  "719b6f8a9896608c37f9b6593928b974da04cd3adfd21cabdc7b8fc3738c390a": {
+    "is_out": true,
+    "reason": "The domain 'e.g' is not explicitly listed as in-scope and is implied to be out of scope."
+  },
   "71a6e0a884c57bbaa84667bcba36b1ac733d6dfabd16ce188395e79ced2b051a": {
     "is_allowed": false,
     "reason": "The snippet does not explicitly grant permission for the use of automated scanners or tools."
@@ -9266,6 +9278,14 @@
   "83651a147b52793a4405039b9ca9db1809894cbba365db322c543672c5283b72": {
     "has_safe_harbor": false,
     "reason": "The policy does not explicitly grant legal safe harbor or mention protection from legal action for good faith research."
+  },
+  "8382f7c8bb844cd8818b4c470982e3abac7bfafb2eef3604da341a4c64c1621f": {
+    "implied_safe": true,
+    "reason": "The text is welcoming, defines clear scope/rules, and lacks hostile language despite specific restrictions."
+  },
+  "83914d1b6335232bb6f00f0192ed1d7d4beed5e5fb27c7bae0735a7d5067eb05": {
+    "is_ban": true,
+    "reason": "The snippet explicitly states 'don't brute-force or automate testing, challenges are made for manual solving'."
   },
   "83d88cd8223a4b625c26241b64b2174576e674deacce6c1a5b850ffd70dca186": {
     "is_ban": false,
@@ -12151,6 +12171,10 @@
     "rate": null,
     "reason": "No rate limit or scanning throttle is mentioned in the policy text."
   },
+  "ad601cfe05f1525388774fd65cec935afef7bfe7c286233a3b5bc87da5a47b9f": {
+    "is_ban": true,
+    "reason": "The snippet explicitly restricts the act of using automated tools for testing."
+  },
   "ad6b9dc046d09dfef974c75a14e55f12c92b112e8de536b4d8c94184e344dc9a": {
     "has_safe_harbor": false,
     "reason": "The text mentions 'Good Faith Security Research' but does not explicitly promise legal protection or safe harbor."
@@ -12366,6 +12390,10 @@
   "b0a806adc67eb2c490b269269ef0050e334932544ccac8e32f4be135a0782a8b": {
     "is_ban": true,
     "reason": "The snippet explicitly restricts the act of using automated scanners or tools that generate large traffic."
+  },
+  "b0c0763dab165e848eea08d8ddef3c8aceed77725b4a828ab7cdb93db29e9beb": {
+    "has_safe_harbor": false,
+    "reason": "The policy text does not mention legal protection, safe harbor, or immunity from legal action for good-faith researchers."
   },
   "b0c7b33ed2b1ab72707a07bae0c018c03d4b89472ab636f6c02ebeb273e46540": {
     "is_ban": false,
@@ -13954,6 +13982,10 @@
   "c7f31b75121c2edcc13736e896854bec1b9ae74ee09cd9cd32b988aba8393a36": {
     "is_ban": false,
     "reason": "The text does not require personal identity verification for participation or payout."
+  },
+  "c7fb588b2d075927e056612eb1928630ed9adb6d969e9a3de5c3a7bf41ce475e": {
+    "implied_safe": true,
+    "reason": "The text is welcoming and lacks hostile language, explicitly encouraging security research."
   },
   "c80af9e7655174b4413900b757f4c87bd0e30fa4edd37058c841c5b1157bc265": {
     "rate": null,
