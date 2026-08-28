@@ -1,0 +1,4 @@
+IN:apple.com
+IN:google.com
+IN:nicehash.com
+OUT:github.com
