@@ -166,3 +166,11 @@
 - OUT:r124.news.atg.se
 - OUT:shop.atg.se
 - OUT:webbshop.atg.se
+
+=== 2026-08-28T01:26:03.190551 ===
++ IN:*.captcha-delivery.com
++ IN:api-js.datadome.co
++ IN:bounty-fastly.datashield.co
++ IN:bounty-nginx.datashield.co
++ IN:bounty-nodejs.datashield.co
++ IN:js.datadome.co

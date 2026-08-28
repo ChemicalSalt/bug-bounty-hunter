@@ -1,0 +1,6 @@
+IN:*.captcha-delivery.com
+IN:api-js.datadome.co
+IN:bounty-fastly.datashield.co
+IN:bounty-nginx.datashield.co
+IN:bounty-nodejs.datashield.co
+IN:js.datadome.co

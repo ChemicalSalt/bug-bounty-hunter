@@ -1,63 +1,60 @@
-telenor-sweden-public-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	22
-infomaniak-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	40
-bind-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+bug-bounty-program-blablacar	automation ban: [Mistral-confirmed ban] e strictly forbidden. - Avoid tests that could cause deg	60
 toom-baumarkt-gmbh-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	2
-expressvpn-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	25
-vincisa-public-program	safe harbor not confirmed: no safe-harbor language found in full policy text	18
-vfs-global-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	27
-programmes-de-primes-aux-bogues-du-gouvernement-du-quebec-cgcd	safe harbor not confirmed: no safe-harbor language found in full policy text	2
-deezer-bug-bounty-program-2019	safe harbor not confirmed: no safe-harbor language found in full policy text	11
+telenor-sweden-public-bug-bounty-program	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	22
+infomaniak-bug-bounty-program	automation ban: [Mistral-confirmed ban] e strictly forbidden. - Avoid tests that could cause deg	40
+expressvpn-bug-bounty-program	automation ban: [Mistral-confirmed ban] e strictly forbidden. - Avoid tests that could cause deg	25
+vincisa-public-program	automation ban: [Mistral-confirmed ban] e strictly forbidden. - Avoid tests that could cause deg	18
+vfs-global-bug-bounty-program	automation ban: [Mistral-confirmed ban, no regex match]	27
+programmes-de-primes-aux-bogues-du-gouvernement-du-quebec-cgcd	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	2
+deezer-bug-bounty-program-2019	automation ban: [Mistral-confirmed ban] e strictly forbidden. - Avoid tests that could cause deg	11
 goto-financial-public-bounty-program	automation ban: [Mistral-confirmed ban, no regex match]	12
 gojek-bug-bounty-program	automation ban: [Mistral-confirmed ban, no regex match]	11
-decathlon	safe harbor not confirmed: no safe-harbor language found in full policy text	15
-tencent-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	0
-bug-bounty-program-blablacar	safe harbor not confirmed: no safe-harbor language found in full policy text	60
-superbank-public-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	3
+decathlon	automation ban: [Mistral-confirmed ban] e strictly forbidden. - Avoid tests that could cause deg	15
+tencent-bug-bounty-program	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	0
 swiss-post-evoting	automation ban: [Mistral-confirmed ban, no regex match]	0
 alasco-gmbh-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	4
-fdj-united-online-betting-gaming-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	32
-dojo	safe harbor not confirmed: no safe-harbor language found in full policy text	1
-cryptobox-bug-bounty	safe harbor not confirmed: no safe-harbor language found in full policy text	1
-doctolib-public-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	4
-teamviewer-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	4
-mediamarktsaturn-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	11
-dana-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	2
-cyberghost-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	6
-private-internet-access-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	6
+fdj-united-online-betting-gaming-bug-bounty-program	automation ban: [Mistral-confirmed ban] perform any social engineering against users or FDJ Unit	32
+dojo	automation ban: [Mistral-confirmed ban, no regex match]	1
+cryptobox-bug-bounty	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	1
+doctolib-public-bug-bounty-program	automation ban: [Mistral-confirmed ban, no regex match]	4
+teamviewer-bounty-program	automation ban: [Mistral-confirmed ban, no regex match]	4
+mediamarktsaturn-bug-bounty-program	automation ban: [Mistral-confirmed ban, no regex match]	11
+dana-bug-bounty-program	automation ban: [Mistral-confirmed ban] rivacy of our users. - Avoid tests that could cause degr	2
+cyberghost-bug-bounty-program	automation ban: [Mistral-confirmed ban] e strictly forbidden. - Avoid tests that could cause deg	6
+private-internet-access-bug-bounty-program	automation ban: [Mistral-confirmed ban] e strictly forbidden. - Avoid tests that could cause deg	6
 zecible-public-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	17
 komoju-public-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	2
 cybermalveillance-gouv-fr-sensibilization-prevention-and-support-in-terms-of-cybersecurity	safe harbor not confirmed: no safe-harbor language found in full policy text	1
 pine-labs-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	20
-otto-de-bug-bounty	safe harbor not confirmed: no safe-harbor language found in full policy text	7
-ant-group-security-response-center-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	7
+otto-de-bug-bounty	automation ban: [Mistral-confirmed ban] e strictly forbidden. - Avoid tests that could cause deg	7
+ant-group-security-response-center-bug-bounty-program	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	7
 moneybox-bug-bounty	safe harbor not confirmed: no safe-harbor language found in full policy text	3
-datadome-bot-bounty	safe harbor not confirmed: no safe-harbor language found in full policy text	6
-harman-international-web-applications	safe harbor not confirmed: [Mistral did not confirm safe harbor] is allowed. - Make sure to apply hunting r	27
-bookbeat	safe harbor not confirmed: no safe-harbor language found in full policy text	4
+harman-international-web-applications	automation ban: [Mistral-confirmed ban] e strictly forbidden. - Avoid tests that could cause deg	27
+bookbeat	automation ban: [Mistral-confirmed ban] e strictly forbidden. - Avoid tests that could cause deg	4
 mon-espace-sante-mes	safe harbor not confirmed: no safe-harbor language found in full policy text	33
 dossier-medical-partage-program	safe harbor not confirmed: no safe-harbor language found in full policy text	10
-coindcx-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	2
+coindcx-bug-bounty-program	automation ban: [Mistral-confirmed ban] e strictly forbidden. - Avoid tests that could cause deg	2
 okto-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	0
-bitoasis-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	1
-thuringer-aufbaubank-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	2
-datadome-bug-bounty	safe harbor not confirmed: no safe-harbor language found in full policy text	8
-sante-publique-france-bugbounty-public-program	safe harbor not confirmed: no safe-harbor language found in full policy text	8
-louis-vuitton-malletier-public-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	1
-harman-international-public-bug-bounty	safe harbor not confirmed: [Mistral did not confirm safe harbor] is allowed. - Make sure to apply hunting r	7
+bitoasis-bug-bounty-program	automation ban: [Mistral-confirmed ban] e strictly forbidden. - Avoid tests that could cause deg	1
+thuringer-aufbaubank-bug-bounty-program	automation ban: [Mistral-confirmed ban, no regex match]	2
+datadome-bug-bounty	automation ban: [Mistral-confirmed ban, no regex match]	8
+sante-publique-france-bugbounty-public-program	automation ban: [Mistral-confirmed ban, no regex match]	8
+louis-vuitton-malletier-public-bug-bounty-program	automation ban: [Mistral-confirmed ban] e strictly forbidden. - Avoid tests that could cause deg	1
+harman-international-public-bug-bounty	automation ban: [Mistral-confirmed ban] e strictly forbidden. - Avoid tests that could cause deg	7
 swiss-post	automation ban: [Mistral-confirmed ban, no regex match]	4
-digital-flanders-vulnerability-disclosure-program	safe harbor not confirmed: no safe-harbor language found in full policy text	6
+digital-flanders-vulnerability-disclosure-program	automation ban: [Mistral-confirmed ban] e strictly forbidden. - Avoid tests that could cause deg	6
 xelians-blackbox-program	safe harbor not confirmed: no safe-harbor language found in full policy text	2
-grw-trading-fze-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	2
-vidaxl-services-open-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	39
-ezviz-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	9
-swapcard	safe harbor not confirmed: no safe-harbor language found in full policy text	10
-paddle-com-public-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	12
-ovh	safe harbor not confirmed: no safe-harbor language found in full policy text	3
-imou-public-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	6
+grw-trading-fze-bug-bounty-program	automation ban: [Mistral-confirmed ban] e strictly forbidden. - Avoid tests that could cause deg	2
+vidaxl-services-open-bug-bounty-program	automation ban: [Mistral-confirmed ban] e strictly forbidden. - Avoid tests that could cause deg	39
+ezviz-bug-bounty-program	automation ban: [Mistral-confirmed ban] of our users. - Avoid tests that could cause degradation	9
+swapcard	automation ban: [Mistral-confirmed ban, no regex match]	10
+paddle-com-public-bug-bounty-program	automation ban: [Mistral-confirmed ban, no regex match]	12
+ovh	automation ban: [Mistral-confirmed ban] e strictly forbidden. - Avoid tests that could cause deg	3
+imou-public-bug-bounty-program	automation ban: [Mistral-confirmed ban] e strictly forbidden. - Avoid tests that could cause deg	6
 atg-public-bug-bounty-program	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	4
-outscale	safe harbor not confirmed: no safe-harbor language found in full policy text	7
-maya-public-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	6
+outscale	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	7
+maya-public-bug-bounty-program	automation ban: [Mistral-confirmed ban] e strictly forbidden. - Avoid tests that could cause deg	6
 ooredoo-qpsc-bug-bounty-program	automation ban: [Mistral-confirmed ban] e strictly forbidden. - Avoid tests that could cause deg	2
-yes-we-hack	safe harbor not confirmed: no safe-harbor language found in full policy text	4
-qwant	safe harbor not confirmed: no safe-harbor language found in full policy text	6
-sogexia	safe harbor not confirmed: no safe-harbor language found in full policy text	1
+yes-we-hack	automation ban: [Mistral-confirmed ban, no regex match]	4
+qwant	automation ban: [Mistral-confirmed ban, no regex match]	6
+sogexia	automation ban: [Mistral-confirmed ban, no regex match]	1
