@@ -1580,20 +1580,20 @@ def new_results():
     return {"included": [], "excluded": [], "skipped": []}
 
 
-def save_shard_results(results, shard_idx, total_discovered):
-    path = f"hackerone_shard_{shard_idx}_results.json"
+def save_shard_results(results, platform, shard_idx, total_discovered):
+    path = f"{platform}_shard_{shard_idx}_results.json"
     with open(path, "w") as f:
         json.dump({"results": results, "total_discovered": total_discovered}, f)
-    log(f"[H1 shard {shard_idx}] saved partial results to {path}")
+    log(f"[{platform} shard {shard_idx}] saved partial results to {path}")
 
 
-def load_and_merge_shards(num_shards):
+def load_and_merge_shards(platform, num_shards):
     merged = new_results()
     total_discovered = 0
     for i in range(1, num_shards + 1):
-        path = f"hackerone_shard_{i}_results.json"
+        path = f"{platform}_shard_{i}_results.json"
         if not os.path.exists(path):
-            log(f"[H1 merge] WARNING: {path} missing, skipping (results incomplete!)")
+            log(f"[{platform} merge] WARNING: {path} missing, skipping (results incomplete!)")
             continue
         with open(path) as f:
             data = json.load(f)
@@ -2020,11 +2020,11 @@ def main():
                               "and proceed with the normal scope/domain/git output.")
     args = parser.parse_args()
 
-    if args.shard and args.platform != "hackerone":
-        log("ERROR: --shard is only supported for --platform hackerone")
+    if args.shard and args.platform not in ("hackerone", "hackenproof"):
+        log("ERROR: --shard is only supported for --platform hackerone or hackenproof")
         sys.exit(2)
-    if args.merge_shards and args.platform != "hackerone":
-        log("ERROR: --merge-shards is only supported for --platform hackerone")
+    if args.merge_shards and args.platform not in ("hackerone", "hackenproof"):
+        log("ERROR: --merge-shards is only supported for --platform hackerone or hackenproof")
         sys.exit(2)
 
     h1_token = os.environ.get("HACKERONE_TOKEN")
@@ -2035,35 +2035,51 @@ def main():
     # No scope/domain/CSV/git writes here - shards run in parallel and would
     # race on those files. Only the merge job below touches them.
     if args.shard:
-        if not h1_token:
-            log("[H1 shard] ERROR: no HACKERONE_TOKEN set")
-            sys.exit(1)
         shard_idx, num_shards = (int(x) for x in args.shard.split("/"))
         if not (1 <= shard_idx <= num_shards):
-            log(f"[H1 shard] ERROR: invalid --shard {args.shard}")
+            log(f"[{args.platform} shard] ERROR: invalid --shard {args.shard}")
             sys.exit(2)
-        programs, auth = discover_hackerone(h1_token)
-        total = len(programs)
-        per_shard = -(-total // num_shards)  # ceil
-        start = (shard_idx - 1) * per_shard
-        end = min(start + per_shard, total)
-        my_programs = programs[start:end]
-        log(f"[H1 shard {shard_idx}/{num_shards}] {len(my_programs)} of {total} programs (index {start}:{end})")
         shard_results = new_results()
-        run_vet_pass(my_programs, lambda p: vet_hackerone_program(p["handle"], auth, shard_results),
-                     shard_results, lambda p: p["handle"], f"H1-shard{shard_idx}")
-        save_shard_results(shard_results, shard_idx, len(my_programs))
+        if args.platform == "hackerone":
+            if not h1_token:
+                log("[H1 shard] ERROR: no HACKERONE_TOKEN set")
+                sys.exit(1)
+            programs, auth = discover_hackerone(h1_token)
+            total = len(programs)
+            per_shard = -(-total // num_shards)  # ceil
+            start = (shard_idx - 1) * per_shard
+            end = min(start + per_shard, total)
+            my_programs = programs[start:end]
+            log(f"[H1 shard {shard_idx}/{num_shards}] {len(my_programs)} of {total} programs (index {start}:{end})")
+            run_vet_pass(my_programs, lambda p: vet_hackerone_program(p["handle"], auth, shard_results),
+                         shard_results, lambda p: p["handle"], f"H1-shard{shard_idx}")
+            save_shard_results(shard_results, "hackerone", shard_idx, len(my_programs))
+        elif args.platform == "hackenproof":
+            hp_auth_check = os.environ.get("HACKENPROOF_AUTH")
+            if not hp_auth_check:
+                log("[HackenProof shard] ERROR: no HACKENPROOF_AUTH set")
+                sys.exit(1)
+            programs = discover_hackenproof()
+            total = len(programs)
+            per_shard = -(-total // num_shards)  # ceil
+            start = (shard_idx - 1) * per_shard
+            end = min(start + per_shard, total)
+            my_programs = programs[start:end]
+            log(f"[HackenProof shard {shard_idx}/{num_shards}] {len(my_programs)} of {total} programs (index {start}:{end})")
+            run_vet_pass(my_programs, lambda p: vet_hackenproof_program(p, shard_results),
+                         shard_results, lambda p: p["slug"], f"HP-shard{shard_idx}")
+            save_shard_results(shard_results, "hackenproof", shard_idx, len(my_programs))
         save_mistral_cache(_MISTRAL_CACHE)
-        log(f"[H1 shard {shard_idx}/{num_shards}] done: {len(shard_results['included'])} included, "
+        log(f"[{args.platform} shard {shard_idx}/{num_shards}] done: {len(shard_results['included'])} included, "
             f"{len(shard_results['excluded'])} excluded, {len(shard_results['skipped'])} skipped")
         return
 
     ran_platforms = set()
     applied_platforms = set()
     h1_results = new_results()
-    if args.merge_shards:
+    if args.merge_shards and args.platform == "hackerone":
         ran_platforms.add("hackerone")
-        h1_results, total_discovered = load_and_merge_shards(args.merge_shards)
+        h1_results, total_discovered = load_and_merge_shards("hackerone", args.merge_shards)
         summarize("HackerOne", h1_results, total_discovered)
         r = merge_scope_file(os.path.join(OUTPUT_DIR, "hackerone_scope.txt"), h1_results["included"])
         log(f"[H1 merge] merge result: {r}")
@@ -2129,7 +2145,15 @@ def main():
             applied_platforms.add("bugcrowd")
     hp_auth = os.environ.get("HACKENPROOF_AUTH")
     hp_results = new_results()
-    if args.platform in (None, "hackenproof") and hp_auth:
+    if args.merge_shards and args.platform == "hackenproof":
+        ran_platforms.add("hackenproof")
+        hp_results, total_discovered = load_and_merge_shards("hackenproof", args.merge_shards)
+        summarize("HackenProof", hp_results, total_discovered)
+        r = merge_scope_file(os.path.join(OUTPUT_DIR, "hackenproof_scope.txt"), hp_results["included"])
+        log(f"[HackenProof merge] merge result: {r}")
+        if r["applied"]:
+            applied_platforms.add("hackenproof")
+    elif args.platform in (None, "hackenproof") and hp_auth:
         ran_platforms.add("hackenproof")
         programs = discover_hackenproof()
         run_vet_pass(programs, lambda p: vet_hackenproof_program(p, hp_results),
