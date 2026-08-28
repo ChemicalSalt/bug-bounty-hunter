@@ -3767,6 +3767,10 @@
     "is_ban": false,
     "reason": "The snippet does not explicitly restrict the act of using automated scanners/tools; it focuses on submission guidelines and out-of-scope activities."
   },
+  "365e9b7b226dc455fb53d5b203f597a46eca8a40f2e583f229a7ba9e36da3ddc": {
+    "is_ban": false,
+    "reason": "The snippet does not explicitly restrict the act of using automated scanners/tools against their systems."
+  },
   "36614644c05e1bdf7ed206b8375809b8b9a9246e77e33ebb85ad77c41d9f79e4": {
     "is_allowed": false,
     "reason": "The snippet does not explicitly grant permission for using automated scanners/tools."
@@ -5267,6 +5271,10 @@
     "is_allowed": false,
     "reason": "The snippet does not explicitly grant permission for automated scanning tools."
   },
+  "4c777565c7161fda12f937a6b3f7f8ef4cc42fb50adfda0cdcf1373be49a5bf9": {
+    "has_safe_harbor": true,
+    "reason": "The policy explicitly states authorization under CFAA and exemption from DMCA, with a promise not to pursue legal action for good faith research."
+  },
   "4c9a39cd8d4867368bdceb398ebb76663fad7a16fdaf62642034208485801109": {
     "is_allowed": false,
     "reason": "The snippet does not explicitly grant permission for using automated scanners/tools."
@@ -6658,6 +6666,10 @@
   "5f9d785fe20aeda04e40f29bc55bb64a686485142d889e91d5985d2e21c154f3": {
     "has_safe_harbor": true,
     "reason": "The policy explicitly states it will not initiate legal action and will defend researchers' authorized conduct."
+  },
+  "5fa5def351cd7337d5bb3692049cb6a989dabf7f4d5c2817c06a2e227c92ad1e": {
+    "is_ban": true,
+    "reason": "The snippet explicitly prohibits the use of automated scanners and mass scanning tools."
   },
   "5fabfc31678e1b5b0f779f03dee14e7018711dee61e67a262246123caba48bc1": {
     "is_ban": false,
