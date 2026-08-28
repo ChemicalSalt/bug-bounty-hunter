@@ -60,6 +60,7 @@ isonaspureaccesscloud.com
 jcpportraits.com
 krytonitelock.com
 lafourchette.com
+lastpass.com
 leisure-partners.net
 lifetouch.com
 lookfantastic.com
@@ -83,7 +84,6 @@ oyotownhouse.com
 oyoworkspaces.com
 photoccino.com
 planopunkt.com
-points.com
 preschoolsmiles.com
 prestigeportraits.com
 prismlife.com
@@ -118,7 +118,6 @@ theforkmanager.com
 timeseries.com
 timeseries.nl
 tinyprints.com
-transferwise.com
 traum-ferienwohnungen.de
 trelock.com
 unicelarchitectural.com
@@ -127,8 +126,6 @@ weddingz.in
 wellsfargo.com
 wf.com
 wickr.com
-wise-sandbox.com
-wise.com
 workflobyoyo.com
 yonomi.co
 yonomi.com
