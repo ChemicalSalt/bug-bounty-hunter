@@ -1580,6 +1580,30 @@ def new_results():
     return {"included": [], "excluded": [], "skipped": []}
 
 
+def save_shard_results(results, shard_idx, total_discovered):
+    path = f"hackerone_shard_{shard_idx}_results.json"
+    with open(path, "w") as f:
+        json.dump({"results": results, "total_discovered": total_discovered}, f)
+    log(f"[H1 shard {shard_idx}] saved partial results to {path}")
+
+
+def load_and_merge_shards(num_shards):
+    merged = new_results()
+    total_discovered = 0
+    for i in range(1, num_shards + 1):
+        path = f"hackerone_shard_{i}_results.json"
+        if not os.path.exists(path):
+            log(f"[H1 merge] WARNING: {path} missing, skipping (results incomplete!)")
+            continue
+        with open(path) as f:
+            data = json.load(f)
+        merged["included"].extend(data["results"]["included"])
+        merged["excluded"].extend(data["results"]["excluded"])
+        merged["skipped"].extend(data["results"]["skipped"])
+        total_discovered += data["total_discovered"]
+    return merged, total_discovered
+
+
 def merge_scope_file(path, entries_by_program, max_removal_pct=100):
     new_domains = set()
     new_out_domains = set()
@@ -1987,15 +2011,65 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--platform", choices=["hackerone", "intigriti", "yeswehack", "bugcrowd", "hackenproof"], default=None,
                          help="Run only one platform instead of all five")
+    parser.add_argument("--shard", default=None,
+                         help="HackerOne only: vet a slice of programs, format 'N/M' (1-indexed), e.g. '1/4'. "
+                              "Writes partial results to hackerone_shard_N_results.json and exits - "
+                              "no scope/domain/git output. Use --merge-shards afterward to combine.")
+    parser.add_argument("--merge-shards", type=int, default=None,
+                         help="HackerOne only: merge this many previously-saved shard result files "
+                              "and proceed with the normal scope/domain/git output.")
     args = parser.parse_args()
+
+    if args.shard and args.platform != "hackerone":
+        log("ERROR: --shard is only supported for --platform hackerone")
+        sys.exit(2)
+    if args.merge_shards and args.platform != "hackerone":
+        log("ERROR: --merge-shards is only supported for --platform hackerone")
+        sys.exit(2)
+
     h1_token = os.environ.get("HACKERONE_TOKEN")
     int_token = os.environ.get("INTIGRITI_TOKEN")
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
+    # HackerOne shard mode: vet a slice, save partial results, exit early.
+    # No scope/domain/CSV/git writes here - shards run in parallel and would
+    # race on those files. Only the merge job below touches them.
+    if args.shard:
+        if not h1_token:
+            log("[H1 shard] ERROR: no HACKERONE_TOKEN set")
+            sys.exit(1)
+        shard_idx, num_shards = (int(x) for x in args.shard.split("/"))
+        if not (1 <= shard_idx <= num_shards):
+            log(f"[H1 shard] ERROR: invalid --shard {args.shard}")
+            sys.exit(2)
+        programs, auth = discover_hackerone(h1_token)
+        total = len(programs)
+        per_shard = -(-total // num_shards)  # ceil
+        start = (shard_idx - 1) * per_shard
+        end = min(start + per_shard, total)
+        my_programs = programs[start:end]
+        log(f"[H1 shard {shard_idx}/{num_shards}] {len(my_programs)} of {total} programs (index {start}:{end})")
+        shard_results = new_results()
+        run_vet_pass(my_programs, lambda p: vet_hackerone_program(p["handle"], auth, shard_results),
+                     shard_results, lambda p: p["handle"], f"H1-shard{shard_idx}")
+        save_shard_results(shard_results, shard_idx, len(my_programs))
+        save_mistral_cache(_MISTRAL_CACHE)
+        log(f"[H1 shard {shard_idx}/{num_shards}] done: {len(shard_results['included'])} included, "
+            f"{len(shard_results['excluded'])} excluded, {len(shard_results['skipped'])} skipped")
+        return
+
     ran_platforms = set()
     applied_platforms = set()
     h1_results = new_results()
-    if args.platform in (None, "hackerone") and h1_token:
+    if args.merge_shards:
+        ran_platforms.add("hackerone")
+        h1_results, total_discovered = load_and_merge_shards(args.merge_shards)
+        summarize("HackerOne", h1_results, total_discovered)
+        r = merge_scope_file(os.path.join(OUTPUT_DIR, "hackerone_scope.txt"), h1_results["included"])
+        log(f"[H1 merge] merge result: {r}")
+        if r["applied"]:
+            applied_platforms.add("hackerone")
+    elif args.platform in (None, "hackerone") and h1_token:
         ran_platforms.add("hackerone")
         programs, auth = discover_hackerone(h1_token)
         run_vet_pass(programs, lambda p: vet_hackerone_program(p["handle"], auth, h1_results),
