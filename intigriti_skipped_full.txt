@@ -1,4 +1,0 @@
-0f05f9cd-03e1-4f90-a449-2f43cdaf879a	Port of Antwerp-Bruges: URLError: <urlopen error [Errno 104] Connection reset by peer>	0
-201f8ade-4d93-4d8b-b371-af5ed9d8b837	RIPE NCC: URLError: <urlopen error [Errno 104] Connection reset by peer>	0
-554fc6c5-4ffa-4682-a3ba-7e86696e9b17	Aikido Security: Bug Bounty Program: URLError: <urlopen error [Errno 104] Connection reset by peer>	0
-d14eedce-607d-4233-995d-30dbc7de8f23	Delen Private Bank: URLError: <urlopen error [Errno 104] Connection reset by peer>	0

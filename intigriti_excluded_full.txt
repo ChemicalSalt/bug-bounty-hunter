@@ -15,6 +15,7 @@
 0d0034de-b53e-47b8-9a9d-41c302c49b5a	Torfs: no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	6
 0d585f25-b705-4141-a961-66d6ade8942e	SimScale: no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	0
 0d6d1230-beb5-489c-b306-cf9c2e06730f	De Volkskrant: automation ban: [Mistral-confirmed ban, no regex match]	6
+0f05f9cd-03e1-4f90-a449-2f43cdaf879a	Port of Antwerp-Bruges: no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	45
 0f95dabb-d299-4574-befc-bb96a3bafb42	Visma: no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	18
 0fd1d85b-2d33-4966-b5a0-caabfda5108e	Ninja Kiwi Games Bug Bounty program: no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	14
 104ed53e-3c29-4d16-b89a-d322c9df5e9a	MAGNIFIC VDP: no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	0
@@ -33,6 +34,7 @@
 1d422a3f-7d6c-47b7-8d65-6e118bb50e86	MijnJessa: not public (confidentialityLevel=Registered)	0
 1dcf052a-9cd7-4278-99d1-3c037efbf781	Donorbox VDP: no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	0
 1e325f65-37de-4094-9079-217e27cab00b	WP Engine VDP: no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	0
+201f8ade-4d93-4d8b-b371-af5ed9d8b837	RIPE NCC: no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	3
 23f5d877-7948-4740-830c-393e66753fc4	Monzo Public Bug Bounty Program: no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	4
 26bdf67c-72e8-44ed-a6bb-8d62a620d76e	My bpost app: not public (confidentialityLevel=Registered)	0
 28e0de63-e932-43cf-8a23-5ea24dabd48f	Uphold: automation ban: [Mistral-confirmed ban] ing Proof-of-Concepts on YouTube, Vimeo, or other platfo	21
@@ -68,6 +70,7 @@
 5111e2de-2d04-4ec8-9f24-c0b76cbfd38e	Storebrand Responsible Disclosure: no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	0
 540e04bb-ae56-49cd-8e05-311a08ba44f7	ING Responsible Disclosure: no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	0
 5447fd42-afb9-4119-8ed7-65d25baee1df	Embark Studios: not public (confidentialityLevel=Registered)	0
+554fc6c5-4ffa-4682-a3ba-7e86696e9b17	Aikido Security: Bug Bounty Program: no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	1
 56339d19-36cc-49a0-8e8f-b2502e00d165	Moralis VDP: no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	0
 59af45f8-edaf-436c-8649-fbd88702468a	GlobalSign: not public (confidentialityLevel=Registered)	0
 5ae36363-b875-4a56-9ecc-ebb7db2fa530	Coveo Public Bug Bounty: no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	6
@@ -149,7 +152,7 @@ accb5edd-2337-4c87-9d49-f21a500b3bc0	VCF - vCenter Server: not open (status=Susp
 ad2bd496-536c-4c24-b885-ce01d66966b9	Marionnaud: no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	61
 aec12d84-be07-4d86-9954-7525f151f493	Kaufland Marketplace Bug Bounty: not public (confidentialityLevel=Application)	0
 afaeab02-261f-486e-8a43-4dee76fccabb	Rivian Bug Bounty: no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	7
-afc4415d-c004-4cf8-9a12-e0f18cde6db5	WP Engine Bug Bounty: no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	16
+afc4415d-c004-4cf8-9a12-e0f18cde6db5	WP Engine Bug Bounty: not open (status=Suspended)	0
 afeb2624-ac2e-46bc-b078-b0e018baeb62	Cloudways by DigitalOcean: no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	7
 b084e962-1d83-4bec-9d46-0f02c0f7bf88	InnoGames: automation ban: [Mistral-confirmed ban, no regex match]	0
 b1a1cbbb-f927-49d5-a9c8-2ea03a626270	Nexo: no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	18
@@ -177,6 +180,7 @@ cefc1013-9927-4e4a-b306-e5d57f06d34a	eHealth Hub VZN KUL: no explicit automation
 cf95261d-750a-4672-b42e-74825f0d421d	9altitudes - Vulnerability Disclosure Program: not open (status=Suspended)	0
 cfe97e43-8c31-482f-9930-637eaf68658c	Zimmo: not public (confidentialityLevel=Registered)	0
 d108eca8-374c-4e6f-a996-4af69c7bd079	Kruidvat: no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	46
+d14eedce-607d-4233-995d-30dbc7de8f23	Delen Private Bank: no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	17
 d3bee5a5-9107-4e71-8d94-ab5098f2005c	Dutch Lottery VDP: no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	8
 d489d81f-6b42-4ef1-b7f8-f16d9b404621	Nexuzhealth VDP: no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	0
 d5c4e966-a80a-44f5-91c9-2bb9487b8762	EURid: no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	7
