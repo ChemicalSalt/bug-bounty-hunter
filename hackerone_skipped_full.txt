@@ -1,0 +1,9 @@
+nodejs	safe harbor: review - [Mistral call failed on implied-safe check — queued for retry]	0
+epicgames	automation: review - [Mistral call failed on full-text check — queued for retry]	69
+valve	safe harbor: review - [Mistral call failed on implied-safe check — queued for retry]	16
+affirm	safe harbor: review - [Mistral call failed on implied-safe check — queued for retry]	1
+crowdstrike	safe harbor: review - [Mistral call failed on implied-safe check — queued for retry]	19
+pingidentity	safe harbor: review - [Mistral call failed on implied-safe check — queued for retry]	10
+expediagroup	safe harbor: review - [Mistral call failed on implied-safe check — queued for retry]	30
+urbancompany	automation: review - [Mistral call failed on full-text check — queued for retry]	2
+fanduel	safe harbor: review - [Mistral call failed on implied-safe check — queued for retry]	10

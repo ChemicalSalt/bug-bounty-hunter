@@ -2083,7 +2083,6 @@ gift.starbucks.co.jp
 giftcards.marriott.com
 gifts.grab.com
 gifts.marriott.com
-github.com
 gitlab.com
 global-api.citymapper.com
 globaljourney.tomorrowland.com
