@@ -73,7 +73,7 @@
 554fc6c5-4ffa-4682-a3ba-7e86696e9b17	Aikido Security: Bug Bounty Program: no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	1
 56339d19-36cc-49a0-8e8f-b2502e00d165	Moralis VDP: no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	0
 59af45f8-edaf-436c-8649-fbd88702468a	GlobalSign: not public (confidentialityLevel=Registered)	0
-5ae36363-b875-4a56-9ecc-ebb7db2fa530	Coveo Public Bug Bounty: not open (status=Suspended)	0
+5ae36363-b875-4a56-9ecc-ebb7db2fa530	Coveo Public Bug Bounty: no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	6
 5ae71f99-d61e-42d2-b74e-b218530bb3b5	Mobile Vikings: no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	12
 5aed5977-1102-4317-808e-0245a726e066	Pornhub Bug Bounty Program: private/invite-gated program, no API access	0
 5c7a8f79-a23b-4367-a2c6-63a2d48586ee	Het Laatste Nieuws: automation ban: [Mistral-confirmed ban, no regex match]	7
