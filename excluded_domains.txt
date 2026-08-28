@@ -994,7 +994,6 @@ accounts.evernote.com
 accounts.firefox.com
 accounts.hytale.com
 accounts.insightly.com
-accounts.lastpass.com
 accounts.logi.com
 accounts.opera.com
 accounts.pixiv.net
@@ -1021,7 +1020,6 @@ admin.8x8.com
 admin.atlassian.com
 admin.booking.com
 admin.fr.cloud.gov
-admin.lastpass.com
 admin.shopify.com
 admin.stage.vismaonline.com
 admintool.lime.bike
@@ -1416,7 +1414,6 @@ auth.digital.delen.be
 auth.digital.delen.lu
 auth.embark.net
 auth.immutable.com
-auth.lastpass.com
 auth.magic.link
 auth.moonpay.com
 auth.mtls.truelayer[-sandbox].com
@@ -1494,7 +1491,6 @@ blocklist.opera-api.com
 blofin.com
 blog.etsy.com
 blog.indrive.com
-blog.lastpass.com
 blog.malwarebytes.com
 blog.playcanvas.com
 blog.remitly.com
@@ -2576,7 +2572,6 @@ lando.services.mozilla.com
 lapi.yellowblocks.me
 lark-frontier.byteoversea.com
 larksuite.com
-lastpass.com
 latitudeinfinity.com.au
 launch.playcanvas.com
 launchdarkly.com
@@ -3541,7 +3536,6 @@ support-api.airbnb.com
 support-portal.8x8.com
 support.anthropic.com
 support.atlassian.com
-support.lastpass.com
 support.logi.com
 support.malwarebytes.com
 support.mozilla.org
@@ -4011,7 +4005,6 @@ www.landmarkcinemas.com
 www.languagecert.org
 www.lastminute.co.nz
 www.lastminute.com.au
-www.lastpass.com
 www.leather.io
 www.legalrobot-test.com
 www.legalrobot.com

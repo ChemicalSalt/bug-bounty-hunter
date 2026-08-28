@@ -1,16 +1,1 @@
-cfr	safe harbor: review - [Mistral call failed on implied-safe check — queued for retry]	3
-thousandeyes-og	safe harbor: review - [Mistral call failed on full-text check — queued for retry]	2
-etsy	automation: review - [Mistral call failed on full-text check — queued for retry]	7
-canva	automation: review - [Mistral call failed on full-text check — queued for retry]	7
-shipwire	safe harbor: review - [Mistral call failed on full-text check — queued for retry]	0
-orderlynetwork-mbb-og2	safe harbor: review - [Mistral call failed on full-text check — queued for retry]	0
-plusgrade-mbb-public	id verification: review - [Mistral call failed on implied check — queued for retry]	1
-JaangaInc-mbb-market	safe harbor: review - [Mistral call failed — queued for retry] Inc. written consent will have any allocated bounty withdrawn and disqualified f	1
-optimizely	safe harbor: review - [Mistral call failed on full-text check — queued for retry]	14
-refined2	safe harbor: review - [Mistral call failed — queued for retry] ed’s written consent will have any allocated bounty withdrawn and disqualified f	2
-moneytreekkog	safe harbor: review - [Mistral call failed on full-text check — queued for retry]	7
-pantheon	safe harbor: review - [Mistral call failed — queued for retry] crowdninja.com email address. For more info regarding @bugcrowdninja email addre	1
-freedomofpress	safe harbor: review - [Mistral call failed on full-text check — queued for retry]	1
 balsamiq	safe harbor: review - [Mistral call failed — queued for retry] iq’s written consent will have any allocated bounty withdrawn and disqualified f	1
-felix-health-mbb-og	automation: review - [Mistral call failed on full-text check — queued for retry]	2
-kohls	safe harbor: review - [Mistral call failed on implied-safe check — queued for retry]	1
