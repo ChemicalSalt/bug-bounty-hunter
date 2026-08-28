@@ -1,7 +1,4 @@
 domain,platform,keyword
-apple.com,hackenproof,nicehash-mining-platform
-google.com,hackenproof,nicehash-mining-platform
-nicehash.com,hackenproof,nicehash-mining-platform
 appsecfa.tfaforms.net,hackerone,formassembly
 app.formassembly.com,hackerone,formassembly
 formassembly.com,hackerone,formassembly
@@ -243,3 +240,6 @@ www.mankind.co.uk,bugcrowd,hutgroup-public
 www.matalan.co.uk,bugcrowd,hutgroup-public
 www.myprotein.com,bugcrowd,hutgroup-public
 www.myvitamins.com,bugcrowd,hutgroup-public
+apple.com,hackenproof,nicehash-mining-platform
+google.com,hackenproof,nicehash-mining-platform
+nicehash.com,hackenproof,nicehash-mining-platform

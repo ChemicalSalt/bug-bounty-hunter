@@ -1,2 +1,0 @@
-adi-predictstreet-smart-contracts	safe harbor: review - [Mistral call failed on full-text check — queued for retry]	1
-pumb-web	safe harbor: review - [Mistral call failed on full-text check — queued for retry]	1
