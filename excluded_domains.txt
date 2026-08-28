@@ -614,6 +614,7 @@
 *.playstation.com
 *.playstation.net
 *.pns.hk
+*.points.com
 *.pourvous.nl
 *.ppb.com
 *.ppbdev.com
@@ -799,6 +800,7 @@
 *.toolsforhumanity.com
 *.tospotify.com
 *.trainpal.com,*.mytrainpal.com
+*.transferwise.com
 *.travelbook.de
 *.travelocity.ca
 *.travelocity.com
@@ -888,6 +890,7 @@
 *.wien.gv.at
 *.wienkav.at
 *.wimpmusic.com
+*.wise.com
 *.wissen-sie-mehr.de
 *.withairbnb.com
 *.withbuddies.com
@@ -2089,6 +2092,7 @@ gift.starbucks.co.jp
 giftcards.marriott.com
 gifts.grab.com
 gifts.marriott.com
+github.com
 gitlab.com
 global-api.citymapper.com
 globaljourney.tomorrowland.com
@@ -3615,6 +3619,7 @@ trans.ukrn.io
 transact.playstation.com
 transcodes-cdn.vistarmedia.com
 transfer.underarmour.com
+transferwise.com
 translate.badoo.com
 translate.elementor.com
 transparentadvertising.com
@@ -3784,6 +3789,8 @@ wiki.teamfortress.com
 wiki.ui.com
 winter.tomorrowland.com
 winterpackages.tomorrowland.com
+wise-sandbox.com
+wise.com
 wlr-cf.*.aws.indriverapp.com
 wmaudience.com
 wonderboxapi.com

@@ -1643,3 +1643,33 @@
 - OUT:your-store.vendecommerce.com
 - OUT:zac80040032.mortgagechoice.com.au
 - OUT:zendesk*.mortgagechoice.com.au
+
+=== 2026-08-28T03:38:14.621900 ===
++ IN:accounts.lastpass.com
++ IN:admin.lastpass.com
++ IN:auth.lastpass.com
++ IN:blog.lastpass.com
++ IN:lastpass.com
++ IN:support.lastpass.com
++ IN:www.lastpass.com
+- IN:*.points.com
+- IN:*.transferwise.com
+- IN:*.wise.com
+- IN:github.com
+- IN:transferwise.com
+- IN:wise-sandbox.com
+- IN:wise.com
+- OUT:*.transferwise.tech
+- OUT:*.tw.com
+- OUT:*.tw.ee
+- OUT:bootstrap.transferwise.com
+- OUT:brand.transferwise.com
+- OUT:brand.wise.com
+- OUT:docs.wise.com
+- OUT:github.com
+- OUT:links.transferwise.com
+- OUT:links.wise.com
+- OUT:status.transferwise.com
+- OUT:status.wise.com
+- OUT:tech.transferwise.com
+- OUT:widgets.transferwise.com
