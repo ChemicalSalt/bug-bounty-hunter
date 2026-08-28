@@ -170,7 +170,6 @@
 *.canva.com
 *.canva.tech
 *.capital.com
-*.captcha-delivery.com
 *.career.be
 *.carrentals.com
 *.cashstaging.app
@@ -1086,7 +1085,6 @@ api-accpt.portofantwerp.com
 api-accpt.portofantwerpbruges.com
 api-eu.floqast.app
 api-gw-cf.*.aws.indriverapp.com
-api-js.datadome.co
 api-next.flatmates.com.au
 api-prod.retailsso.com
 api-prod.thatconceptstore.com
@@ -1515,9 +1513,6 @@ booking.mjrtheatres.com
 bookingholdings-coe.com
 boomer2.ninjakiwi.com
 booth.pm
-bounty-fastly.datashield.co
-bounty-nginx.datashield.co
-bounty-nodejs.datashield.co
 bounty.cryptobox.com
 bpa2.marriott.com
 brand.digitalocean.com
@@ -2536,7 +2531,6 @@ join.marriott.com
 joinmarriottbonvoy.com
 joinrewards.marriott.com
 jp-api-staging.getmoneytree.com
-js.datadome.co
 js.klarna.com
 js.stripe.com
 juicer.lime.bike

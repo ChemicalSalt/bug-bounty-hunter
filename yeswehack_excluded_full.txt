@@ -1,3 +1,4 @@
+dojo	automation ban: [Mistral-confirmed ban, no regex match]	1
 bug-bounty-program-blablacar	automation ban: [Mistral-confirmed ban] e strictly forbidden. - Avoid tests that could cause deg	60
 toom-baumarkt-gmbh-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	2
 telenor-sweden-public-bug-bounty-program	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	22
@@ -14,7 +15,6 @@ tencent-bug-bounty-program	no explicit automation permission (silent): [No autom
 swiss-post-evoting	automation ban: [Mistral-confirmed ban, no regex match]	0
 alasco-gmbh-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	4
 fdj-united-online-betting-gaming-bug-bounty-program	automation ban: [Mistral-confirmed ban] perform any social engineering against users or FDJ Unit	32
-dojo	automation ban: [Mistral-confirmed ban, no regex match]	1
 cryptobox-bug-bounty	no explicit automation permission (silent): [No automation ban found, but no explicit allow language found either - conditio	1
 doctolib-public-bug-bounty-program	automation ban: [Mistral-confirmed ban, no regex match]	4
 teamviewer-bounty-program	automation ban: [Mistral-confirmed ban, no regex match]	4
@@ -33,6 +33,7 @@ harman-international-web-applications	automation ban: [Mistral-confirmed ban] e 
 bookbeat	automation ban: [Mistral-confirmed ban] e strictly forbidden. - Avoid tests that could cause deg	4
 mon-espace-sante-mes	safe harbor not confirmed: no safe-harbor language found in full policy text	33
 dossier-medical-partage-program	safe harbor not confirmed: no safe-harbor language found in full policy text	10
+dovecot	automation ban: [Mistral-confirmed ban, no regex match]	0
 coindcx-bug-bounty-program	automation ban: [Mistral-confirmed ban] e strictly forbidden. - Avoid tests that could cause deg	2
 okto-bug-bounty-program	safe harbor not confirmed: no safe-harbor language found in full policy text	0
 bitoasis-bug-bounty-program	automation ban: [Mistral-confirmed ban] e strictly forbidden. - Avoid tests that could cause deg	1
