@@ -25,23 +25,136 @@ env:
   EXCLUDED_OUTPUT_PATH: ${{ github.workspace }}/excluded_domains.txt
 
 jobs:
-  vet_hackerone:
+  vet_hackerone_shard1:
     runs-on: ubuntu-latest
     timeout-minutes: 345
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: main
-          fetch-depth: 0
+        with: { ref: main, fetch-depth: 0 }
       - uses: actions/checkout@v4
-        with:
-          ref: data
-          path: domains-branch
-          fetch-depth: 0
+        with: { ref: data, path: domains-branch, fetch-depth: 0 }
       - run: pip install tldextract --break-system-packages
       - env:
           DOMAINS_TXT_PATH: ${{ github.workspace }}/domains-branch/domains.txt
-        run: python3 discover_all_programs.py --platform hackerone
+        run: python3 discover_all_programs.py --platform hackerone --shard 1/4
+      - uses: actions/upload-artifact@v4
+        with: { name: hackerone-shard-1-results, path: hackerone_shard_1_results.json, retention-days: 1 }
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: weekend-vet-logs-hackerone-shard-1
+          path: |
+            mistral_review_log.txt
+            mistral_429_debug.log
+            mistral_parse_fail_debug.log
+          retention-days: 30
+
+  vet_hackerone_shard2:
+    needs: vet_hackerone_shard1
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 345
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: main, fetch-depth: 0 }
+      - uses: actions/checkout@v4
+        with: { ref: data, path: domains-branch, fetch-depth: 0 }
+      - run: pip install tldextract --break-system-packages
+      - env:
+          DOMAINS_TXT_PATH: ${{ github.workspace }}/domains-branch/domains.txt
+        run: python3 discover_all_programs.py --platform hackerone --shard 2/4
+      - uses: actions/upload-artifact@v4
+        with: { name: hackerone-shard-2-results, path: hackerone_shard_2_results.json, retention-days: 1 }
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: weekend-vet-logs-hackerone-shard-2
+          path: |
+            mistral_review_log.txt
+            mistral_429_debug.log
+            mistral_parse_fail_debug.log
+          retention-days: 30
+
+  vet_hackerone_shard3:
+    needs: vet_hackerone_shard2
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 345
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: main, fetch-depth: 0 }
+      - uses: actions/checkout@v4
+        with: { ref: data, path: domains-branch, fetch-depth: 0 }
+      - run: pip install tldextract --break-system-packages
+      - env:
+          DOMAINS_TXT_PATH: ${{ github.workspace }}/domains-branch/domains.txt
+        run: python3 discover_all_programs.py --platform hackerone --shard 3/4
+      - uses: actions/upload-artifact@v4
+        with: { name: hackerone-shard-3-results, path: hackerone_shard_3_results.json, retention-days: 1 }
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: weekend-vet-logs-hackerone-shard-3
+          path: |
+            mistral_review_log.txt
+            mistral_429_debug.log
+            mistral_parse_fail_debug.log
+          retention-days: 30
+
+  vet_hackerone_shard4:
+    needs: vet_hackerone_shard3
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 345
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: main, fetch-depth: 0 }
+      - uses: actions/checkout@v4
+        with: { ref: data, path: domains-branch, fetch-depth: 0 }
+      - run: pip install tldextract --break-system-packages
+      - env:
+          DOMAINS_TXT_PATH: ${{ github.workspace }}/domains-branch/domains.txt
+        run: python3 discover_all_programs.py --platform hackerone --shard 4/4
+      - uses: actions/upload-artifact@v4
+        with: { name: hackerone-shard-4-results, path: hackerone_shard_4_results.json, retention-days: 1 }
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: weekend-vet-logs-hackerone-shard-4
+          path: |
+            mistral_review_log.txt
+            mistral_429_debug.log
+            mistral_parse_fail_debug.log
+          retention-days: 30
+
+  vet_hackerone_merge:
+    needs: vet_hackerone_shard4
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: main, fetch-depth: 0 }
+      - uses: actions/checkout@v4
+        with: { ref: data, path: domains-branch, fetch-depth: 0 }
+      - run: pip install tldextract --break-system-packages
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: hackerone-shard-*-results
+          merge-multiple: true
+      - name: Refuse to merge partial data
+        run: |
+          missing=0
+          for i in 1 2 3 4; do
+            if [ ! -f "hackerone_shard_${i}_results.json" ]; then
+              echo "::error::hackerone_shard_${i}_results.json missing - that shard failed or timed out"
+              missing=1
+            fi
+          done
+          [ "$missing" -eq 0 ] || { echo "::error::Not all HackerOne shards completed"; exit 1; }
+      - env:
+          DOMAINS_TXT_PATH: ${{ github.workspace }}/domains-branch/domains.txt
+        run: python3 discover_all_programs.py --platform hackerone --merge-shards 4
       - env:
           DOMAINS_TXT_PATH: ${{ github.workspace }}/domains-branch/domains.txt
         run: python3 validate_pipeline.py --platform hackerone
@@ -75,18 +188,9 @@ jobs:
           git add -f domains.txt domains_diff.log 2>/dev/null || true
           git diff --staged --quiet || git commit -m "Weekend vet (hackerone): rebuild domains.txt $(date +'%Y-%m-%d')"
           git push origin data || (git pull --rebase --autostash origin data && git push origin data) || { echo "::error::Push to data failed"; exit 1; }
-      - if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: weekend-vet-logs-hackerone
-          path: |
-            mistral_review_log.txt
-            mistral_429_debug.log
-            mistral_parse_fail_debug.log
-          retention-days: 30
 
   vet_intigriti:
-    needs: vet_hackerone
+    needs: vet_hackerone_merge
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 345
