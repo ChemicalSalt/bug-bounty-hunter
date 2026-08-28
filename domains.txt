@@ -8,6 +8,7 @@ allegion.com
 allegionengage.com
 amazonaws.com
 amazoncognito.com
+apple.com
 arrowfilms.com
 audible.com
 ausloc.com
@@ -49,6 +50,7 @@ githubusercontent.com
 gogo.aero
 gogoair.cloud
 gogoair.com
+google.com
 gosatcom.net
 illamasqua.com
 immedia-semi.com
@@ -73,6 +75,7 @@ motel6.com
 my-mobilekey.com
 myprotein.com
 myvitamins.com
+nicehash.com
 normbau.de
 npmjs.com
 npmjs.org
