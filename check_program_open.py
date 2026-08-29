@@ -29,30 +29,49 @@ def get_token(env_name, file_path):
 
 
 def fetch_hackerone_programs(token):
-    import base64
+    import base64, time
     auth = base64.b64encode(f"oxidizer:{token}".encode()).decode()
-    programs = []
-    url = "https://api.hackerone.com/v1/hackers/programs?page[size]=100"
-    while url:
-        req = urllib.request.Request(url, headers={"Authorization": f"Basic {auth}", "Accept": "application/json"})
-        with urllib.request.urlopen(req, timeout=15) as resp:
-            data = json.loads(resp.read().decode())
-        for p in data.get("data", []):
-            a = p["attributes"]
-            programs.append({"handle": a["handle"], "name": a["name"], "status": a["submission_state"]})
-        url = data.get("links", {}).get("next")
-    return programs
+    last_err = None
+    for attempt in range(3):
+        try:
+            programs = []
+            url = "https://api.hackerone.com/v1/hackers/programs?page[size]=100"
+            while url:
+                req = urllib.request.Request(url, headers={"Authorization": f"Basic {auth}", "Accept": "application/json"})
+                with urllib.request.urlopen(req, timeout=30) as resp:
+                    data = json.loads(resp.read().decode())
+                for p in data.get("data", []):
+                    a = p["attributes"]
+                    programs.append({"handle": a["handle"], "name": a["name"], "status": a["submission_state"]})
+                url = data.get("links", {}).get("next")
+            return programs
+        except Exception as e:
+            last_err = e
+            if attempt < 2:
+                print(f"  -> HackerOne fetch attempt {attempt+1} failed ({e}), retrying...")
+                time.sleep(5 * (attempt + 1))
+    raise last_err
 
 
 def fetch_intigriti_programs(token):
-    url = "https://api.intigriti.com/external/researcher/v1/programs?limit=500"
-    req = urllib.request.Request(url, headers={"Authorization": f"Bearer {token}"})
-    with urllib.request.urlopen(req, timeout=15) as resp:
-        data = json.loads(resp.read().decode())
-    programs = []
-    for p in data.get("records", []):
-        programs.append({"handle": p["handle"], "name": p["name"], "status": p["status"]["value"], "id": p["id"]})
-    return programs
+    import time
+    last_err = None
+    for attempt in range(3):
+        try:
+            url = "https://api.intigriti.com/external/researcher/v1/programs?limit=500"
+            req = urllib.request.Request(url, headers={"Authorization": f"Bearer {token}"})
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                data = json.loads(resp.read().decode())
+            programs = []
+            for p in data.get("records", []):
+                programs.append({"handle": p["handle"], "name": p["name"], "status": p["status"]["value"], "id": p["id"]})
+            return programs
+        except Exception as e:
+            last_err = e
+            if attempt < 2:
+                print(f"  -> Intigriti fetch attempt {attempt+1} failed ({e}), retrying...")
+                time.sleep(5 * (attempt + 1))
+    raise last_err
 
 
 def wildcard_to_regex(pattern):

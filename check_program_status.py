@@ -36,8 +36,8 @@ def fetch_hackerone_programs(token):
     url = "https://api.hackerone.com/v1/hackers/programs?page[size]=100"
     while url:
         req = urllib.request.Request(url, headers={"Authorization": f"Basic {auth}", "Accept": "application/json"})
-        with urllib.request.urlopen(req, timeout=15) as resp:
-            data = json.loads(resp.read().decode())
+        body = urlopen_with_retry(req, timeout=15, max_retries=3)
+        data = json.loads(body)
         for p in data.get("data", []):
             a = p["attributes"]
             programs.append({
@@ -106,8 +106,8 @@ def fetch_hackerone_scope(handle, token):
 def fetch_intigriti_programs(token):
     url = "https://api.intigriti.com/external/researcher/v1/programs?limit=500"
     req = urllib.request.Request(url, headers={"Authorization": f"Bearer {token}"})
-    with urllib.request.urlopen(req, timeout=15) as resp:
-        data = json.loads(resp.read().decode())
+    body = urlopen_with_retry(req, timeout=15, max_retries=3)
+    data = json.loads(body)
     programs = []
     for p in data.get("records", []):
         programs.append({
