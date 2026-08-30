@@ -43,7 +43,13 @@ jobs:
           rm -f lap_done_bypass.txt lap_done_custom.txt lap_done_cve.txt lap_done_js_secrets.txt lap_done_nuclei.txt lap_done_nuclei_takeover.txt lap_done_subzy_takeover.txt
           git add -A -- lap_done_bypass.txt lap_done_custom.txt lap_done_cve.txt lap_done_js_secrets.txt lap_done_nuclei.txt lap_done_nuclei_takeover.txt lap_done_subzy_takeover.txt 2>/dev/null || true
           git diff --staged --quiet || git commit -m "Reset weekly scanner lap flags $(date +'%Y-%m-%d')"
-          git push origin data || (git pull --rebase origin data && git push origin data) || echo "::warning::lap flag reset push failed"
+          for x in 1 2 3 4 5 6 7 8; do
+            git push origin data && break
+            git fetch origin data
+            git rebase origin/data || { git rebase --abort 2>/dev/null; git reset --hard origin/data; }
+            sleep $((x * 5))
+            [ "$x" -eq 8 ] && echo "::warning::lap flag reset push failed"
+          done
 
       - name: Checkout status checker from main
         uses: actions/checkout@v4
@@ -475,7 +481,13 @@ jobs:
             all_subdomains_clean.txt \
             new_subdomains.txt || true
           git diff --staged --quiet || git commit -m "Recon interim $(date +'%Y-%m-%d') — $(wc -l < all_subdomains_clean.txt) subs | $(wc -l < new_subdomains.txt) new"
-          git push origin data || (git pull --rebase origin data && git push origin data) || echo "::warning::Push failed in combine_and_probe - all_subdomains_clean.txt may be stale"
+          for x in 1 2 3 4 5 6 7 8; do
+            git push origin data && break
+            git fetch origin data
+            git rebase origin/data || { git rebase --abort 2>/dev/null; git reset --hard origin/data; }
+            sleep $((x * 5))
+            [ "$x" -eq 8 ] && echo "::warning::Push failed in combine_and_probe - all_subdomains_clean.txt may be stale"
+          done
 
   # ── HTTPX PARALLEL: 10 jobs, each probes 1/10th of subdomains ──────────────
   httpx_parallel:
@@ -766,7 +778,13 @@ jobs:
             combined.txt \
             weekend_scan_pendinghash.txt || true
           git diff --staged --quiet || git commit -m "Weekly recon FINAL $(date +'%Y-%m-%d') — $(wc -l < live_hosts.txt) live | $(wc -l < new_live_hosts.txt) new live hosts"
-          git push origin data || (git pull --rebase origin data && git push origin data) || echo "::warning::Push failed in finalize - live_hosts.txt may be stale, daily-scan/weekly-scan may run on old data"
+          for x in 1 2 3 4 5 6 7 8; do
+            git push origin data && break
+            git fetch origin data
+            git rebase origin/data || { git rebase --abort 2>/dev/null; git reset --hard origin/data; }
+            sleep $((x * 5))
+            [ "$x" -eq 8 ] && echo "::warning::Push failed in finalize - live_hosts.txt may be stale, daily-scan/weekly-scan may run on old data"
+          done
 
       - name: Chain to first scanner if hosts changed
         if: steps.gate.outputs.should_scan == 'true'

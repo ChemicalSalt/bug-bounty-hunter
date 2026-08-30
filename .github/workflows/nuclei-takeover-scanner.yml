@@ -144,7 +144,15 @@ jobs:
           touch lap_done_nuclei_takeover.txt
           git add weekend_offset_takeover.txt weekend_progress_takeover.txt weekend_lasthash_takeover.txt lap_done_nuclei_takeover.txt weekend_total_takeover.txt
           git diff --staged --quiet || git commit -m "Takeover scanner cycle reset $(date +'%Y-%m-%d %H:%M')"
-          git diff --staged --quiet || (git push origin data || (git pull --rebase origin data && git push origin data) || echo "::warning::reset push failed")
+          git diff --staged --quiet || {
+            for x in 1 2 3 4 5 6 7 8; do
+              git push origin data && break
+              git fetch origin data
+              git rebase origin/data || { git rebase --abort 2>/dev/null; git reset --hard origin/data; }
+              sleep $((x * 5))
+              [ "$x" -eq 8 ] && echo "::warning::reset push failed"
+            done
+          }
 
       - name: Upload chunk host list
         uses: actions/upload-artifact@v4
@@ -356,7 +364,13 @@ jobs:
           echo "Done: $(wc -l < weekend_progress_takeover.txt) / ${{ needs.prepare.outputs.num_batches }}"
           git add weekend_progress_takeover.txt weekend_offset_takeover.txt seen_findings_takeover.txt
           git diff --staged --quiet || git commit -m "Takeover progress update $(date +'%Y-%m-%d %H:%M')"
-          git push origin data || (git pull --rebase origin data && git push origin data) || echo "::warning::push failed"
+          for x in 1 2 3 4 5 6 7 8; do
+            git push origin data && break
+            git fetch origin data
+            git rebase origin/data || { git rebase --abort 2>/dev/null; git reset --hard origin/data; }
+            sleep $((x * 5))
+            [ "$x" -eq 8 ] && echo "::warning::push failed"
+          done
 
       - name: Chain next stage
         if: ${{ !cancelled() }}
