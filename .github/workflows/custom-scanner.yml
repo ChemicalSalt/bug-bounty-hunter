@@ -455,7 +455,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           if [ "$(cat lap_done_custom.txt 2>/dev/null)" = "$(date +'%Y-%U')" ]; then
-            echo "Custom Scanner lap complete - full 7-scanner cycle finished. Stopping until next Saturday Vet."
+            gh workflow run cve-scanner.yml -f runner=github
           else
             gh workflow run custom-scanner.yml -f runner=github
           fi
