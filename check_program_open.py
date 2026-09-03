@@ -121,21 +121,39 @@ def check_yeswehack(slug):
 
 
 def check_bugcrowd(slug):
-    import re
-    url = f"https://bugcrowd.com/engagements/{slug}"
-    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-    try:
-        with urllib.request.urlopen(req, timeout=15) as resp:
-            html = resp.read().decode()
-        match = re.search(r"&quot;state&quot;:&quot;([^&]+)&quot;", html) or re.search(r'"state":"([^"]+)"', html)
-        if not match:
-            return ("error", "state field not found")
-        state = match.group(1)
-        return ("open" if state == "in_progress" else "blocked", state)
-    except urllib.error.HTTPError as e:
-        return ("error", f"HTTP {e.code}")
-    except Exception as e:
-        return ("error", str(e))
+    # Uses the same JSON listing endpoint (bugcrowd.com/engagements?page=N)
+    # that discover_all_programs.py's discover_bugcrowd() already relies on
+    # successfully, instead of scraping the HTML page for a "state" field -
+    # no verified single-program JSON endpoint by slug exists, so this
+    # paginates the listing and matches by slug via briefUrl, same as
+    # vet_bugcrowd_program() does.
+    page = 1
+    total_pages = None
+    while total_pages is None or page <= total_pages:
+        url = f"https://bugcrowd.com/engagements?page={page}"
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0", "Accept": "application/json"})
+        try:
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                data = json.loads(resp.read().decode())
+        except urllib.error.HTTPError as e:
+            return ("error", f"HTTP {e.code}")
+        except Exception as e:
+            return ("error", str(e))
+        for p in data.get("engagements", []):
+            p_slug = p.get("briefUrl", "").rstrip("/").split("/")[-1]
+            if p_slug == slug:
+                status = p.get("accessStatus")
+                return ("open" if status == "open" else "blocked", status)
+        if total_pages is None:
+            meta = data.get("paginationMeta") or {}
+            limit = meta.get("limit")
+            total_count = meta.get("totalCount")
+            if limit and total_count is not None:
+                total_pages = -(-total_count // limit)
+            else:
+                break
+        page += 1
+    return ("error", "slug not found in engagements listing")
 
 
 def check_hackenproof(slug):
