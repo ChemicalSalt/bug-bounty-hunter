@@ -17,7 +17,7 @@ except ImportError:
     print("ERROR: tldextract not installed. Run: pip install tldextract --break-system-packages")
     sys.exit(2)
 
-MAX_REMOVAL_PCT = float(os.environ.get("VALIDATE_MAX_REMOVAL_PCT", "100"))
+MAX_REMOVAL_PCT = float(os.environ.get("VALIDATE_MAX_REMOVAL_PCT", "50"))
 MAX_SKIP_RATE_PCT = float(os.environ.get("VALIDATE_MAX_SKIP_RATE_PCT", "15"))
 MAX_EXCLUDED_RATE_PCT = float(os.environ.get("VALIDATE_MAX_EXCLUDED_RATE_PCT", "95"))
 

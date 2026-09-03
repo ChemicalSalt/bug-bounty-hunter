@@ -11,6 +11,7 @@ actually declared in-scope by the program - a real gap: exclusion filtering
 """
 import os
 import re
+import sys
 
 INPUT_PATH = os.environ.get("SCOPE_FILTER_INPUT", "input.txt")
 OUTPUT_PATH = os.environ.get("SCOPE_FILTER_OUTPUT", "input.txt")
@@ -67,12 +68,8 @@ def main():
 
     in_patterns, out_patterns = load_patterns()
     if not in_patterns:
-        print("[SCOPE FILTER] No IN scope patterns loaded (scope files missing/empty) - failing closed, writing empty output")
-        tmp_path = f"{OUTPUT_PATH}.tmp"
-        with open(tmp_path, "w") as f:
-            pass
-        os.replace(tmp_path, OUTPUT_PATH)
-        return
+        print("[SCOPE FILTER] ERROR: No IN scope patterns loaded (scope files missing/empty) - refusing to filter. Aborting without writing.")
+        sys.exit(1)
 
     with open(INPUT_PATH) as f:
         hosts = [h.strip() for h in f if h.strip()]

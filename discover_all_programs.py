@@ -1604,7 +1604,7 @@ def load_and_merge_shards(platform, num_shards):
     return merged, total_discovered
 
 
-def merge_scope_file(path, entries_by_program, max_removal_pct=100):
+def merge_scope_file(path, entries_by_program, max_removal_pct=50):
     new_domains = set()
     new_out_domains = set()
     for p in entries_by_program:
@@ -1738,7 +1738,7 @@ def summarize(platform, results, total_discovered, write_files=True):
         log(f"  [SKIP] not appending to discovery_stats.csv (platform not run)")
 
 
-def update_domain_program_map(h1_results, int_results, ywh_results, bc_results, hp_results, ran_platforms, max_removal_pct=100):
+def update_domain_program_map(h1_results, int_results, ywh_results, bc_results, hp_results, ran_platforms, max_removal_pct=50):
     """Rebuild domain_program_map.csv rows for every platform that actually ran this
     invocation (dropping stale/removed programs for those platforms), while leaving
     rows for skipped platforms (e.g. a manual --platform test run, or no token set)
@@ -1886,7 +1886,7 @@ def extract_root_domain(asset):
     return f"{ext.domain}.{ext.suffix}"
 
 
-def rebuild_domains_txt(scope_paths, max_removal_pct=100):
+def rebuild_domains_txt(scope_paths, max_removal_pct=50):
     """Fresh rebuild: domains.txt = root domains derived from the union of the
     4 committed scope files (already individually guarded). Never built from a
     single run's ran_platforms results, so a manual --platform run can't wipe
