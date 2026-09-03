@@ -28,6 +28,9 @@ http:
 
     matchers-condition: and
     matchers:
+      - type: status
+        status:
+          - 200
       - type: word
         part: header
         words:
@@ -39,7 +42,6 @@ http:
           - "\"amount\":-1"
           - "\"price\":-1"
           - "\"total\":-1"
-          - "\"success\":true"
         condition: or
 
       - type: word

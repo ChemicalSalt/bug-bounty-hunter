@@ -28,6 +28,10 @@ http:
 
     matchers-condition: and
     matchers:
+      - type: status
+        status:
+          - 200
+
       - type: word
         part: header
         words:
@@ -38,7 +42,6 @@ http:
         words:
           - "\"valid\":true"
           - "\"applied\":true"
-          - "\"success\":true"
           - "discount_applied"
         condition: or
 
