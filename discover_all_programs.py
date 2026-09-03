@@ -1506,7 +1506,6 @@ def vet_bugcrowd_program(program, results):
     if program.get("accessStatus") != "open":
         results["excluded"].append((slug, f"not open (accessStatus={program.get('accessStatus')})", 0))
         return
-    engagement_type = (program.get("productEngagementType") or {}).get("label")
     # BBP-only gate removed: VDP programs are also researched now, not just paid BBPs.
     cl_data, err = fetch_json(
         f"https://bugcrowd.com/engagements/{slug}/changelog.json",
