@@ -264,7 +264,7 @@ jobs:
 
           timeout 20700 nuclei -l input.txt \
             -t "$TEMPLATE_PATHS" \
-            -itags jwt,graphql,swagger,api-docs,openapi,git,env,default-login,jenkins,grafana,kibana,aws-s3,s3,springboot,actuator \
+            -itags jwt,graphql,swagger,discovery,git,env,default-login,jenkins,grafana,kibana,aws-s3,s3,springboot,actuator \
             -etags ssl,tls,http-missing-headers,tech,info,dns,helpers,passive,js \
             -exclude-id ssrf-via-oauth-misconfig,detect-drone-config,credentials-json,mobotix-default-credentials,zip-backup-files \
             -severity medium,high,critical \
