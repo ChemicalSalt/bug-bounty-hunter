@@ -342,23 +342,3 @@ jobs:
             gh workflow run subzy-takeover-scanner.yml -f runner=github
           fi
 
-      - name: Close out scanner cycle (no re-trigger)
-        if: ${{ !cancelled() }}
-        run: |
-          git config --global user.email "bugbountybot@github.com"
-          git config --global user.name "BugBountyBot"
-          if [ -f weekend_scan_pendinghash.txt ]; then
-            cp weekend_scan_pendinghash.txt weekend_scan_lasthash.txt
-            git add weekend_scan_lasthash.txt
-            git diff --staged --quiet || git commit -m "Scanner cycle complete $(date +'%Y-%m-%d %H:%M') - marking host list as scanned"
-            for x in 1 2 3 4 5 6 7 8; do
-              git push origin data && break
-              git fetch origin data
-              git rebase origin/data || { git rebase --abort 2>/dev/null; git reset --hard origin/data; }
-              sleep $((x * 5))
-              [ "$x" -eq 8 ] && echo "::warning::push failed for cycle close-out"
-            done
-          else
-            echo "::warning::weekend_scan_pendinghash.txt not found - cycle close-out skipped, next recon run will re-trigger regardless"
-          fi
-          echo "Scanner chain complete for this cycle. Next chain run only fires when Weekend Recon detects new/changed hosts."
