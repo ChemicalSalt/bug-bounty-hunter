@@ -1,0 +1,36 @@
+id: spring-boot-actuator-critical
+
+info:
+  name: Spring Boot Actuator Heapdump/Configprops Exposure
+  author: BugBountyBot
+  severity: critical
+  description: Detects exposed Spring Boot actuator heapdump and configprops endpoints, which can leak live credentials, session tokens, and plaintext database passwords.
+  tags: springboot,actuator,exposure,critical
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}/actuator/heapdump"
+      - "{{BaseURL}}/actuator/configprops"
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+      - type: word
+        condition: or
+        words:
+          - "JAVA PROFILE"
+          - '"contexts"'
+          - '"beans"'
+        part: body
+      - type: word
+        negative: true
+        condition: or
+        words:
+          - "<html"
+          - "<!DOCTYPE"
+          - "404"
+          - "Not Found"
+          - "Forbidden"
+        part: body
