@@ -240,7 +240,7 @@ jobs:
           set +e
           timeout 20700 nuclei -l input_404.txt \
             -t "$TEMPLATES_DIR/http/takeovers" \
-            -itags takeover,subdomain-takeover \
+            -itags takeover \
             -etags ssl,tls,http-missing-headers,tech,info,dns,helpers,passive \
             -severity medium,high,critical \
             -H "User-Agent: Mozilla/5.0 BugBounty/42 (YWH) Oxidizer CS_YWH/BB" \
