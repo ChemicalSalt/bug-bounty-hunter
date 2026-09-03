@@ -1,0 +1,58 @@
+id: booking-id-idor-unauth-lookup
+
+info:
+  name: Unauthenticated Booking/Reservation ID Lookup - Possible IDOR
+  author: chemical
+  severity: high
+  description: >
+    Detects booking/reservation detail endpoints that return another user's
+    PII (email, phone, or full name) when queried with a low/guessable
+    numeric ID and no session or authorization header. Confirms only on
+    actual PII presence in the response, not endpoint existence alone.
+  tags: custom,idor,booking
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}/booking/1"
+      - "{{BaseURL}}/reservation/1"
+      - "{{BaseURL}}/api/booking/1"
+      - "{{BaseURL}}/api/bookings/1"
+      - "{{BaseURL}}/api/reservation/1"
+      - "{{BaseURL}}/api/reservations/1"
+      - "{{BaseURL}}/api/v1/bookings/1"
+      - "{{BaseURL}}/api/v1/reservations/1"
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+
+      - type: regex
+        part: body
+        regex:
+          - '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
+
+      - type: word
+        part: body
+        words:
+          - "booking"
+          - "reservation"
+          - "guest"
+          - "check_in"
+          - "checkIn"
+          - "check-in"
+        condition: or
+
+      - type: word
+        part: body
+        negative: true
+        words:
+          - "login"
+          - "sign in"
+          - "unauthorized"
+          - "access denied"
+          - "captcha"
+          - "not found"
+          - "error"
