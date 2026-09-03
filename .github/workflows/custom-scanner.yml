@@ -266,7 +266,7 @@ jobs:
             -H "X-Intigriti-Research: Oxidizer" \
             -H "X-YesWeHack-Research: Oxidizer" \
             -H "X-HackenProof-Research: Oxidizer" \
-            -silent -retries 0 -timeout 3 \
+            -silent -retries 1 -timeout 8 \
             -bulk-size 5 -concurrency 5 \
             -rate-limit 5 -fhr -max-host-error 30 \
             -stats -si 30 \
