@@ -1,0 +1,59 @@
+id: giftcard-voucher-balance-unauth-enum
+
+info:
+  name: Unauthenticated Gift Card/Voucher Balance Lookup - Possible Enumeration
+  author: chemical
+  severity: medium
+  description: >
+    Detects gift card/voucher balance-check endpoints that return an
+    actual monetary balance for a guessed/sequential code with no
+    session, auth, or rate-limiting. Confirms only on a real balance
+    or amount value in the response, not endpoint existence alone.
+  tags: custom,idor,giftcard,voucher
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}/giftcard/balance?code=AAAAAAAA"
+      - "{{BaseURL}}/gift-card/balance?code=AAAAAAAA"
+      - "{{BaseURL}}/voucher/balance?code=AAAAAAAA"
+      - "{{BaseURL}}/api/giftcard/balance?code=AAAAAAAA"
+      - "{{BaseURL}}/api/voucher/balance?code=AAAAAAAA"
+      - "{{BaseURL}}/api/v1/giftcards/AAAAAAAA/balance"
+      - "{{BaseURL}}/api/v1/vouchers/AAAAAAAA/balance"
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+
+      - type: regex
+        part: body
+        regex:
+          - '"balance"\s*:\s*[0-9]'
+          - '"amount"\s*:\s*[0-9]'
+        condition: or
+
+      - type: word
+        part: body
+        words:
+          - "giftcard"
+          - "gift_card"
+          - "gift card"
+          - "voucher"
+          - "balance"
+        condition: or
+
+      - type: word
+        part: body
+        negative: true
+        words:
+          - "login"
+          - "sign in"
+          - "unauthorized"
+          - "access denied"
+          - "captcha"
+          - "invalid code"
+          - "not found"
+          - "error"
