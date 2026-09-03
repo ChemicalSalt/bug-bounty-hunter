@@ -3,7 +3,7 @@ id: swagger-unauthenticated-execution
 info:
   name: Swagger UI - Unauthenticated API Execution Enabled
   author: BugBountyBot
-  severity: high
+  severity: medium
   description: Detects Swagger UI instances where the "Try it out" execution feature is rendered with no visible login/auth gate in the page. This indicates execution is LIKELY possible without authentication, but does not itself confirm a live API call succeeds - manually click "Try it out" on a real endpoint to verify before reporting.
   reference:
     - https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization/
@@ -59,6 +59,16 @@ http:
           - "401 Unauthorized"
           - "403 Forbidden"
           - "Authentication Required"
+        part: body
+      - type: word
+        negative: true
+        condition: or
+        words:
+          - '"securitySchemes"'
+          - '"security":['
+          - '"security": ['
+          - '"apiKey":"header"'
+          - "bearerFormat"
         part: body
 
     extractors:
