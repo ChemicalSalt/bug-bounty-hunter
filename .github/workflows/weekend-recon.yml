@@ -416,7 +416,7 @@ jobs:
             old_total=$(wc -l < all_subdomains_clean.txt)
             new_total=$(wc -l < all_subdomains_new.txt)
             removal_pct=$(awk -v o="$old_total" -v n="$new_total" 'BEGIN { if (o==0) { print 0 } else { d=o-n; if (d<0) d=0; print (d/o)*100 } }')
-            guard_triggered=$(awk -v p="$removal_pct" 'BEGIN { print (p > 100) ? "1" : "0" }')
+            guard_triggered=$(awk -v p="$removal_pct" 'BEGIN { print (p >= 50) ? "1" : "0" }')
           else
             old_total=0
             new_total=$(wc -l < all_subdomains_new.txt)
