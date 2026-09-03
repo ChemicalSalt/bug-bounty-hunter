@@ -211,13 +211,18 @@ jobs:
           export PATH=$PATH:$(go env GOPATH)/bin
           command -v subzy &>/dev/null || go install -v github.com/PentestPad/subzy@latest
 
+      - name: Update subzy fingerprints
+        run: |
+          export PATH=$PATH:$(go env GOPATH)/bin
+          subzy update || echo "::warning::fingerprint update failed, using bundled fingerprints"
+
       - name: Run subzy takeover scan
         run: |
           export PATH=$PATH:$(go env GOPATH)/bin
           touch subzy_results.txt
           if [ -s input_subzy.txt ]; then
             set +e
-            timeout 20700 subzy run --targets input_subzy.txt --hide_fails --verify_ssl --concurrency 5 -o subzy_results.txt
+            timeout 20700 subzy run --targets input_subzy.txt --hide_fails --concurrency 5 -o subzy_results.txt
             SUBZY_EXIT=$?
             if [ "$SUBZY_EXIT" -eq 124 ]; then
               echo "::error::Subzy timed out - batch will NOT be marked done"
