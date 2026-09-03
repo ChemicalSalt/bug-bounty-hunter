@@ -143,6 +143,7 @@ jobs:
           pattern: hackerone-shard-*-results
           merge-multiple: true
       - name: Refuse to merge partial data
+        id: refuse_partial
         run: |
           missing=0
           for i in 1 2 3 4; do
@@ -152,10 +153,12 @@ jobs:
             fi
           done
           [ "$missing" -eq 0 ] || { echo "::error::Not all HackerOne shards completed"; exit 1; }
-      - env:
+      - id: discover
+        env:
           DOMAINS_TXT_PATH: ${{ github.workspace }}/domains-branch/domains.txt
         run: python3 discover_all_programs.py --platform hackerone --merge-shards 4
-      - env:
+      - id: validate
+        env:
           DOMAINS_TXT_PATH: ${{ github.workspace }}/domains-branch/domains.txt
         run: python3 validate_pipeline.py --platform hackerone
       - name: Commit mistral cache and stats (always, even on validation failure)
@@ -169,7 +172,7 @@ jobs:
           git diff --staged --quiet || git commit -m "Weekend vet (hackerone) - cache/stats $(date +'%Y-%m-%d')"
           git push origin main || (git pull --rebase --autostash origin main && git push origin main) || { echo "::error::Push to main failed"; exit 1; }
       - name: Commit scope/domain output (only if discover+validate succeeded)
-        if: success()
+        if: steps.refuse_partial.outcome == 'success' && steps.discover.outcome == 'success' && steps.validate.outcome == 'success'
         run: |
           git config --global user.email "bugbountybot@github.com"
           git config --global user.name "BugBountyBot"
@@ -180,7 +183,7 @@ jobs:
           git diff --staged --quiet || git commit -m "Weekend vet (hackerone) $(date +'%Y-%m-%d')"
           git push origin main || (git pull --rebase --autostash origin main && git push origin main) || { echo "::error::Push to main failed"; exit 1; }
       - name: Commit domains branch
-        if: success()
+        if: steps.refuse_partial.outcome == 'success' && steps.discover.outcome == 'success' && steps.validate.outcome == 'success'
         run: |
           cd domains-branch
           git config --global user.email "bugbountybot@github.com"
@@ -205,10 +208,12 @@ jobs:
           path: domains-branch
           fetch-depth: 0
       - run: pip install tldextract --break-system-packages
-      - env:
+      - id: discover
+        env:
           DOMAINS_TXT_PATH: ${{ github.workspace }}/domains-branch/domains.txt
         run: python3 discover_all_programs.py --platform intigriti
-      - env:
+      - id: validate
+        env:
           DOMAINS_TXT_PATH: ${{ github.workspace }}/domains-branch/domains.txt
         run: python3 validate_pipeline.py --platform intigriti
       - name: Commit mistral cache and stats (always, even on validation failure)
@@ -222,7 +227,7 @@ jobs:
           git diff --staged --quiet || git commit -m "Weekend vet (intigriti) - cache/stats $(date +'%Y-%m-%d')"
           git push origin main || (git pull --rebase --autostash origin main && git push origin main) || { echo "::error::Push to main failed"; exit 1; }
       - name: Commit scope/domain output (only if discover+validate succeeded)
-        if: success()
+        if: steps.discover.outcome == 'success' && steps.validate.outcome == 'success'
         run: |
           git config --global user.email "bugbountybot@github.com"
           git config --global user.name "BugBountyBot"
@@ -233,7 +238,7 @@ jobs:
           git diff --staged --quiet || git commit -m "Weekend vet (intigriti) $(date +'%Y-%m-%d')"
           git push origin main || (git pull --rebase --autostash origin main && git push origin main) || { echo "::error::Push to main failed"; exit 1; }
       - name: Commit domains branch
-        if: success()
+        if: steps.discover.outcome == 'success' && steps.validate.outcome == 'success'
         run: |
           cd domains-branch
           git config --global user.email "bugbountybot@github.com"
@@ -267,10 +272,12 @@ jobs:
           path: domains-branch
           fetch-depth: 0
       - run: pip install tldextract --break-system-packages
-      - env:
+      - id: discover
+        env:
           DOMAINS_TXT_PATH: ${{ github.workspace }}/domains-branch/domains.txt
         run: python3 discover_all_programs.py --platform yeswehack
-      - env:
+      - id: validate
+        env:
           DOMAINS_TXT_PATH: ${{ github.workspace }}/domains-branch/domains.txt
         run: python3 validate_pipeline.py --platform yeswehack
       - name: Commit mistral cache and stats (always, even on validation failure)
@@ -284,7 +291,7 @@ jobs:
           git diff --staged --quiet || git commit -m "Weekend vet (yeswehack) - cache/stats $(date +'%Y-%m-%d')"
           git push origin main || (git pull --rebase --autostash origin main && git push origin main) || { echo "::error::Push to main failed"; exit 1; }
       - name: Commit scope/domain output (only if discover+validate succeeded)
-        if: success()
+        if: steps.discover.outcome == 'success' && steps.validate.outcome == 'success'
         run: |
           git config --global user.email "bugbountybot@github.com"
           git config --global user.name "BugBountyBot"
@@ -295,7 +302,7 @@ jobs:
           git diff --staged --quiet || git commit -m "Weekend vet (yeswehack) $(date +'%Y-%m-%d')"
           git push origin main || (git pull --rebase --autostash origin main && git push origin main) || { echo "::error::Push to main failed"; exit 1; }
       - name: Commit domains branch
-        if: success()
+        if: steps.discover.outcome == 'success' && steps.validate.outcome == 'success'
         run: |
           cd domains-branch
           git config --global user.email "bugbountybot@github.com"
@@ -329,10 +336,12 @@ jobs:
           path: domains-branch
           fetch-depth: 0
       - run: pip install tldextract --break-system-packages
-      - env:
+      - id: discover
+        env:
           DOMAINS_TXT_PATH: ${{ github.workspace }}/domains-branch/domains.txt
         run: python3 discover_all_programs.py --platform bugcrowd
-      - env:
+      - id: validate
+        env:
           DOMAINS_TXT_PATH: ${{ github.workspace }}/domains-branch/domains.txt
         run: python3 validate_pipeline.py --platform bugcrowd
       - name: Commit mistral cache and stats (always, even on validation failure)
@@ -346,7 +355,7 @@ jobs:
           git diff --staged --quiet || git commit -m "Weekend vet (bugcrowd) - cache/stats $(date +'%Y-%m-%d')"
           git push origin main || (git pull --rebase --autostash origin main && git push origin main) || { echo "::error::Push to main failed"; exit 1; }
       - name: Commit scope/domain output (only if discover+validate succeeded)
-        if: success()
+        if: steps.discover.outcome == 'success' && steps.validate.outcome == 'success'
         run: |
           git config --global user.email "bugbountybot@github.com"
           git config --global user.name "BugBountyBot"
@@ -357,7 +366,7 @@ jobs:
           git diff --staged --quiet || git commit -m "Weekend vet (bugcrowd) $(date +'%Y-%m-%d')"
           git push origin main || (git pull --rebase --autostash origin main && git push origin main) || { echo "::error::Push to main failed"; exit 1; }
       - name: Commit domains branch
-        if: success()
+        if: steps.discover.outcome == 'success' && steps.validate.outcome == 'success'
         run: |
           cd domains-branch
           git config --global user.email "bugbountybot@github.com"
@@ -469,6 +478,7 @@ jobs:
           pattern: hackenproof-shard-*-results
           merge-multiple: true
       - name: Refuse to merge partial data
+        id: refuse_partial
         run: |
           missing=0
           for i in 1 2 3; do
@@ -478,10 +488,12 @@ jobs:
             fi
           done
           [ "$missing" -eq 0 ] || { echo "::error::Not all HackenProof shards completed"; exit 1; }
-      - env:
+      - id: discover
+        env:
           DOMAINS_TXT_PATH: ${{ github.workspace }}/domains-branch/domains.txt
         run: python3 discover_all_programs.py --platform hackenproof --merge-shards 3
-      - env:
+      - id: validate
+        env:
           DOMAINS_TXT_PATH: ${{ github.workspace }}/domains-branch/domains.txt
         run: python3 validate_pipeline.py --platform hackenproof
       - name: Commit mistral cache and stats (always, even on validation failure)
@@ -495,7 +507,7 @@ jobs:
           git diff --staged --quiet || git commit -m "Weekend vet (hackenproof) - cache/stats $(date +'%Y-%m-%d')"
           git push origin main || (git pull --rebase --autostash origin main && git push origin main) || { echo "::error::Push to main failed"; exit 1; }
       - name: Commit scope/domain output (only if discover+validate succeeded)
-        if: success()
+        if: steps.refuse_partial.outcome == 'success' && steps.discover.outcome == 'success' && steps.validate.outcome == 'success'
         run: |
           git config --global user.email "bugbountybot@github.com"
           git config --global user.name "BugBountyBot"
@@ -506,7 +518,7 @@ jobs:
           git diff --staged --quiet || git commit -m "Weekend vet (hackenproof) $(date +'%Y-%m-%d')"
           git push origin main || (git pull --rebase --autostash origin main && git push origin main) || { echo "::error::Push to main failed"; exit 1; }
       - name: Commit domains branch
-        if: success()
+        if: steps.refuse_partial.outcome == 'success' && steps.discover.outcome == 'success' && steps.validate.outcome == 'success'
         run: |
           cd domains-branch
           git config --global user.email "bugbountybot@github.com"
