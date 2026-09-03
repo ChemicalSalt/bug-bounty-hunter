@@ -13,6 +13,8 @@ http:
       - "{{BaseURL}}/actuator"
       - "{{BaseURL}}/actuator/env"
       - "{{BaseURL}}/actuator/beans"
+      - "{{BaseURL}}/actuator/heapdump"
+      - "{{BaseURL}}/actuator/configprops"
 
     matchers-condition: and
     matchers:
@@ -27,12 +29,15 @@ http:
           - '"propertySources"'
           - '"beans"'
           - '"activeProfiles"'
+          - "JAVA PROFILE"
+          - '"contexts"'
         part: body
 
       - type: word
         words:
           - "application/json"
           - "application/vnd.spring-boot.actuator"
+          - "application/octet-stream"
         part: header
 
       - type: word
