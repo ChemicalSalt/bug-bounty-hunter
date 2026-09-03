@@ -1,0 +1,59 @@
+id: booking-reference-unauth-lookup
+
+info:
+  name: Unauthenticated Booking Reference/PNR Lookup - Possible IDOR
+  author: chemical
+  severity: high
+  description: >
+    Detects booking reference / PNR / confirmation-code lookup endpoints
+    that return another user's PII when queried with a low/guessable
+    reference and no session or authorization header. Confirms only on
+    actual PII presence tied to a booking record, not endpoint existence.
+  tags: custom,idor,booking,pnr
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}/booking/reference/AAAAAA"
+      - "{{BaseURL}}/booking/confirm/AAAAAA"
+      - "{{BaseURL}}/manage-booking?ref=AAAAAA"
+      - "{{BaseURL}}/api/booking/lookup?ref=AAAAAA"
+      - "{{BaseURL}}/api/booking/lookup?pnr=AAAAAA"
+      - "{{BaseURL}}/api/reservations/lookup?confirmation=AAAAAA"
+      - "{{BaseURL}}/api/v1/pnr/AAAAAA"
+      - "{{BaseURL}}/reservation/status?code=AAAAAA"
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+
+      - type: regex
+        part: body
+        regex:
+          - '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
+
+      - type: word
+        part: body
+        words:
+          - "booking"
+          - "reservation"
+          - "pnr"
+          - "confirmation"
+          - "itinerary"
+          - "guest"
+        condition: or
+
+      - type: word
+        part: body
+        negative: true
+        words:
+          - "login"
+          - "sign in"
+          - "unauthorized"
+          - "access denied"
+          - "captcha"
+          - "not found"
+          - "invalid reference"
+          - "error"
