@@ -255,7 +255,7 @@ jobs:
             exit 0
           fi
 
-          TEMPLATE_PATHS="$TEMPLATES_DIR/http/misconfiguration,$TEMPLATES_DIR/http/exposed-panels,$TEMPLATES_DIR/http/exposures,$TEMPLATES_DIR/http/default-logins,$TEMPLATES_DIR/cloud"
+          TEMPLATE_PATHS="$TEMPLATES_DIR/http/misconfiguration,$TEMPLATES_DIR/http/exposed-panels,$TEMPLATES_DIR/http/exposures,$TEMPLATES_DIR/http/default-logins,$TEMPLATES_DIR/http/technologies,$TEMPLATES_DIR/cloud"
 
           echo "[TIMING] Batch hosts: $(wc -l < input.txt)"
           echo "[TIMING] Scan start: $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
