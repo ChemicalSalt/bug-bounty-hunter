@@ -40,8 +40,8 @@ jobs:
         run: |
           git config --global user.email "bugbountybot@github.com"
           git config --global user.name "BugBountyBot"
-          rm -f lap_done_bypass.txt lap_done_custom.txt lap_done_cve.txt lap_done_js_secrets.txt lap_done_nuclei.txt lap_done_nuclei_takeover.txt lap_done_subzy_takeover.txt
-          git add -A -- lap_done_bypass.txt lap_done_custom.txt lap_done_cve.txt lap_done_js_secrets.txt lap_done_nuclei.txt lap_done_nuclei_takeover.txt lap_done_subzy_takeover.txt 2>/dev/null || true
+          rm -f lap_done_bypass.txt lap_done_custom.txt lap_done_cve.txt lap_done_js_secrets.txt lap_done_katana_js_secrets.txt lap_done_nuclei.txt lap_done_nuclei_takeover.txt lap_done_subzy_takeover.txt
+          git add -A -- lap_done_bypass.txt lap_done_custom.txt lap_done_cve.txt lap_done_js_secrets.txt lap_done_katana_js_secrets.txt lap_done_nuclei.txt lap_done_nuclei_takeover.txt lap_done_subzy_takeover.txt 2>/dev/null || true
           git diff --staged --quiet || git commit -m "Reset weekly scanner lap flags $(date +'%Y-%m-%d')"
           for x in 1 2 3 4 5 6 7 8; do
             git push origin data && break
